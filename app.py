@@ -13,7 +13,8 @@ def index():
 		slack_key = os.environ.get("SLACK_KEY")
 		slack = Slacker(slack_key)
 		slack.chat.post_message("#ta_group", "Meeting")
-		return jsonify({"success": True})
+		challenge = request.json.get("challenge")
+		return jsonify({"challenge": challenge})
 
 if __name__ == "__main__":
 	app.run()
