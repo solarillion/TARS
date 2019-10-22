@@ -2,6 +2,7 @@
 
 import os
 import requests
+import threading
 from flask import Flask, jsonify, render_template, request
 from slacker import Slacker
 
@@ -17,12 +18,11 @@ def index():
 
 @app.route("/event", methods=["POST"])
 def event():
-	return jsonify({"success": True})
+	return "", 200
 
 @app.route("/interact", methods=["POST"])
 def interact():
-	requests.post(request.json["response_url"], json={"success": True})
-	return jsonify({"success": True})
+	return "", 200
 
 if __name__ == "__main__":
 	app.run()
