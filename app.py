@@ -29,15 +29,14 @@ def event_handler(payload):
 
 @app.route("/interact", methods=["POST"])
 def interact():
-	payload = request.get_json(force=True)
+	payload = request.get_data()
 	thread = threading.Thread(target=interact_handler, args=(payload,))
 	thread.start()
 	return "", 200
 
 def interact_handler(payload):
 	slack.chat.post_message("UDD17R796", "Start")
-	data = json.dumps(payload)
-	slack.chat.post_message("UDD17R796", data)
+	slack.chat.post_message("UDD17R796", str(payload))
 	slack.chat.post_message("UDD17R796", "End")
 
 if __name__ == "__main__":
