@@ -1,6 +1,7 @@
 # Authors: Nanda H Krishna (https://github.com/nandahkrishna), Abhijith Ragav (https://github.com/abhijithragav)
 
 import os
+import json
 import requests
 import threading
 from flask import Flask, jsonify, render_template, request
@@ -28,14 +29,14 @@ def event_handler(payload):
 
 @app.route("/interact", methods=["POST"])
 def interact():
-	payload = request.get_data(as_text=True)
+	payload = request.get_json(force=True)
 	thread = threading.Thread(target=interact_handler, args=(payload,))
 	thread.start()
 	return "", 200
 
 def interact_handler(payload):
 	slack.chat.post_message("UDD17R796", "Start")
-	data = payload
+	data = json.dumps(payload)
 	slack.chat.post_message("UDD17R796", data)
 	slack.chat.post_message("UDD17R796", "End")
 
