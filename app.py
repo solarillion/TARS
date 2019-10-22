@@ -35,8 +35,8 @@ def interact():
 	return "", 200
 
 def interact_handler(payload):
+	slack.chat.post_message("UDD17R796", "Reached")
 	response_url = payload["response_url"]
-	slack.chat.post_message("UDD17R796", respnse_url)
 	if payload["actions"]["action_id"] == "enter_office_hours":
 		requests.post(response_url, json=json.load("messages/office_hours_slot.json"))
 
