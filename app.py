@@ -42,6 +42,10 @@ def interact_handler(payload):
 		requests.post(response_url, headers=headers, json=json.load(open("messages/office_hours_slot.json")))
 	elif action_id == "cancel_office_hours":
 		requests.post(response_url, headers=headers, json=json.load(open("messages/cancel_office_hours.json")))
+	elif action_id == "done_slot":
+		requests.post(response_url, headers=headers, json=json.load(open("messages/confirm_office_hours.json")))
+	elif action_id == "done_office_hours":
+		requests.post(response_url, headers=headers, json=json.load(open("messages/done_office_hours.json")))
 
 if __name__ == "__main__":
 	app.run()
