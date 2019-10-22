@@ -18,11 +18,25 @@ def index():
 
 @app.route("/event", methods=["POST"])
 def event():
+	payload = request.json
+	thread = threading.Thread(target=event_handler, args=(payload,))
+	thread.start()
 	return "", 200
+
+def event_handler(payload):
+	response_url = payload["response_url"]
 
 @app.route("/interact", methods=["POST"])
 def interact():
+	payload = request.json
+	thread = threading.Thread(target=interact_handler, args=(payload,))
+	thread.start()
 	return "", 200
+
+def interact_handler(payload):
+	response_url = payload["response_url"]
+	if payload["actions"]["action_id"] == "enter_office_hours":
+		requests.post(response_url, json=json.load("messages/office_hours_slot.json"))
 
 if __name__ == "__main__":
 	app.run()
