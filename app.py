@@ -2,7 +2,6 @@
 
 import os
 import json
-from urllib.parse import parse_qs
 import requests
 import threading
 from flask import Flask, jsonify, render_template, request
@@ -20,7 +19,7 @@ def index():
 
 @app.route("/event", methods=["POST"])
 def event():
-	payload = json.loads(parse_qs(request.get_data())["payload"][0])
+	payload = json.loads(request.form.get("payload"))
 	thread = threading.Thread(target=event_handler, args=(payload,))
 	thread.start()
 	return "", 200
@@ -30,7 +29,7 @@ def event_handler(payload):
 
 @app.route("/interact", methods=["POST"])
 def interact():
-	payload = json.loads(parse_qs(request.get_data())["payload"][0])
+	payload = json.loads(request.form.get("payload"))
 	thread = threading.Thread(target=interact_handler, args=(payload,))
 	thread.start()
 	return "", 200
