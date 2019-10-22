@@ -42,7 +42,7 @@ def interact_handler(payload):
 		requests.post(response_url, headers=headers, json=json.load(open("messages/office_hours_slot.json")))
 	elif action_id == "cancel_office_hours":
 		requests.post(response_url, headers=headers, json=json.load(open("messages/cancel_office_hours.json")))
-	elif action_id == "done_slot":
+	elif action_id == "slot_done":
 		requests.post(response_url, headers=headers, json=json.load(open("messages/confirm_office_hours.json")))
 	elif action_id == "done_office_hours":
 		requests.post(response_url, headers=headers, json=json.load(open("messages/done_office_hours.json")))
