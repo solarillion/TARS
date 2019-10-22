@@ -17,9 +17,8 @@ def index():
 
 @app.route("/event", methods=["POST"])
 def event():
-	# requests.post(request.json["response_url"], json={"success": True})
-	# return jsonify({"success": True})
-	return jsonify({"challenge": request.json["challenge"]})
+	requests.post(request.json["response_url"], json={"success": True})
+	return jsonify({"success": True})
 
 @app.route("/interact", methods=["POST"])
 def interact():
