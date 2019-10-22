@@ -28,16 +28,16 @@ def event_handler(payload):
 
 @app.route("/interact", methods=["POST"])
 def interact():
-	payload = request.json
+	payload = request.get_json(force=True)
 	thread = threading.Thread(target=interact_handler, args=(payload,))
 	thread.start()
 	return "", 200
 
 def interact_handler(payload):
 	response_url = payload["response_url"]
-	slack.chat.post_message("#sf_github", str(response_url))
-	if payload["actions"]["action_id"] == "enter_office_hours":
-		requests.post(response_url, json=json.load("messages/office_hours_slot.json"))
+	slack.chat.post_message("UDD17R796", response_url)
+	action_id = payload["action"]["action_id"]
+	slack.chat.post_message("UDD17R796", action_id)
 
 if __name__ == "__main__":
 	app.run()
