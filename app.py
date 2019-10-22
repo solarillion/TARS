@@ -37,8 +37,12 @@ def interact():
 def interact_handler(payload):
 	response_url = payload["response_url"]
 	action_id = payload["actions"]["action_id"]
+	headers = {"Content-type": "application/json"}
+	slack.chat.post_message("UDD17R796", "1")
 	if action_id == "enter_office_hours":
-		requests.post(response_url, json=json.load(open("messages/office_hours_slot.json")))
+		slack.chat.post_message("UDD17R796", "2")
+		requests.post(response_url, headers=headers, json=json.load(open("messages/office_hours_slot.json")))
+	slack.chat.post_message("UDD17R96", "3")
 
 if __name__ == "__main__":
 	app.run()
