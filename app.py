@@ -20,13 +20,13 @@ def index():
 
 @app.route("/event", methods=["POST"])
 def event():
-	payload = json.loads(request.form.get("payload"))
+	payload = request.get_data()
 	thread = threading.Thread(target=event_handler, args=(payload,))
 	thread.start()
 	return "", 200
 
 def event_handler(payload):
-	slack.chat.post_message("#tars_admin", "Event!")
+	slack.chat.post_message("#tars_admin", payload)
 
 @app.route("/interact", methods=["POST"])
 def interact():
