@@ -1,6 +1,8 @@
 # Authors: Nanda H Krishna (https://github.com/nandahkrishna), Abhijith Ragav (https://github.com/abhijithragav)
 
 import os
+from datetime import *
+from dateutil.
 import json
 import requests
 import threading
@@ -25,7 +27,7 @@ def event():
 	return "", 200
 
 def event_handler(payload):
-	response_url = payload["response_url"]
+	slack.chat.post_message("#tars_admin", "Event!")
 
 @app.route("/interact", methods=["POST"])
 def interact():
