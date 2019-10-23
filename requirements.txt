@@ -1,4 +1,6 @@
-Flask == 1.1.1
+datetime==4.3
+Flask==1.1.1
 gunicorn==19.9.0
+python-dateutil==2.8.0
 requests==2.22.0
-slacker == 0.13.0
+slacker==0.13.0
