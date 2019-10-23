@@ -26,7 +26,7 @@ def event():
 	return "", 200
 
 def event_handler(payload):
-	slack.chat.post_message("#tars_admin", payload)
+	slack.chat.post_message("UDD17R769", payload)
 
 @app.route("/interact", methods=["POST"])
 def interact():
