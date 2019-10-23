@@ -11,6 +11,8 @@ from slacker import Slacker
 app = Flask(__name__)
 app.debug = True
 
+vineethv_id = os.environ.get("VINEETHV_ID")
+tars_admin = os.environ.get("TARS_ADMIN")
 slack_key = os.environ.get("SLACK_KEY")
 slack = Slacker(slack_key)
 
@@ -20,13 +22,13 @@ def index():
 
 @app.route("/event", methods=["POST"])
 def event():
-	payload = request.get_data()
+	payload = json.loads(request.get_data())
 	thread = threading.Thread(target=event_handler, args=(payload,))
 	thread.start()
 	return "", 200
 
 def event_handler(payload):
-	slack.chat.post_message("UDD17R796", payload)
+	slack.chat.post_message(tars_admin, payload["event"]["text"][1:])
 
 @app.route("/interact", methods=["POST"])
 def interact():
@@ -38,6 +40,7 @@ def interact():
 def interact_handler(payload):
 	response_url = payload["response_url"]
 	action_id = payload["actions"][0]["action_id"]
+	slack.chat.post_message(tars_admin, action_id)
 	headers = {"Content-type": "application/json"}
 	if action_id == "enter_office_hours":
 		requests.post(response_url, headers=headers, json=json.load(open("messages/office_hours_slot.json")))
