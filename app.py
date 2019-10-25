@@ -38,7 +38,7 @@ def event_handler(payload):
 		user = payload["event"]["text"]
 		channel = payload["event"]["channel"]
 		time = payload["event_time"]
-		message = text + "\nFrom " + user " in " + channel + "."
+		message = text + "\nFrom " + user + " in " + channel + "."
 		tars.chat.post_message(tars_admin, message)
 		text = text.lower()
 		message = None
