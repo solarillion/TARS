@@ -15,7 +15,8 @@ tars_admin = os.environ.get("TARS_ADMIN")
 tars_token = os.environ.get("TARS_TOKEN")
 
 post_message = "https://slack.com/api/chat.postMessage"
-update_message = ""
+post_headers = {"Content-type": "application/json", "Authorization": "Bearer " + tars_token}
+response_headers = {"Content-type": "application/json"}
 
 old_event = None
 
@@ -31,24 +32,24 @@ def event():
 	return "", 200
 
 def event_handler(payload):
-	headers = {"Content-type": "application/json"}
 	try:
 		text = payload["event"]["text"].replace("@", "")
 		user = payload["event"]["text"]
 		channel = payload["event"]["channel"]
 		time = payload["event_time"]
-		message = {"token": tars_token, "channel": tars_admin, "text": text + "\nFrom " + user " in " + channel + "."}
-		requests.post(post_message, headers=headers, json=message)
+		message = {"channel": tars_admin, "text": text + "\nFrom " + user " in " + channel + "."}
+		requests.post(post_message, headers=post_headers, json=message)
 		text = text.lower()
 		message = None
 		if all(x in text for x in ["request", "office hours"]):
 			if old_event is None or time - old_event["event_time"] >= 60:
 				message = json.load(open("messages/request_office_hours.json"))
 		if message is not None:
-			requests.post(post_message, headers=headers, json=message)	
+			requests.post(post_message, headers=post_headers, json=message)	
 	except:
-		message = json.dumps(payload).replace("@", "")
-		requests.post(post_message, headers=headers, json=message)
+		text = json.dumps(payload).replace("@", "")
+		message = {"channel": tars_admin, "text": text}
+		requests.post(post_message, headers=post_headers, json=message)
 	finally:
 		old_event = payload
 
