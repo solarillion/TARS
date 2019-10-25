@@ -35,7 +35,7 @@ def event():
 def event_handler(payload):
 	try:
 		text = payload["event"]["text"].replace("@", "")
-		user = payload["event"]["text"]
+		user = payload["event"]["user"]
 		channel = payload["event"]["channel"]
 		time = payload["event_time"]
 		message = text + "\nFrom " + user + " in " + channel + "."
