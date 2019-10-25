@@ -6,6 +6,7 @@ import json
 import requests
 import threading
 from flask import Flask, jsonify, render_template, request
+from slacker import Slacker
 
 app = Flask(__name__)
 app.debug = True
@@ -13,8 +14,8 @@ app.debug = True
 vineethv_id = os.environ.get("VINEETHV_ID")
 tars_admin = os.environ.get("TARS_ADMIN")
 tars_token = os.environ.get("TARS_TOKEN")
+tars = Slacker(tars_token)
 
-post_message = "https://slack.com/api/chat.postMessage"
 post_headers = {"Content-type": "application/json", "Authorization": "Bearer " + tars_token}
 response_headers = {"Content-type": "application/json"}
 
@@ -37,8 +38,8 @@ def event_handler(payload):
 		user = payload["event"]["text"]
 		channel = payload["event"]["channel"]
 		time = payload["event_time"]
-		message = {"channel": tars_admin, "text": text + "\nFrom " + user " in " + channel + "."}
-		requests.post(post_message, headers=post_headers, json=message)
+		message = text + "\nFrom " + user " in " + channel + "."
+		tars.chat.post_message(tars_admin, message)
 		text = text.lower()
 		message = None
 		if all(x in text for x in ["request", "office hours"]):
@@ -47,9 +48,8 @@ def event_handler(payload):
 		if message is not None:
 			requests.post(post_message, headers=post_headers, json=message)	
 	except:
-		text = json.dumps(payload).replace("@", "")
-		message = {"channel": tars_admin, "text": text}
-		requests.post(post_message, headers=post_headers, json=message)
+		message = json.dumps(payload).replace("@", "")
+		tars.chat.post_message(tars_admin, message)
 	finally:
 		old_event = payload
 
@@ -64,8 +64,8 @@ def interact_handler(payload):
 	headers = {"Content-type": "application/json"}
 	response_url = payload["response_url"]
 	action_id = payload["actions"][0]["action_id"]
-	message = {"token": tars_token, "channel": tars_admin, "text": "Action " + action_id + "done."}
-	requests.post(post_message, headers=headers, json=message)
+	message = "Action " + action_id + "done."
+	tars.chat.post_message(tars_admin, message)
 	message = None
 	if action_id == "enter_office_hours":
 		message = json.load(open("messages/office_hours_slot.json"))
@@ -76,7 +76,7 @@ def interact_handler(payload):
 	elif action_id == "done_office_hours":
 		message = json.load(open("messages/done_office_hours.json"))
 	if message is not None:
-		requests.post(response_url, headers=headers, json=message)
+		requests.post(response_url, headers=response_headers, json=message)
 
 if __name__ == "__main__":
 	app.run()
