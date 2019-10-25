@@ -87,6 +87,7 @@ def interact_handler(payload):
 		office_hours_handler(action_id, payload)
 
 def office_hours_handler(action_id, payload):
+	global slot_message, slot_days, slot_start, slot_start_val, slot_end, slot_end_val, office_hours_text
 	message = None
 	if action_id == "enter_office_hours":
 		message = json.load(open("messages/slot_office_hours.json"))
@@ -97,17 +98,17 @@ def office_hours_handler(action_id, payload):
 		for option in options:
 			slot_days = option["text"]["text"] + " "
 			slot_text = slot_days + slot_start + slot_end
-			tars.chat.update(channel=vineethv_im_channel, ts=slot_message.body["ts"], text=slot_text)
+			tars.chat.update(channel=slot_message.body["channel"], ts=slot_message.body["ts"], text=slot_text)
 	elif action_id == "select_start_time_office_hours":
 		slot_start = payload["actions"][0]["selected_option"]["text"]["text"] + " - "
 		slot_start_val = payload["actions"][0]["selected_option"]["value"]
 		slot_text = slot_days + slot_start + slot_end
-		tars.chat.update(channel=vineethv_im_channel, ts=slot_message.body["ts"], text=slot_text)
+		tars.chat.update(channel=slot_message.body["channel"], ts=slot_message.body["ts"], text=slot_text)
 	elif action_id == "select_end_time_office_hours":
 		slot_end = payload["actions"][0]["selected_option"]["text"]["text"] + "\n"
 		slot_end_val = payload["actions"][0]["selected_option"]["value"]
 		slot_text = slot_days + slot_start + slot_end
-		tars.chat.update(channel=vineethv_im_channel, ts=slot_message.body["ts"], text=slot_text)
+		tars.chat.update(channel=slot_message.body["channel"], ts=slot_message.body["ts"], text=slot_text)
 	elif action_id == "slot_done_office_hours":
 		valid = False
 		if datetime.strptime(slot_start_val, "%H:%M").time() < datetime.strptime(slot_end_val, "%H:%M").time():
