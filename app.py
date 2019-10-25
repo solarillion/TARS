@@ -95,10 +95,11 @@ def office_hours_handler(action_id, payload):
 		message = json.load(open("messages/cancel_office_hours.json"))
 	elif action_id == "select_days_office_hours":
 		options = payload["actions"][0]["selected_options"]
+		slot_days = ""
 		for option in options:
-			slot_days = option["text"]["text"] + " "
-			slot_text = slot_days + slot_start + slot_end
-			tars.chat.update(channel=slot_message.body["channel"], ts=slot_message.body["ts"], text=slot_text)
+			slot_days += option["text"]["text"] + " "
+		slot_text = slot_days + slot_start + slot_end
+		tars.chat.update(channel=slot_message.body["channel"], ts=slot_message.body["ts"], text=slot_text)
 	elif action_id == "select_start_time_office_hours":
 		slot_start = payload["actions"][0]["selected_option"]["text"]["text"] + " - "
 		slot_start_val = payload["actions"][0]["selected_option"]["value"]
@@ -110,15 +111,15 @@ def office_hours_handler(action_id, payload):
 		slot_text = slot_days + slot_start + slot_end
 		tars.chat.update(channel=slot_message.body["channel"], ts=slot_message.body["ts"], text=slot_text)
 	elif action_id == "slot_done_office_hours":
-		valid = False
 		if datetime.strptime(slot_start_val, "%H:%M").time() < datetime.strptime(slot_end_val, "%H:%M").time():
-			valid = True
-		if valid:
 			message = json.load(open("messages/confirm_office_hours.json"))
 			office_hours_text += slot_days + slot_start + slot_end
 			slot_days, slot_start, slot_end = "", "", ""
 			slot_start_val, slot_end_val = None, None
 			slot_message = None
+		else:
+			slot_text = slot_days + slot_start + slot_end + "Invalid!"
+			tars.chat.update(channel=slot_message["channel"], ts=slot_message["ts"], text=slt_text)
 	elif action_id == "done_office_hours":
 		message = json.load(open("messages/done_office_hours.json"))
 		tars.chat.post_message(tars_admin, office_hours_text)
