@@ -42,8 +42,9 @@ def event_handler(payload):
 		tars.chat.post_message(tars_admin, message)
 		text = text.lower()
 		message = None
-		if all(x in text for x in ["request", "office hours"]):
-			if old_event is None or time - old_event["event_time"] >= 60:
+		if "request office hours" in text:
+			if old_event is None or ("request office hours" in old_event["event"]["text"] and time - old_event["event_time"] >= 60):
+				tars.chat.post_message("UDD17R796", "Office hours.")
 				message = json.load(open("messages/request_office_hours.json"))
 		if message is not None:
 			requests.post(post_message, headers=post_headers, json=message)	
