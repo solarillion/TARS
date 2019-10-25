@@ -14,6 +14,7 @@ app.debug = True
 vineethv_id = os.environ.get("VINEETHV_ID")
 tars_admin = os.environ.get("TARS_ADMIN")
 tars_token = os.environ.get("TARS_TOKEN")
+tars_bot_id = os.environ.get("TARS_BOT_ID")
 tars = Slacker(tars_token)
 
 post_message_url = "https://slack.com/api/chat.postMessage"
@@ -49,8 +50,9 @@ def event_handler(payload):
 		if message is not None:
 			requests.post(post_message_url, headers=post_headers, json=message)	
 	except:
-		message = json.dumps(payload).replace("@", "")
-		tars.chat.post_message(tars_admin, message)
+		if payload["event"]["bot_id"] != tars_bot_id:
+			message = json.dumps(payload).replace("@", "")
+			tars.chat.post_message(tars_admin, message)
 
 @app.route("/interact", methods=["POST"])
 def interact():
