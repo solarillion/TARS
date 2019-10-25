@@ -28,15 +28,15 @@ response_headers = {"Content-type": "application/json"}
 
 class OfficeHoursSet:
 	def __init__(self):
-		datetime_today = None
-		last_sunday = None
-		slot_message = None
-		slot_days = ""
-		slot_start = ""
-		slot_start_val = None
-		slot_end = ""
-		slot_end_val = None
-		office_hours_text = ""
+		self.datetime_today = None
+		self.last_sunday = None
+		self.slot_message = None
+		self.slot_days = ""
+		self.slot_start = ""
+		self.slot_start_val = None
+		self.slot_end = ""
+		self.slot_end_val = None
+		self.office_hours_text = ""
 
 o = OfficeHoursSet()
 
@@ -61,11 +61,8 @@ def event_handler(payload):
 		message = text + "\nFrom " + user + " in " + channel + "."
 		tars.chat.post_message(tars_admin, message)
 		text = text.lower()
-		message = None
 		if "schedule office hours" in text:
-			o, message = office_hours_event_handler(o)
-		if message is not None:
-			requests.post(post_message_url, headers=post_headers, json=message)	
+			o = office_hours_event_handler(o)
 	except:
 		if payload["event"]["bot_id"] != tars_bot_id:
 			message = json.dumps(payload).replace("@", "")
@@ -79,7 +76,8 @@ def office_hours_event_handler(o):
 		o.last_sunday = o.datetime_today
 	else:
 		o.last_sunday = o.datetime_today + relativedelta(weekday=SU(-1))
-	return o, message
+	requests.post(post_message_url, headers=post_headers, json=message)
+	return o
 
 @app.route("/interact", methods=["POST"])
 def interact():
