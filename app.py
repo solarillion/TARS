@@ -44,7 +44,7 @@ def event_handler(payload):
 		message = None
 		if "request office hours" in text:
 			message = {"user": "UDD17R796"}
-			im_request = requests.post(get_im_url, headers=post_headers, json=message)
+			im_request = requests.post(open_im_url, headers=post_headers, json=message)
 			message = json.load(open("messages/request_office_hours.json"))
 			message["channel"] = im_request["channel"]["id"]
 		if message is not None:
