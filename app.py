@@ -44,9 +44,12 @@ def event_handler(payload):
 		message = None
 		if "request office hours" in text:
 			message = {"user": "UDD17R796"}
+			tars.chat.post_message(message["user"], "1")
 			im_request = requests.post(open_im_url, headers=post_headers, json=message)
+			tars.chat.post_message(message["user"], "2")
 			message = json.load(open("messages/request_office_hours.json"))
 			message["channel"] = im_request["channel"]["id"]
+			tars.chat.post_message(message["user"], "3")
 		if message is not None:
 			requests.post(post_message_url, headers=post_headers, json=message)	
 	except:
