@@ -26,15 +26,19 @@ post_message_url = "https://slack.com/api/chat.postMessage"
 post_headers = {"Content-type": "application/json", "Authorization": "Bearer " + tars_token}
 response_headers = {"Content-type": "application/json"}
 
-datetime_today = None
-last_sunday = None
-slot_message = None
-slot_days = ""
-slot_start = ""
-slot_start_val = None
-slot_end = ""
-slot_end_val = None
-office_hours_text = ""
+class OfficeHoursSet:
+	def __init__(self):
+		datetime_today = None
+		last_sunday = None
+		slot_message = None
+		slot_days = ""
+		slot_start = ""
+		slot_start_val = None
+		slot_end = ""
+		slot_end_val = None
+		office_hours_text = ""
+
+o = OfficeHoursSet()
 
 @app.route("/", methods=["GET"])
 def index():
@@ -60,11 +64,11 @@ def event_handler(payload):
 		if "schedule office hours" in text:
 			message = json.load(open("messages/request_office_hours.json"))
 			message["channel"] = vineethv_im_channel
-			datetime_today = date.today()
+			o.datetime_today = date.today()
 			if datetime_today.weekday() == 6:
-				last_sunday = datetime_today
+				o.last_sunday = o.datetime_today
 			else:
-				last_sunday = datetime_today + relativedelta(weekday=SU(-1))
+				o.last_sunday = o.datetime_today + relativedelta(weekday=SU(-1))
 		if message is not None:
 			requests.post(post_message_url, headers=post_headers, json=message)	
 	except:
@@ -87,40 +91,39 @@ def interact_handler(payload):
 		office_hours_handler(action_id, payload)
 
 def office_hours_handler(action_id, payload):
-	global slot_message, slot_days, slot_start, slot_start_val, slot_end, slot_end_val, office_hours_text
 	message = None
 	if action_id == "enter_office_hours":
 		message = json.load(open("messages/slot_office_hours.json"))
-		slot_message = tars.chat.post_message(vineethv_im_channel, "Your slot details will be updated here.")
+		o.slot_message = tars.chat.post_message(vineethv_im_channel, "Your slot details will be updated here.")
 	elif action_id == "cancel_office_hours":
 		message = json.load(open("messages/cancel_office_hours.json"))
 	elif action_id == "select_days_office_hours":
 		options = payload["actions"][0]["selected_options"]
-		slot_days = ""
+		o.slot_days = ""
 		for option in options:
-			slot_days += option["text"]["text"] + " "
-		slot_text = slot_days + slot_start + slot_end
-		tars.chat.update(channel=slot_message.body["channel"], ts=slot_message.body["ts"], text=slot_text)
+			o.slot_days += option["text"]["text"] + " "
+		slot_text = o.slot_days + o.slot_start + o.slot_end
+		tars.chat.update(channel=o.slot_message.body["channel"], ts=o.slot_message.body["ts"], text=slot_text)
 	elif action_id == "select_start_time_office_hours":
-		slot_start = payload["actions"][0]["selected_option"]["text"]["text"] + " - "
-		slot_start_val = payload["actions"][0]["selected_option"]["value"]
-		slot_text = slot_days + slot_start + slot_end
-		tars.chat.update(channel=slot_message.body["channel"], ts=slot_message.body["ts"], text=slot_text)
+		o.slot_start = payload["actions"][0]["selected_option"]["text"]["text"] + " - "
+		o.slot_start_val = payload["actions"][0]["selected_option"]["value"]
+		slot_text = o.slot_days + o.slot_start + o.slot_end
+		tars.chat.update(channel=o.slot_message.body["channel"], ts=o.slot_message.body["ts"], text=slot_text)
 	elif action_id == "select_end_time_office_hours":
-		slot_end = payload["actions"][0]["selected_option"]["text"]["text"] + "\n"
-		slot_end_val = payload["actions"][0]["selected_option"]["value"]
-		slot_text = slot_days + slot_start + slot_end
-		tars.chat.update(channel=slot_message.body["channel"], ts=slot_message.body["ts"], text=slot_text)
+		o.slot_end = payload["actions"][0]["selected_option"]["text"]["text"] + "\n"
+		o.slot_end_val = payload["actions"][0]["selected_option"]["value"]
+		slot_text = o.slot_days + o.slot_start + o.slot_end
+		tars.chat.update(channel=o.slot_message.body["channel"], ts=o.slot_message.body["ts"], text=slot_text)
 	elif action_id == "slot_done_office_hours":
-		if datetime.strptime(slot_start_val, "%H:%M").time() < datetime.strptime(slot_end_val, "%H:%M").time():
+		if datetime.strptime(o.slot_start_val, "%H:%M").time() < datetime.strptime(o.slot_end_val, "%H:%M").time():
 			message = json.load(open("messages/confirm_office_hours.json"))
-			office_hours_text += slot_days + slot_start + slot_end
+			o.office_hours_text += o.slot_days + o.slot_start + o.slot_end
 		else:
-			slot_text = slot_days + slot_start + slot_end + "Invalid!"
-			tars.chat.update(channel=slot_message["channel"], ts=slot_message["ts"], text=slt_text)
+			slot_text = o.slot_days + o.slot_start + o.slot_end + "Invalid!"
+			tars.chat.update(channel=o.slot_message["channel"], ts=o.slot_message["ts"], text=slt_text)
 	elif action_id == "done_office_hours":
 		message = json.load(open("messages/done_office_hours.json"))
-		tars.chat.post_message(tars_admin, office_hours_text)
+		tars.chat.post_message(tars_admin, o.office_hours_text)
 	if message is not None:
 		response_url = payload["response_url"]
 		requests.post(response_url, headers=response_headers, json=message)
