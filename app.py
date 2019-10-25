@@ -80,9 +80,9 @@ def interact():
 	return "", 200
 
 def interact_handler(payload):
+	action_id = payload["actions"][0]["action_id"]
 	message = "Action " + action_id + " done."
 	tars.chat.post_message(tars_admin, message)
-	action_id = payload["actions"][0]["action_id"]
 	if "office_hours" in action_id:
 		office_hours_handler(action_id, payload)
 
