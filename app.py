@@ -63,7 +63,7 @@ def event_handler(payload):
 		text = text.lower()
 		message = None
 		if "schedule office hours" in text:
-			o = office_hours_event_handler(o)
+			o, message = office_hours_event_handler(o)
 		if message is not None:
 			requests.post(post_message_url, headers=post_headers, json=message)	
 	except:
@@ -79,7 +79,7 @@ def office_hours_event_handler(o):
 		o.last_sunday = o.datetime_today
 	else:
 		o.last_sunday = o.datetime_today + relativedelta(weekday=SU(-1))
-	return o
+	return o, message
 
 @app.route("/interact", methods=["POST"])
 def interact():
