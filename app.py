@@ -52,6 +52,7 @@ def event():
 	return "", 200
 
 def event_handler(payload):
+	global o
 	try:
 		text = payload["event"]["text"].replace("@", "")
 		user = payload["event"]["user"]
@@ -62,19 +63,23 @@ def event_handler(payload):
 		text = text.lower()
 		message = None
 		if "schedule office hours" in text:
-			message = json.load(open("messages/request_office_hours.json"))
-			message["channel"] = vineethv_im_channel
-			o.datetime_today = date.today()
-			if o.datetime_today.weekday() == 6:
-				o.last_sunday = o.datetime_today
-			else:
-				o.last_sunday = o.datetime_today + relativedelta(weekday=SU(-1))
+			o = office_hours_event_handler(o)
 		if message is not None:
 			requests.post(post_message_url, headers=post_headers, json=message)	
 	except:
 		if payload["event"]["bot_id"] != tars_bot_id:
 			message = json.dumps(payload).replace("@", "")
 			tars.chat.post_message(tars_admin, message)
+
+def office_hours_event_handler(o):
+	message = json.load(open("messages/request_office_hours.json"))
+	message["channel"] = vineethv_im_channel
+	o.datetime_today = date.today()
+	if o.datetime_today.weekday() == 6:
+		o.last_sunday = o.datetime_today
+	else:
+		o.last_sunday = o.datetime_today + relativedelta(weekday=SU(-1))
+	return o
 
 @app.route("/interact", methods=["POST"])
 def interact():
@@ -84,13 +89,12 @@ def interact():
 	return "", 200
 
 def interact_handler(payload):
+	global o
 	action_id = payload["actions"][0]["action_id"]
-	message = "Action " + action_id + " done."
-	tars.chat.post_message(tars_admin, message)
 	if "office_hours" in action_id:
-		office_hours_handler(action_id, payload)
+		o = office_hours_interact_handler(action_id, payload, o)
 
-def office_hours_handler(action_id, payload):
+def office_hours_interact_handler(action_id, payload, o):
 	message = None
 	if action_id == "enter_office_hours":
 		message = json.load(open("messages/slot_office_hours.json"))
@@ -127,6 +131,7 @@ def office_hours_handler(action_id, payload):
 	if message is not None:
 		response_url = payload["response_url"]
 		requests.post(response_url, headers=response_headers, json=message)
+	return o
 
 if __name__ == "__main__":
 	app.run()
