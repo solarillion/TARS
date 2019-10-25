@@ -91,6 +91,7 @@ def office_hours_handler(action_id, payload):
 	message = None
 	if action_id == "enter_office_hours":
 		message = json.load(open("messages/slot_office_hours.json"))
+		slot_message = tars.chat.post_message(vineethv_im_channel, "Your slot details will be updated here.")
 	elif action_id == "cancel_office_hours":
 		message = json.load(open("messages/cancel_office_hours.json"))
 	elif action_id == "select_days_office_hours":
@@ -114,9 +115,6 @@ def office_hours_handler(action_id, payload):
 		if datetime.strptime(slot_start_val, "%H:%M").time() < datetime.strptime(slot_end_val, "%H:%M").time():
 			message = json.load(open("messages/confirm_office_hours.json"))
 			office_hours_text += slot_days + slot_start + slot_end
-			slot_days, slot_start, slot_end = "", "", ""
-			slot_start_val, slot_end_val = None, None
-			slot_message = None
 		else:
 			slot_text = slot_days + slot_start + slot_end + "Invalid!"
 			tars.chat.update(channel=slot_message["channel"], ts=slot_message["ts"], text=slt_text)
@@ -126,8 +124,6 @@ def office_hours_handler(action_id, payload):
 	if message is not None:
 		response_url = payload["response_url"]
 		requests.post(response_url, headers=response_headers, json=message)
-		if action_id == "enter_office_hours":
-			slot_message = tars.chat.post_message(vineethv_im_channel, "Your slot details will be updated here.")
 
 if __name__ == "__main__":
 	app.run()
