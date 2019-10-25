@@ -65,7 +65,7 @@ def event_handler(payload):
 			message = json.load(open("messages/request_office_hours.json"))
 			message["channel"] = vineethv_im_channel
 			o.datetime_today = date.today()
-			if datetime_today.weekday() == 6:
+			if o.datetime_today.weekday() == 6:
 				o.last_sunday = o.datetime_today
 			else:
 				o.last_sunday = o.datetime_today + relativedelta(weekday=SU(-1))
