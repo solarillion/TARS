@@ -19,8 +19,6 @@ tars = Slacker(tars_token)
 post_headers = {"Content-type": "application/json", "Authorization": "Bearer " + tars_token}
 response_headers = {"Content-type": "application/json"}
 
-old_event = None
-
 @app.route("/", methods=["GET"])
 def index():
 	return render_template("index.html")
@@ -43,17 +41,13 @@ def event_handler(payload):
 		text = text.lower()
 		message = None
 		if "request office hours" in text:
-			tars.chat.post_message("UDD17R796", "Office hours requested.")
-			if old_event is None or ("request office hours" in old_event["event"]["text"] and time - int(old_event["event_time"]) >= 60):
-				tars.chat.post_message("UDD17R796", "Office hours.")
-				message = json.load(open("messages/request_office_hours.json"))
+			tars.chat.post_message("UDD17R796", "Office hours.")
+			message = json.load(open("messages/request_office_hours.json"))
 		if message is not None:
 			requests.post(post_message, headers=post_headers, json=message)	
 	except:
 		message = json.dumps(payload).replace("@", "")
 		tars.chat.post_message(tars_admin, message)
-	finally:
-		old_event = payload
 
 @app.route("/interact", methods=["POST"])
 def interact():
