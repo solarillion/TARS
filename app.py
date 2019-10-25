@@ -30,7 +30,7 @@ class OfficeHoursSet:
 	def __init__(self):
 		self.datetime_today = None
 		self.last_sunday = None
-		self.slot_message = None
+		self.slot_message_ts = None
 		self.slot_days = ""
 		self.slot_start = ""
 		self.slot_start_val = None
@@ -96,7 +96,7 @@ def office_hours_interact_handler(action_id, payload, o):
 	message = None
 	if action_id == "enter_office_hours":
 		message = json.load(open("messages/slot_office_hours.json"))
-		o.slot_message = tars.chat.post_message(vineethv_im_channel, "Your slot details will be updated here.")
+		o.slot_message_ts = tars.chat.post_message(vineethv_im_channel, "Your slot details will be updated here.").body["ts"]
 	elif action_id == "cancel_office_hours":
 		message = json.load(open("messages/cancel_office_hours.json"))
 	elif action_id == "select_days_office_hours":
@@ -105,24 +105,24 @@ def office_hours_interact_handler(action_id, payload, o):
 		for option in options:
 			o.slot_days += option["text"]["text"] + " "
 		slot_text = o.slot_days + o.slot_start + o.slot_end
-		tars.chat.update(channel=o.slot_message.body["channel"], ts=o.slot_message.body["ts"], text=slot_text)
+		tars.chat.update(channel=vineethv_im_channel, ts=o.slot_message_ts, text=slot_text)
 	elif action_id == "select_start_time_office_hours":
 		o.slot_start = payload["actions"][0]["selected_option"]["text"]["text"] + " - "
 		o.slot_start_val = payload["actions"][0]["selected_option"]["value"]
 		slot_text = o.slot_days + o.slot_start + o.slot_end
-		tars.chat.update(channel=o.slot_message.body["channel"], ts=o.slot_message.body["ts"], text=slot_text)
+		tars.chat.update(channel=vineethv_im_channel, ts=o.slot_message_ts, text=slot_text)
 	elif action_id == "select_end_time_office_hours":
 		o.slot_end = payload["actions"][0]["selected_option"]["text"]["text"] + "\n"
 		o.slot_end_val = payload["actions"][0]["selected_option"]["value"]
 		slot_text = o.slot_days + o.slot_start + o.slot_end
-		tars.chat.update(channel=o.slot_message.body["channel"], ts=o.slot_message.body["ts"], text=slot_text)
+		tars.chat.update(channel=vineethv_im_channel, ts=o.slot_message_ts, text=slot_text)
 	elif action_id == "slot_done_office_hours":
 		if datetime.strptime(o.slot_start_val, "%H:%M").time() < datetime.strptime(o.slot_end_val, "%H:%M").time():
 			message = json.load(open("messages/confirm_office_hours.json"))
 			o.office_hours_text += o.slot_days + o.slot_start + o.slot_end
 		else:
 			slot_text = o.slot_days + o.slot_start + o.slot_end + "Invalid!"
-			tars.chat.update(channel=o.slot_message["channel"], ts=o.slot_message["ts"], text=slt_text)
+			tars.chat.update(channel=vineethv_im_channel, ts=o.slot_message_ts, text=slot_text)
 	elif action_id == "done_office_hours":
 		message = json.load(open("messages/done_office_hours.json"))
 		tars.chat.post_message(tars_admin, o.office_hours_text)
