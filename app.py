@@ -16,6 +16,7 @@ tars_admin = os.environ.get("TARS_ADMIN")
 tars_token = os.environ.get("TARS_TOKEN")
 tars = Slacker(tars_token)
 
+post_message_url = "https://slack.com/api/chat.postMessage"
 post_headers = {"Content-type": "application/json", "Authorization": "Bearer " + tars_token}
 response_headers = {"Content-type": "application/json"}
 
@@ -41,10 +42,9 @@ def event_handler(payload):
 		text = text.lower()
 		message = None
 		if "request office hours" in text:
-			tars.chat.post_message("UDD17R796", "Office hours.")
 			message = json.load(open("messages/request_office_hours.json"))
 		if message is not None:
-			requests.post(post_message, headers=post_headers, json=message)	
+			requests.post(post_message_url, headers=post_headers, json=message)	
 	except:
 		message = json.dumps(payload).replace("@", "")
 		tars.chat.post_message(tars_admin, message)
