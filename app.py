@@ -49,8 +49,7 @@ def im_event_handler(event_data):
 def schedule_office_hours_event_handler():
     office_hours_messages.clear()
     message = json.load(open("messages/request_office_hours.json"))
-    message["channel"] = vineethv_im_channel
-    tars.chat_postMessage(message)
+    tars.chat_postMessage(channel=vineethv_im_channel, blocks=message["blocks"])
         
 @app.route("/interact", methods=["POST"])
 def interact():
