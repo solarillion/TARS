@@ -27,14 +27,14 @@ post_headers = {"Content-type": "application/json", "Authorization": "Bearer " +
 response_headers = {"Content-type": "application/json"}
 
 office_hours_set = {
-	"datetime_today": None
-	"last_sunday": None
-	"slot_message_ts": 0
-	"slot_days": ""
-	"slot_start": ""
-	"slot_start_val": ""
-	"slot_end": ""
-	"slot_end_val": ""
+	"datetime_today": None,
+	"last_sunday": None,
+	"slot_message_ts": 0,
+	"slot_days": "",
+	"slot_start": "",
+	"slot_start_val": "",
+	"slot_end": "",
+	"slot_end_val": "",
 	"office_hours_text": ""
 }
 
