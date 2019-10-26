@@ -37,25 +37,19 @@ def index():
 
 @slack_events_adapter.on("message")
 def message(event_data):
-    tars.chat_postMessage(channel="UDD17R796", text="1")
     thread = threading.Thread(target=im_event_handler, args=(event_data,))
     thread.start()
     return "", 200
 
 def im_event_handler(event_data):
-    tars.chat_postMessage(channel="UDD17R796", text="2")
     text = event_data["event"]["text"].lower()
-    tars.chat_postMessage(channel="UDD17R796", text="3-" + text)
     if "schedule office hours" in text:
-        tars.chat_postMessage(channel="UDD17R796", text="4")
         schedule_office_hours_event_handler()
             
 def schedule_office_hours_event_handler():
     office_hours_messages.clear()
     message = json.load(open("messages/request_office_hours.json"))
-    tars.chat_postMessage(channel="UDD17R796", text="5")
-    tars.chat_postMessage(channel=vineethv_im_channel, blocks=message["blocks"])
-    tars.chat_postMessage(channel="UDD17R796", text="6")
+    tars.chat_postMessage(channel=vineethv_im_channel, text=message["text"], blocks=message["blocks"])
         
 @app.route("/interact", methods=["POST"])
 def interact():
