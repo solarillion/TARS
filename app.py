@@ -106,7 +106,7 @@ def office_hours_interact_handler(action_id, payload):
 		office_hours_set["slot_start"] = payload["actions"][0]["selected_option"]["text"]["text"] + " - "
 		office_hours_set["slot_start_val"] = payload["actions"][0]["selected_option"]["value"]
 		slot_text = office_hours_set["slot_days"] + office_hours_set["slot_start"] + office_hours_set["slot_end"]
-		office_hours_set["slot_message_ts"] = ]tars.chat.update(channel=vineethv_im_channel, ts=office_hours_set["slot_message_ts"], text=slot_text).body["ts"]
+		office_hours_set["slot_message_ts"] = tars.chat.update(channel=vineethv_im_channel, ts=office_hours_set["slot_message_ts"], text=slot_text).body["ts"]
 	elif action_id == "select_end_time_office_hours":
 		office_hours_set["slot_end"] = payload["actions"][0]["selected_option"]["text"]["text"] + "\n"
 		office_hours_set["slot_end_val"] = payload["actions"][0]["selected_option"]["value"]
