@@ -98,7 +98,7 @@ def office_hours_interact_handler(action_id, payload):
 		options = payload["actions"][0]["selected_options"]
 		office_hours_set["slot_days"] = ""
 		for option in options:
-			office_hour_set["slot_days"] += option["text"]["text"] + " "
+			office_hours_set["slot_days"] += option["text"]["text"] + " "
 		slot_text = office_hours_set["slot_days"] + office_hours_set["slot_start"] + office_hours_set["slot_end"]
 		tars.chat.update(channel=vineethv_im_channel, ts=office_hours_set["slot_message_ts"], text=slot_text)
 	elif action_id == "select_start_time_office_hours":
