@@ -35,8 +35,8 @@ time_values = []
 def index():
     return render_template("index.html")
 
-@slack_events_adapter.on("message.im")
-def im_event(event_data):
+@slack_events_adapter.on("message")
+def message(event_data):
     tars.chat_postMessage(channel="UDD17R796", text="1")
     thread = threading.Thread(target=im_event_handler, args=(event_data,))
     thread.start()
