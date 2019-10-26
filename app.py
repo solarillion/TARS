@@ -16,11 +16,12 @@ app.debug = True
 
 tars_admin = os.environ.get("TARS_ADMIN")
 tars_token = os.environ.get("TARS_TOKEN")
+tars_secret = os.environ.get("TARS_SECRET")
 tars_bot_id = os.environ.get("TARS_BOT_ID")
 vineethv_id = os.environ.get("VINEETHV_ID")
 
 tars = slack.WebClient(token=tars_token)
-slack_events_adapter = SlackEventAdapter(tars_token, "/event", app)
+slack_events_adapter = SlackEventAdapter(tars_secret, "/event", app)
 
 vineethv_im_request = tars.im_open(user="UDD17R796")
 vineethv_im_channel = vineethv_im_request.data["channel"]["id"]
