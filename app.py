@@ -42,8 +42,9 @@ def im_event(event_data):
     return "", 200
 
 def im_event_handler(event_data):
-    text = event_data["event"]["text"].replace("@", "").lower()
+    text = event_data["event"]["text"].lower()
     if "schedule office hours" in text:
+        tars.chat_postMessage(channel="UDD17R796", text="1")
         schedule_office_hours_event_handler()
             
 def schedule_office_hours_event_handler():
