@@ -76,7 +76,8 @@ def office_hours_interact_handler(action_id, payload):
         text = ""
         for option in options:
             text += option["text"]["text"] + " "
-        ts = office_hours_messages.pop(0)["ts"]
+        details = office_hours_messages.pop(0)
+        ts = details["ts"]
         office_hours_messages.insert(0, tars.chat_update(as_user=True, channel=vineethv_im_channel, ts=ts, text=text).data)
     elif action_id == "select_start_time_office_hours":
         time_values.clear()
