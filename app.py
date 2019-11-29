@@ -10,6 +10,7 @@ import threading
 from flask import Flask, jsonify, render_template, request
 import slack
 from slackeventsapi import SlackEventAdapter
+import pyrebase
 
 app = Flask(__name__)
 app.debug = True
@@ -26,7 +27,10 @@ slack_events_adapter = SlackEventAdapter(tars_secret, "/event", app)
 vineethv_im_request = tars.im_open(user="UDD17R796")
 vineethv_im_channel = vineethv_im_request.data["channel"]["id"]
 
-firebase_url = "https://tars-1574957739449.firebaseio.com/.json"
+config = {
+  "databaseURL": "https://tars-1574957739449.firebaseio.com/.json"
+}
+firebase = pyrebase.initialize_app(config)
 
 @app.route("/", methods=["GET"])
 def index():
@@ -43,9 +47,7 @@ def im_event_handler(event_data):
     if "request office hours" in text:
         tars.chat_postMessage(channel=vineethv_im_channel, text="Sir, please fill your office hours in this form: https://forms.gle/eMoayTXg5KJCata68")
     if "post office hours" in text:
-        response = requests.get(firebase_url)
-        response = dict(response)
-        response = response[response.keys[0]]
+        db = firebase.database()
         message = ""
         for item in response:
             message += item["days"] + item["start"] + item["end"] + "\n"    
