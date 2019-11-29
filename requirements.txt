@@ -2,6 +2,6 @@ Flask==1.1.1
 gunicorn==19.9.0
 pyrebase==3.0.27
 python-dateutil==2.8.0
-requests==2.11.1
+requests==2.20.0
 slackclient==2.3.0
 slackeventsapi==2.1.0
