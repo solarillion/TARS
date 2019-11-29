@@ -56,7 +56,7 @@ def im_event_handler(event_data):
         values = result.get("values", [])
         message = ""
         for row in values:
-            message.append(row[0] + " " + row[2] + "\n")
+            message.append(row[0] + " " + row[1] + "-" + row[2] + "\n")
         tars.chat_postMessage(channel=vineethv_im_channel, text=message)
 
 if __name__ == "__main__":
