@@ -11,7 +11,7 @@ from flask import Flask, jsonify, render_template, request
 import slack
 from slackeventsapi import SlackEventAdapter
 from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import Flow
+from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 app = Flask(__name__)
@@ -32,7 +32,7 @@ vineethv_im_channel = vineethv_im_request.data["channel"]["id"]
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 slack_google_config = json.loads(slack_google_credentials)
-flow = Flow.from_client_config(slack_google_config, SCOPES)
+flow = InstalledAppFlow.from_client_config(slack_google_config, SCOPES)
 creds = flow.run_local_server(port=0)
 service = build("sheets", "v4", credentials=creds)
 
