@@ -1,5 +1,6 @@
 Flask==1.1.1
 gunicorn==19.9.0
+newrelic==5.4.0.132
 pyrebase==3.0.27
 python-dateutil==2.8.0
 requests==2.20.0
