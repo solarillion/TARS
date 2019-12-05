@@ -36,7 +36,7 @@ function writeDataToFirebase() {
     };
   }
   var options = {
-    'method' : 'post',
+    'method' : 'patch',
     'contentType': 'application/json',
     'payload' : JSON.stringify(dataToImport)
   };
