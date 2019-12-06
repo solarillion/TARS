@@ -113,7 +113,8 @@ def im_event_handler(event_data):
             message += "\NPython end: " + data["py_fin"]
         if data["g_fin"] != "None":
             message += "\nGroup end: " + data["g_fin"]
-        if data["p_fin"] !=
+        if data["p_fin"] != "None":
+            message += "\nProject end: " + data["p_fin"] + "\nAfter the project review, don't forget to remove orientee."
         tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text=message)
 
 def reformat_time(ts):
