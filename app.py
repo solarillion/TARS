@@ -65,6 +65,7 @@ def message(event_data):
 def im_event_handler(event_data):
     text = event_data["event"]["text"].lower()
     db = firebase.database()
+    hyouka_db = hyouka_firebase.database()
     if "request office hours" in text:
         tars.chat_postMessage(channel=vineethv_im_channel, text="Sir, please fill your office hours in this form: https://forms.gle/eMoayTXg5KJCata68")
     if "post office hours" in text:
@@ -102,7 +103,6 @@ def im_event_handler(event_data):
         slack_id = slack_id.replace(">", "")
         github = db.child("orientee").child(slack_id).get().val()["github"]
         db.child("orientee").child(slack_id).remove()
-        hyouka_db = hyouka_firebase.database()
         hyouka_db.child(github).remove()
         tars.chat_postMessage(channel=event_data["event"]["channel"], text="Removed from database. Also remove them from any orientee channels, and add them to research channels if required.")
     if "show orientee" in text:
