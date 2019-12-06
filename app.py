@@ -82,7 +82,8 @@ def im_event_handler(event_data):
             return
         words = text.split()[2:]
         slack_id = words[0].replace("@", "").upper()
-        tars.chat_postMessage(channel=event_data["event"]["channel"], text=str(slack_id))
+        slack_id = slack_id.replace("<", "")
+        slack_id = slack_id.replace(">", "")
         name = tars.users_info(user=slack_id)["profile"]["real_name"]
         join = str(date.today())
         github = words[1]
@@ -97,6 +98,8 @@ def im_event_handler(event_data):
             tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text="You're not allowed to do this!")
             return
         slack_id = text.split()[2].replace("@", "").upper()
+        slack_id = slack_id.replace("<", "")
+        slack_id = slack_id.replace(">", "")
         github = db.child("orientee").child(slack_id).get().val()["github"]
         db.child("orientee").child(slack_id).remove()
         hyouka_db = hyouka_firebase.database()
@@ -108,6 +111,8 @@ def im_event_handler(event_data):
             tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text="You're not allowed to do this!")
             return
         slack_id = text.split()[2].replace("@", "").upper()
+        slack_id = slack_id.replace("<", "")
+        slack_id = slack_id.replace(">", "")
         data = db.child("orientee").child(slack_id).get().val()
         message = "Progress of " + data["name"] + ":\nJoined: " + data["join"] + "\nGroup: " + data["group"] + "\nStatus: " + data["progress"]
         if data["py_fin"] != "None":
