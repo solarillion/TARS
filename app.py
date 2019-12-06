@@ -104,7 +104,7 @@ def im_event_handler(event_data):
         db.child("orientee").child(slack_id).remove()
         hyouka_db = hyouka_firebase.database()
         hyouka_db.child(github).remove()
-        tars.chat_postMessage(channel=event_data["event"]["channel"], text="Removed from databse. Also remove them from any orientee channels, and add them to research channels.")
+        tars.chat_postMessage(channel=event_data["event"]["channel"], text="Removed from database. Also remove them from any orientee channels, and add them to research channels if required.")
     if "show orientee" in text:
         ta = list(db.child("ta").get().val())
         if event_data["event"]["user"] not in ta:
@@ -122,6 +122,32 @@ def im_event_handler(event_data):
         if data["p_fin"] != "None":
             message += "\nProject end: " + data["p_fin"] + "\nAfter the project review, don't forget to remove orientee."
         tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
+    if "verify orientee" in text:
+        ta = list(db.child("ta").get().val())
+        if event_data["event"]["user"] not in ta:
+            tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text="You're not allowed to do this!")
+            return
+        slack_id = text.split()[2].replace("@", "").upper()
+        slack_id = slack_id.replace("<", "")
+        slack_id = slack_id.replace(">", "")
+        data = db.child("orientee").child(slack_id).get().val()
+        status = data["progress"]
+        github = data["github"]
+        message = "Current status: " + status
+        tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
+        new_status = {"py2": "py3", "py3": data["group"].lower() + "1", "ml1": "ml2", "ml2": "ml3", "ml3": "mlp", "iot1": "iot2", "iot2": "iot3", "iot3": "iotp", "mg1": "mg2", "mg2": "mg3", "mg3": "mgp"}
+        if "p" not in status:
+            db.child("orientee").child(slack_id).update({"progress": new_status[status]})
+            hyouka_db.child(github).update({"progress": new_status[status]})
+            if "1" in new_status[status]:
+                db.child("orientee").child(slack_id).update({"py_fin": date.today()})
+            elif "p" in new_status[status]:
+                db.child("orientee").child(slack_id).update({"g_fin": date.today()})
+        else:
+            db.child("orientee").child(slack_id).update({"progress": "done"})
+            db.child("orientee").child(slack_id).update({"p_fin": date.today()})
+            hyouka_db.child(github).update({"progress": "done"})
+        tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified!")
 
 def reformat_time(ts):
     hour = int(ts.split(":")[0][-2:]) + 5
