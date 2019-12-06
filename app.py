@@ -95,7 +95,7 @@ def im_event_handler(event_data):
     if "remove orientee" in text:
         ta = list(db.child("ta").get().val())
         if event_data["event"]["user"] not in ta:
-            tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text="You're not allowed to do this!")
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
             return
         slack_id = text.split()[2].replace("@", "").upper()
         slack_id = slack_id.replace("<", "")
@@ -108,7 +108,7 @@ def im_event_handler(event_data):
     if "show orientee" in text:
         ta = list(db.child("ta").get().val())
         if event_data["event"]["user"] not in ta:
-            tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text="You're not allowed to do this!")
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
             return
         slack_id = text.split()[2].replace("@", "").upper()
         slack_id = slack_id.replace("<", "")
@@ -125,7 +125,7 @@ def im_event_handler(event_data):
     if "verify orientee" in text:
         ta = list(db.child("ta").get().val())
         if event_data["event"]["user"] not in ta:
-            tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text="You're not allowed to do this!")
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
             return
         slack_id = text.split()[2].replace("@", "").upper()
         slack_id = slack_id.replace("<", "")
@@ -136,7 +136,7 @@ def im_event_handler(event_data):
         message = "Current status: " + status
         tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
         new_status = {"py2": "py3", "py3": data["group"].lower() + "1", "ml1": "ml2", "ml2": "ml3", "ml3": "mlp", "iot1": "iot2", "iot2": "iot3", "iot3": "iotp", "mg1": "mg2", "mg2": "mg3", "mg3": "mgp"}
-        if "p" not in status:
+        if "p" != status[-1]:
             db.child("orientee").child(slack_id).update({"progress": new_status[status]})
             hyouka_db.child(github).update({"progress": new_status[status]})
             if "1" in new_status[status]:
