@@ -82,6 +82,7 @@ def im_event_handler(event_data):
             return
         words = text.split()[2:]
         slack_id = words[0].replace("@", "").upper()
+        tars.chat_postMessage(channel=event_data["event"]["channel"], text=str(slack_id))
         name = tars.users_info(user=slack_id)["profile"]["real_name"]
         join = str(date.today())
         github = words[1]
