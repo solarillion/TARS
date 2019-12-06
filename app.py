@@ -110,7 +110,7 @@ def im_event_handler(event_data):
         data = db.child("orientee").child(slack_id).get().val()
         message = "Progress of " + data["name"] + ":\nJoined: " + data["join"] + "\nGroup: " + data["group"] + "\nStatus: " + data["progress"]
         if data["py_fin"] != "None":
-            message += "\NPython end: " + data["py_fin"]
+            message += "\nPython end: " + data["py_fin"]
         if data["g_fin"] != "None":
             message += "\nGroup end: " + data["g_fin"]
         if data["p_fin"] != "None":
