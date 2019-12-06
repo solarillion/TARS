@@ -142,10 +142,10 @@ def im_event_handler(event_data):
             if "1" in new_status[status]:
                 db.child("orientee").child(slack_id).update({"py_fin": date.today()})
             elif "p" in new_status[status]:
-                db.child("orientee").child(slack_id).update({"g_fin": date.today()})
+                db.child("orientee").child(slack_id).update({"g_fin":str( date.today())})
         else:
             db.child("orientee").child(slack_id).update({"progress": "done"})
-            db.child("orientee").child(slack_id).update({"p_fin": date.today()})
+            db.child("orientee").child(slack_id).update({"p_fin": str(date.today())})
             hyouka_db.child(github).update({"progress": "done"})
         tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified!")
 
