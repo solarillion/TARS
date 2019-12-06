@@ -84,7 +84,7 @@ def im_event_handler(event_data):
         slack_id = words[0].replace("@", "").upper()
         slack_id = slack_id.replace("<", "")
         slack_id = slack_id.replace(">", "")
-        name = tars.users_info(user=slack_id)["profile"]["real_name"]
+        name = tars.users_info(user=slack_id).data["user"]["profile"]["real_name"]
         join = str(date.today())
         github = words[1]
         group = words[2].upper()
