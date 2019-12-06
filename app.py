@@ -64,10 +64,10 @@ def message(event_data):
 
 def im_event_handler(event_data):
     text = event_data["event"]["text"].lower()
+    db = firebase.database()
     if "request office hours" in text:
         tars.chat_postMessage(channel=vineethv_im_channel, text="Sir, please fill your office hours in this form: https://forms.gle/eMoayTXg5KJCata68")
     if "post office hours" in text:
-        db = firebase.database()
         data = db.child("officehours").get().val()
         message = "Sir's office hours for the week:\n"
         for item in data[1:]:
