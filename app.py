@@ -63,7 +63,6 @@ def message(event_data):
     return "", 200
 
 def im_event_handler(event_data):
-    tars.chat_postMessage(channel="UDD17R796", text=str(event_data)) #
     text = event_data["event"]["text"].lower()
     db = firebase.database()
     if "request office hours" in text:
@@ -77,22 +76,20 @@ def im_event_handler(event_data):
             message += item["days"] + ": " + item["start"] + " - " + item["end"] + "\n"    
         tars.chat_postMessage(channel=general_id, text=message)
     if "add orientee" in text:
-        tars.chat_postMessage(channel="UDD17R796", text=text) #
         ta = list(db.child("ta").get().val())
         if event_data["event"]["user"] not in ta:
-            tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text="You're not allowed to do this!")
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
             return
         words = text.split()[2:]
-        tars.chat_postMessage(channel="UDD17R796", text=str(words)) #
         slack_id = words[0].replace("@", "").upper()
-        # name = tars.users_info(user=slack_id)["profile"]["real_name"]
-        join = str(datetime.date.today())
+        name = tars.users_info(user=slack_id)["profile"]["real_name"]
+        join = str(date.today())
         github = words[1]
         group = words[2].upper()
         db.child("orientee").child(slack_id).update({ "name": name, "join": join, "github": github, "group": group, "progress": "py1", "py_fin": "None", "g_fin": "None", "p_fin": "None"})
         hyouka_db = hyouka_firebase.database()
         hyouka_db.child(github).update({"name": name, "group": group, "progress": "py1", "slack": slack_id})
-        tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text="Added orientee!")
+        tars.chat_postMessage(channel=event_data["event"]["channel"], text="Added orientee!")
     if "remove orientee" in text:
         ta = list(db.child("ta").get().val())
         if event_data["event"]["user"] not in ta:
@@ -103,9 +100,8 @@ def im_event_handler(event_data):
         db.child("orientee").child(slack_id).remove()
         hyouka_db = hyouka_firebase.database()
         hyouka_db.child(github).remove()
-        tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text="Removed from databse. Also remove them from any orientee channels, and add them to research channels.")
+        tars.chat_postMessage(channel=event_data["event"]["channel"], text="Removed from databse. Also remove them from any orientee channels, and add them to research channels.")
     if "show orientee" in text:
-        tars.chat_postMessage(channel="UDD17R796", text=str(text)) #
         ta = list(db.child("ta").get().val())
         if event_data["event"]["user"] not in ta:
             tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text="You're not allowed to do this!")
@@ -119,7 +115,7 @@ def im_event_handler(event_data):
             message += "\nGroup end: " + data["g_fin"]
         if data["p_fin"] != "None":
             message += "\nProject end: " + data["p_fin"] + "\nAfter the project review, don't forget to remove orientee."
-        tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text=message)
+        tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
 
 def reformat_time(ts):
     hour = int(ts.split(":")[0][-2:]) + 5
