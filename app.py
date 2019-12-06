@@ -142,8 +142,10 @@ def im_event_handler(event_data):
             hyouka_status = hyouka_db.child(github).get().val()["progress"]
             if hyouka_status == new_status[status]:
                 db.child("orientee").child(slack_id).update({"progress": new_status[status]})
+                tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified " + status + "!")
                 if status == "py3":
                     db.child("orientee").child(slack_id).update({"py_fin": str(date.today())})
+                    tars.chat_postMessage(channel=event_data["event"]["channel"], text="Move on to the " + group + "assignments now.")
             else:
                 tars.chat_postMessage(channel=event_data["event"]["channel"], text="Not yet evaluated on Hyouka!")
         elif "p" != status[-1]:
