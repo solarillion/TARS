@@ -8,7 +8,8 @@ function clearFunction() {
   var form = FormApp.getActiveForm();
   form.deleteAllResponses();
   var spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
-  spreadsheet.deleteRows(2, 10);
+  var range = spreadsheet.getSheets()[0].getLastRow();
+  spreadsheet.getSheets()[0].deleteRows(2, range - 1);
   var firebaseUrl = FIREBASE_URL;
   var options = {
     'method' : 'delete'

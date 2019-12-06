@@ -25,6 +25,10 @@ firebase_api_key = os.environ.get("FIREBASE_API_KEY")
 tars_fb_ad = os.environ.get("TARS_FB_AD")
 tars_fb_url = os.environ.get("TARS_FB_URL")
 tars_fb_sb = os.environ.get("TARS_FB_SB")
+hyouka_fb_key = os.environ.get("HYOUKA_FB_KEY")
+hyouka_fb_ad = os.environ.get("HYOUKA_FB_AD")
+hyouka_fb_url = os.environ.get("HYOUKA_FB_URL")
+hyouka_fb_sb = os.environ.get("HYOUKA_FB_SB")
 
 tars = slack.WebClient(token=tars_token)
 slack_events_adapter = SlackEventAdapter(tars_secret, "/event", app)
@@ -39,6 +43,14 @@ config = {
   "storageBucket": tars_fb_sb
 }
 firebase = pyrebase.initialize_app(config)
+
+hyouka_config = {
+  "apiKey": hyouka_fb_key,
+  "authDomain": hyouka_fb_ad,
+  "databaseURL": hyouka_fb_url,
+  "storageBucket": hyouka_fb_sb
+}
+hyouka_firebase = pyrebase.initialize_app(hyouka_config)
 
 @app.route("/", methods=["GET"])
 def index():
@@ -63,6 +75,46 @@ def im_event_handler(event_data):
             item["end"] = reformat_time(item["end"])
             message += item["days"] + ": " + item["start"] + " - " + item["end"] + "\n"    
         tars.chat_postMessage(channel=general_id, text=message)
+    if "add orientee" in text:
+        ta = list(db.child("ta").get().val())
+        if event_data["event"]["user"] not in ta:
+            tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text="You're not allowed to do this!")
+            return
+        words = text.split()[2:]
+        slack_id = words[0].replace("@", "")
+        name = tars.users_info(user=slack_id)["profile"]["real_name"]
+        join = str(datetime.date.today())
+        github = words[1]
+        group = words[2].upper()
+        db.child("orientee").child(slack_id).update({ "name": name, "join": join, "github": github, "group": group, "progress": "py1", "py_fin": "None", "g_fin": "None", "p_fin": "None"})
+        hyouka_db = hyouka_firebase.database()
+        hyouka_db.child(github).update({"name": name, "group": group, "progress": "py1", "slack": slack_id})
+        tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text="Added orientee!")
+    if "remove orientee" in text:
+        ta = list(db.child("ta").get().val())
+        if event_data["event"]["user"] not in ta:
+            tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text="You're not allowed to do this!")
+            return
+        slack_id = text.split()[2:].replace("@", "")
+        github = db.child("orientee").child(slack_id).get().val()["github"]
+        db.child("orientee").child(slack_id).remove()
+        hyouka_db = hyouka_firebase.database()
+        hyouka_db.child(github).remove()
+        tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text="Removed from databse. Also remove them from any orientee channels, and add them to research channels.")
+    if "show orientee" in text:
+        ta = list(db.child("ta").get().val())
+        if event_data["event"]["user"] not in ta:
+            tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text="You're not allowed to do this!")
+            return
+        slack_id = text.split()[2].replace("@", "")
+        data = db.child("orientee").child(slack_id).get().val()
+        message = "Progress of " + data["name"] + ":\nJoined: " + data["join"] + "\nGroup: " + data["group"] + "\nStatus: " + data["progress"]
+        if data["py_fin"] != "None":
+            message += "\NPython end: " + data["py_fin"]
+        if data["g_fin"] != "None":
+            message += "\nGroup end: " + data["g_fin"]
+        if data["p_fin"] !=
+        tars.chat_postMessage(channel=event_data["event"]["item"]["channel"], text=message)
 
 def reformat_time(ts):
     hour = int(ts.split(":")[0][-2:]) + 5
