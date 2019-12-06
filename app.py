@@ -136,18 +136,27 @@ def im_event_handler(event_data):
         message = "Current status: " + status
         tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
         new_status = {"py2": "py3", "py3": data["group"].lower() + "1", "ml1": "ml2", "ml2": "ml3", "ml3": "mlp", "iot1": "iot2", "iot2": "iot3", "iot3": "iotp", "mg1": "mg2", "mg2": "mg3", "mg3": "mgp"}
-        if "p" != status[-1]:
+        if status == "py1":
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verification for py1 will be done through Hyouka.")
+        elif status == "py2" or status == "py3":
+            hyouka_status = hyouka_db.child(github).get().val()["progress"]
+            if hyouka_status == new_status[status]:
+                db.child("orientee").child(slack_id).update({"progress": new_status[status]})
+                if status == "py3":
+                    db.child("orientee").child(slack_id).update({"py_fin": str(date.today())})
+            else:
+                tars.chat_postMessage(channel=event_data["event"]["channel"], text="Not yet evaluated on Hyouka!")
+        elif "p" != status[-1]:
             db.child("orientee").child(slack_id).update({"progress": new_status[status]})
             hyouka_db.child(github).update({"progress": new_status[status]})
-            if "1" in new_status[status]:
-                db.child("orientee").child(slack_id).update({"py_fin": date.today()})
-            elif "p" in new_status[status]:
+            if "p" in new_status[status]:
                 db.child("orientee").child(slack_id).update({"g_fin":str( date.today())})
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified" + status + "!")
         else:
             db.child("orientee").child(slack_id).update({"progress": "done"})
             db.child("orientee").child(slack_id).update({"p_fin": str(date.today())})
             hyouka_db.child(github).update({"progress": "done"})
-        tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified!")
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified! Project complete, book a review and remove orientee from database after this.")
 
 def reformat_time(ts):
     hour = int(ts.split(":")[0][-2:]) + 5
