@@ -238,28 +238,23 @@ def app_home_opened_event_handler(event_data):
                         "fields": [
                             {
                                 "type": "plain_text",
-                                "text": "🤖 Sending notifications and information.",
-                                "emoji": true
+                                "text": "🤖 Sending notifications and information."
                             },
                             {
                                 "type": "plain_text",
-                                "text": "🤖 Scheduling and posting Sir's office hours and TA hours.",
-                                "emoji": true
+                                "text": "🤖 Scheduling and posting Sir's office hours and TA hours."
                             },
                             {
                                 "type": "plain_text",
-                                "text": "🤖 Updating JupyterHub and server SSH links.",
-                                "emoji": true
+                                "text": "🤖 Updating JupyterHub and server SSH links."
                             },
                             {
                                 "type": "plain_text",
-                                "text": "🤖 Booking meetings.",
-                                "emoji": true
+                                "text": "🤖 Booking meetings."
                             },
                             {
                                 "type": "plain_text",
-                                "text": "🤖 Helping TAs do their job.",
-                                "emoji": true
+                                "text": "🤖 Helping TAs do their job."
                             }
                         ]
                     },
@@ -330,28 +325,23 @@ def app_home_opened_event_handler(event_data):
                         "fields": [
                             {
                                 "type": "plain_text",
-                                "text": "🤖 Sending notifications and information.",
-                                "emoji": true
+                                "text": "🤖 Sending notifications and information."
                             },
                             {
                                 "type": "plain_text",
-                                "text": "🤖 Scheduling and posting Sir's office hours and TA hours.",
-                                "emoji": true
+                                "text": "🤖 Scheduling and posting Sir's office hours and TA hours."
                             },
                             {
                                 "type": "plain_text",
-                                "text": "🤖 Updating JupyterHub and server SSH links.",
-                                "emoji": true
+                                "text": "🤖 Updating JupyterHub and server SSH links."
                             },
                             {
                                 "type": "plain_text",
-                                "text": "🤖 Booking meetings.",
-                                "emoji": true
+                                "text": "🤖 Booking meetings."
                             },
                             {
                                 "type": "plain_text",
-                                "text": "🤖 Helping TAs do their job.",
-                                "emoji": true
+                                "text": "🤖 Helping TAs do their job."
                             }
                         ]
                     },
