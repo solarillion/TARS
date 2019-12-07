@@ -185,7 +185,7 @@ def reformat_time(ts):
         time = str(hour) + ":" + str(min) + " AM"
     return time
 
-@slack_events_adapter.on("team_join"):
+@slack_events_adapter.on("team_join")
 def team_join(event_data):
     thread = threading.Thread(target=team_join_event_handler, args=(event_data,))
     thread.start()
