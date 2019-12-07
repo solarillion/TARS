@@ -1,4 +1,5 @@
 Flask==1.1.1
+gevent==1.4.0
 gunicorn==19.9.0
 newrelic==5.4.0.132
 pyrebase==3.0.27

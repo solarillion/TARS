@@ -20,6 +20,7 @@ tars_token = os.environ.get("TARS_TOKEN")
 tars_secret = os.environ.get("TARS_SECRET")
 tars_bot_id = os.environ.get("TARS_BOT_ID")
 general_id = os.environ.get("GENERAL_ID")
+orientation_id = os.environ.get("ORIENTATION_ID")
 vineethv_id = os.environ.get("VINEETHV_ID")
 firebase_api_key = os.environ.get("FIREBASE_API_KEY")
 tars_fb_ad = os.environ.get("TARS_FB_AD")
@@ -29,6 +30,7 @@ hyouka_fb_key = os.environ.get("HYOUKA_FB_KEY")
 hyouka_fb_ad = os.environ.get("HYOUKA_FB_AD")
 hyouka_fb_url = os.environ.get("HYOUKA_FB_URL")
 hyouka_fb_sb = os.environ.get("HYOUKA_FB_SB")
+github_secret = os.environ.get("GITHUB_SECRET")
 
 tars = slack.WebClient(token=tars_token)
 slack_events_adapter = SlackEventAdapter(tars_secret, "/event", app)
@@ -43,6 +45,7 @@ config = {
   "storageBucket": tars_fb_sb
 }
 firebase = pyrebase.initialize_app(config)
+db = firebase.database()
 
 hyouka_config = {
   "apiKey": hyouka_fb_key,
@@ -51,6 +54,7 @@ hyouka_config = {
   "storageBucket": hyouka_fb_sb
 }
 hyouka_firebase = pyrebase.initialize_app(hyouka_config)
+hyouka_db = hyouka_firebase.database()
 
 @app.route("/", methods=["GET"])
 def index():
@@ -60,14 +64,14 @@ def index():
 def message(event_data):
     thread = threading.Thread(target=im_event_handler, args=(event_data,))
     thread.start()
-    return "", 200
+    return "OK", 200
 
 def im_event_handler(event_data):
     text = event_data["event"]["text"].lower()
-    db = firebase.database()
-    hyouka_db = hyouka_firebase.database()
     if "request office hours" in text:
         tars.chat_postMessage(channel=vineethv_im_channel, text="Sir, please fill your office hours in this form: https://forms.gle/eMoayTXg5KJCata68")
+    if "remind office hours" in text:
+        tars.chat_postMessage(channel=vineethv_im_channel, text="Sir, if you haven't filled your office hours yet, please do so by 9 pm tonight. Here's the link to the form: https://forms.gle/eMoayTXg5KJCata68")
     if "post office hours" in text:
         data = db.child("officehours").get().val()
         message = "Sir's office hours for the week:\n"
@@ -89,6 +93,8 @@ def im_event_handler(event_data):
         join = str(date.today())
         github = words[1]
         group = words[2].upper()
+        if "O" in group:
+            group = "IoT"
         db.child("orientee").child(slack_id).update({ "name": name, "join": join, "github": github, "group": group, "progress": "py1", "py_fin": "None", "g_fin": "None", "p_fin": "None"})
         hyouka_db = hyouka_firebase.database()
         hyouka_db.child(github).update({"name": name, "group": group, "progress": "py1", "slack": slack_id})
@@ -159,6 +165,8 @@ def im_event_handler(event_data):
             db.child("orientee").child(slack_id).update({"p_fin": str(date.today())})
             hyouka_db.child(github).update({"progress": "done"})
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified! Project complete, book a review and remove orientee from database after this.")
+    if "book meeting" in text:
+        tars.chat_postMessage(channel=event_data["event"]["channel"], text="Almost ready.")
 
 def reformat_time(ts):
     hour = int(ts.split(":")[0][-2:]) + 5
@@ -177,5 +185,199 @@ def reformat_time(ts):
         time = str(hour) + ":" + str(min) + " AM"
     return time
 
+@slack_events_adapter.on("team_join"):
+def team_join(event_data):
+    thread = threading.Thread(target=team_join_event_handler, args=(event_data,))
+    thread.start()
+    return "OK", 200
+
+def team_join_event_handler(event_data):
+    user = event_data["event"]["user"]["id"]
+    im_request = tars.im_open(user=user)
+    chat = im_request.data["channel"]["id"]
+    tars.chat_postMessage(channel=chat, blocks=[
+        {
+            "type": "section",
+            "text": {
+                "type": "plain_text",
+                "text": "Hello there! I'm TARS, and I help people at Solarillion do almost every task on Slack. You can visit the Home tab at any time to see what you need to tell me to get things done. I hope you enjoy your journey here. See you soon. *flashes cue light*­"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Oh, and one more thing. Carefully read the README file in the PythonBasics repository on GitHub (https://github.com/solarillion/PythonBasics) before you get started with your assignments. The Webhook URL is https://sf-hyouka.herokuapp.com/python and the Secret is `" + github_secret + "` (you'll need these later). Please do not share this anywhere else or with anyone else. Contact a TA if you have any other doubts. Bye for now!"
+            }
+        }
+    ])
+    tars.chat_postMessage(chat=orientation_id, text="The Python assignments are available at https://github.com/solarillion/PythonBasics along with instructions. Create a GitHub account if you don't have one and follow the instructions given to do your assignments. Don't hesitate to contact a TA if you have any doubts!")
+
+@slack_events_adapter.on("app_home_opened")
+def app_home_opened(event_data):
+    thread = threading.Thread(target=app_home_opened_event_handler, args=(event_data,))
+    thread.start()
+    return "OK", 200
+    
+def app_home_opened_event_handler(event_data):
+    user = event_data["event"]["user"]
+    ta = list(db.child("ta").get().val())
+    if user in ta:
+        tars.view_publish(user=user, view={
+                "type": "home",
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "Hi 👋 I'm TARS. I help people at SF do just about everything. Here are a few things that I do:"
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Sending notifications and information.",
+                                "emoji": true
+                            },
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Scheduling and posting Sir's office hours and TA hours.",
+                                "emoji": true
+                            },
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Updating JupyterHub and server SSH links.",
+                                "emoji": true
+                            },
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Booking meetings.",
+                                "emoji": true
+                            },
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Helping TAs do their job.",
+                                "emoji": true
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "And a whole lot more."
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*Office Hours*\nSir is sent the office hours request automatically every Saturday evening. They are posted every Sunday evening. If the server is down, the server admins take over and request or post the office hours."
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*TA Orientee Tracking*\nAll TAs and Sir can add or remove orientees from the SF orientee database, track their progress and verify assignments. The functions are:"
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `add orientee @SLACK_ID GITHUB GROUP`\nExample: `add orientee @FakeOrientee fake_orientee ML`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `remove orientee @SLACK_ID`\nExample: `remove orientee @FakeOrientee`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `show orientee @SLACK_ID`\nExample: `show orientee @FakeOrientee`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `verify orientee @SLACK_ID`\nExample: `verify orientee @FakeOrientee`"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Well, that's it for now, but I'll be doing a lot more in the future. Use my services well. Oh, and contact the server team if you have any feature requests or need help. *flashes cue light*"
+                        }
+                    }
+                ]
+        })
+    else:
+        tars.view_publish(user=user, view={
+                "type": "home",
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "Hi 👋 I'm TARS. I help people at SF do just about everything. Here are a few things that I do:"
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Sending notifications and information.",
+                                "emoji": true
+                            },
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Scheduling and posting Sir's office hours and TA hours.",
+                                "emoji": true
+                            },
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Updating JupyterHub and server SSH links.",
+                                "emoji": true
+                            },
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Booking meetings.",
+                                "emoji": true
+                            },
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Helping TAs do their job.",
+                                "emoji": true
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "And a whole lot more."
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*Office Hours*\nSir is sent the office hours request automatically every Saturday evening. They are posted every Sunday evening. If the server is down, the server admins take over and request or post the office hours."
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Well, that's it for now, but I'll be doing a lot more in the future. Use my services well. Oh, and contact the server team if you have any feature requests or need help. *flashes cue light*­"
+                        }
+                    }
+                ]
+        })
+
 if __name__ == "__main__":
-    app.run()
+    app.run(threaded=True)
