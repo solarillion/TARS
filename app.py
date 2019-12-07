@@ -223,7 +223,7 @@ def app_home_opened_event_handler(event_data):
     user = event_data["event"]["user"]
     ta = list(db.child("ta").get().val())
     if user in ta:
-        tars.views_publish(user=user, view={
+        tars.views_publish(user_id=user, view={
                 "type": "home",
                 "blocks": [
                     {
@@ -310,7 +310,7 @@ def app_home_opened_event_handler(event_data):
                 ]
         })
     else:
-        tars.views_publish(user=user, view={
+        tars.views_publish(user_id=user, view={
                 "type": "home",
                 "blocks": [
                     {
