@@ -96,7 +96,6 @@ def im_event_handler(event_data):
         if "O" in group:
             group = "IoT"
         db.child("orientee").child(slack_id).update({ "name": name, "join": join, "github": github, "group": group, "progress": "py1", "py_fin": "None", "g_fin": "None", "p_fin": "None"})
-        hyouka_db = hyouka_firebase.database()
         hyouka_db.child(github).update({"name": name, "group": group, "progress": "py1", "slack": slack_id})
         tars.chat_postMessage(channel=event_data["event"]["channel"], text="Added orientee!")
     if "remove orientee" in text:
