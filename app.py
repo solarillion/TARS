@@ -145,7 +145,7 @@ def im_event_handler(event_data):
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verification for py1 will be done through Hyouka.")
         elif status == "py2" or status == "py3":
             hyouka_status = hyouka_db.child(github).get().val()["progress"]
-            if hyouka_status == status:
+            if hyouka_status == status + "v":
                 db.child("orientee").child(slack_id).update({"progress": new_status[status]})
                 hyouka_db.child(github).update({"progress": new_status[status]})
                 tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified " + status + "!")
