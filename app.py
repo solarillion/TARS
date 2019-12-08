@@ -1,4 +1,4 @@
-# Authors: Nanda H Krishna (https://github.com/nandahkrishna), Abhijith Ragav (https://github.com/abhijithragav)
+# Authors: Nanda H Krishna (https://github.com/nandahkrishna)
 
 import os
 from datetime import *
@@ -146,25 +146,33 @@ def im_event_handler(event_data):
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verification for py1 will be done through Hyouka.")
         elif status == "py2" or status == "py3":
             hyouka_status = hyouka_db.child(github).get().val()["progress"]
-            if hyouka_status == new_status[status]:
+            if hyouka_status == status:
                 db.child("orientee").child(slack_id).update({"progress": new_status[status]})
+                hyouka_db.child(github).update({"progress": new_status[status]})
                 tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified " + status + "!")
+                orientee = tars.im_open(user=slack_id).data["channel"]["id"]
+                tars.chat_postMessage(channel=orientee, text="Verified " + status + "! Move on to " + new_status[status] + " now.")
                 if status == "py3":
                     db.child("orientee").child(slack_id).update({"py_fin": str(date.today())})
-                    tars.chat_postMessage(channel=event_data["event"]["channel"], text="Move on to the " + group + "assignments now.")
+                    tars.chat_postMessage(channel=event_data["event"]["channel"], text="On to the " + group + "assignments now.")
             else:
                 tars.chat_postMessage(channel=event_data["event"]["channel"], text="Not yet evaluated on Hyouka!")
         elif "p" != status[-1]:
             db.child("orientee").child(slack_id).update({"progress": new_status[status]})
             hyouka_db.child(github).update({"progress": new_status[status]})
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified" + status + "!")
+            orientee = tars.im_open(user=slack_id).data["channel"]["id"]
+            tars.chat_postMessage(channel=orientee, text="Verified " + status + "! Move on to " + new_status[status] + " now.")
             if "p" in new_status[status]:
                 db.child("orientee").child(slack_id).update({"g_fin":str( date.today())})
-            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified" + status + "!")
+                tars.chat_postMessage(channel=event_data["event"]["channel"], text="On to the " + group + "project now.")
         else:
             db.child("orientee").child(slack_id).update({"progress": "done"})
             db.child("orientee").child(slack_id).update({"p_fin": str(date.today())})
             hyouka_db.child(github).update({"progress": "done"})
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified! Project complete, book a review and remove orientee from database after this.")
+            orientee = tars.im_open(user=slack_id).data["channel"]["id"]
+            tars.chat_postMessage(channel=orientee, text="You have completed your project! Discuss with TAs and review your report. Great work!")
     if "book meeting" in text:
         tars.chat_postMessage(channel=event_data["event"]["channel"], text="Almost ready.")
 
