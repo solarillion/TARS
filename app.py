@@ -201,8 +201,24 @@ def im_event_handler(event_data):
                     item = db.child("meetings").child(i).get().val()
                     text = "`" + i.split("_")[1] + "`: " + item["desc"] + ", " + reformat_meeting_date(item["start"]) + " " + reformat_meeting_time(item["start"]) + " - " + reformat_meeting_time(item["end"])
                     tars.chat_postMessage(channel=event_data["event"]["channel"], text=text)
-    elif "delete meeting" in text:
-        pass
+        else:
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You haven't booked any meetings!")
+    elif "cancel meeting" in text:
+        slack_id = event_data["event"]["user"]
+        meetings = db.child("meetings").get().val()
+        if meetings is None:
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You haven't booked any meetings!")
+            return
+        id = text.split(" ")[2]
+        cancel = False
+        for i in list(meetings):
+            if slack_id in i and i.split("_")[1] == id:
+                db.child("cancels").update({i: "cancel"})
+                tars.chat_postMessage(channel=event_data["event"]["channel"], text="Alright, I'll cancel that one.")
+                cancel = True
+                break
+        if not cancel:
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="I couldn't find that meeting. Check again with `show meetings` and enter the correct meeting number.")
 
 def reformat_time(ts):
     t = time.fromisoformat(ts[11:19])
@@ -278,15 +294,15 @@ def app_home_opened_event_handler(event_data):
                             },
                             {
                                 "type": "plain_text",
+                                "text": "🤖 Booking meetings."
+                            },
+                            {
+                                "type": "plain_text",
                                 "text": "🤖 Scheduling and posting Sir's office hours and TA hours."
                             },
                             {
                                 "type": "plain_text",
                                 "text": "🤖 Updating JupyterHub and server SSH links."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Booking meetings."
                             },
                             {
                                 "type": "plain_text",
@@ -307,6 +323,42 @@ def app_home_opened_event_handler(event_data):
                             "type": "mrkdwn",
                             "text": "*Office Hours*\nSir is sent the office hours request automatically every Saturday evening. They are posted every Sunday evening. If the server is down, the server admins take over and request or post the office hours."
                         }
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*Meetings*\nBook meetings with Sir with my help. Check the week's office hours before you book a meeting. You can also view meetings you booked and cancel them. The functions are:"
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `book meeting MEETING_TITLE DAY_OF_WEEK TIME DURATION`\n`@PERSON_1 @PERSON_2 ...`\nExample: `book meeting Paper Review on Friday at 7pm for 15 minutes`\n`@YOURSELF @TEAMMATE`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":exclamation: This works with simple, natural language. You can enter `minutes` or `mins`, enter a date or a day or even something like `tomorrow`. The default duration is `15 minutes`. Press `enter` or `return` after typing the meeting details to add participants. You are not added as a participant by default, so `@YOURSELF` to add yourself. Do not add Sir as a participant, he is added automatically. You may also choose to not add participants at all."
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `show meetings`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":exclamation: This shows only the meetings that you have booked this week."
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `cancel meeting MEETING_NUMBER`\nExample: `cancel meeting 1`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the MEETING_NUMBER. Cancel the meeting using that number."
+                            }
+                        ]
                     },
                     {
                         "type": "section",
