@@ -60,7 +60,7 @@ function cancelEvent() {
     itemUrl = CANCELS_URL_WITHOUT_JSON + l + "/.json";
     meetingUrl = MEETINGS_URL_WITHOUT_JSON + l + "/.json";
     var meeting = UrlFetchApp.fetch(meetingUrl);
-    var m = JSON.parse(result.getContentText());
+    var m = JSON.parse(meeting.getContentText());
     var id = m.id;
     var event = CalendarApp.getEventById(id);
     event.deleteEvent();
