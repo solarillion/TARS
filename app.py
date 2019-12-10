@@ -199,7 +199,7 @@ def im_event_handler(event_data):
             for i in list(meetings):
                 if slack_id in i:
                     item = db.child("meetings").child(i).get().val()
-                    text = i + ": " + item["desc"] + ", " + reformat_meeting_date(item["start"]) + " " + reformat_meeting_time(item["start"]) + " - " + reformat_meeting_time(item["end"])
+                    text = "`" + i.split("_")[1] + "`: " + item["desc"] + ", " + reformat_meeting_date(item["start"]) + " " + reformat_meeting_time(item["start"]) + " - " + reformat_meeting_time(item["end"])
                     tars.chat_postMessage(channel=event_data["event"]["channel"], text=text)
     elif "delete meeting" in text:
         pass
