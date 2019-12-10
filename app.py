@@ -67,12 +67,13 @@ def message(event_data):
     return "OK", 200
 
 def im_event_handler(event_data):
+    texto = event_data["event"]["text"]
     text = event_data["event"]["text"].lower()
     if "request office hours" in text:
         tars.chat_postMessage(channel=vineethv_im_channel, text="Sir, please fill your office hours in this form: https://forms.gle/eMoayTXg5KJCata68")
-    if "remind office hours" in text:
+    elif "remind office hours" in text:
         tars.chat_postMessage(channel=vineethv_im_channel, text="Sir, if you haven't filled your office hours yet, please do so by 9 pm tonight. Here's the link to the form: https://forms.gle/eMoayTXg5KJCata68")
-    if "post office hours" in text:
+    elif "post office hours" in text:
         data = db.child("officehours").get().val()
         message = "Sir's office hours for the week:\n"
         for item in data[1:]:
@@ -80,7 +81,7 @@ def im_event_handler(event_data):
             item["end"] = reformat_time(item["end"])
             message += item["days"] + ": " + item["start"] + " - " + item["end"] + "\n"    
         tars.chat_postMessage(channel=general_id, text=message)
-    if "add orientee" in text:
+    elif "add orientee" in text:
         ta = list(db.child("ta").get().val())
         if event_data["event"]["user"] not in ta:
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
@@ -98,7 +99,7 @@ def im_event_handler(event_data):
         db.child("orientee").child(slack_id).update({ "name": name, "join": join, "github": github, "group": group, "progress": "py1", "py_fin": "None", "g_fin": "None", "p_fin": "None"})
         hyouka_db.child(github).update({"name": name, "group": group, "progress": "py1", "slack": slack_id})
         tars.chat_postMessage(channel=event_data["event"]["channel"], text="Added orientee!")
-    if "remove orientee" in text:
+    elif "remove orientee" in text:
         ta = list(db.child("ta").get().val())
         if event_data["event"]["user"] not in ta:
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
@@ -110,7 +111,7 @@ def im_event_handler(event_data):
         db.child("orientee").child(slack_id).remove()
         hyouka_db.child(github).remove()
         tars.chat_postMessage(channel=event_data["event"]["channel"], text="Removed from database. Also remove them from any orientee channels, and add them to research channels if required.")
-    if "show orientee" in text:
+    elif "show orientee" in text:
         ta = list(db.child("ta").get().val())
         if event_data["event"]["user"] not in ta:
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
@@ -127,7 +128,7 @@ def im_event_handler(event_data):
         if data["p_fin"] != "None":
             message += "\nProject end: " + data["p_fin"] + "\nAfter the project review, don't forget to remove orientee."
         tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
-    if "verify orientee" in text:
+    elif "verify orientee" in text:
         ta = list(db.child("ta").get().val())
         if event_data["event"]["user"] not in ta:
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
@@ -172,25 +173,53 @@ def im_event_handler(event_data):
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified! Project complete, book a review and remove orientee from database after this.")
             orientee = tars.im_open(user=slack_id).data["channel"]["id"]
             tars.chat_postMessage(channel=orientee, text="You have completed your project! Discuss with TAs and review your report. Great work!")
-    if "book meeting" in text:
-        tars.chat_postMessage(channel=event_data["event"]["channel"], text="Almost ready.")
+    elif "book meeting" in text:
+        slack_id = event_data["event"]["user"]
+        meetings = db.child("meetings").get().val()
+        id = "0"
+        if meetings is not None:
+            for i in list(meetings):
+                if slack_id in i:
+                    id = i
+        if id == "0":
+            id = slack_id + "_1"
+        else:
+            n = str(int(id.split("_")[1]) + 1)
+            id = slack_id + "_" + n
+        lines = texto.split("\n")
+        meeting = " ".join(lines[0].split(" ")[2:])
+        people = lines[1].replace("@", "").replace("<", "").replace(">", "").upper().split()
+        people = list(map(lambda x: tars.users_info(user=x).data["user"]["profile"]["email"], people))
+        db.child("bookings").child(id).set({"meeting": meeting, "people": people})
+        tars.chat_postMessage(channel=event_data["event"]["channel"], text="The meeting has been booked!")
+    elif "show meeting" in text:
+        slack_id = event_data["event"]["user"]
+        meetings = db.child("meetings").get().val()
+        if meetings is not None:
+            for i in list(meetings):
+                if slack_id in i:
+                    item = db.child("meetings").child(i).get().val()
+                    text = i + ": " + item["desc"] + ", " + reformat_meeting_date(item["start"]) + " " + reformat_meeting_time(item["start"]) + " - " + reformat_meeting_time(item["end"])
+                    tars.chat_postMessage(channel=event_data["event"]["channel"], text=text)
+    elif "delete meeting" in text:
+        pass
 
 def reformat_time(ts):
-    hour = int(ts.split(":")[0][-2:]) + 5
-    min = int(ts.split(":")[1][:2]) + 22
-    if min >= 60:
-        min -= 60
-        hour += 1
-    time = ""
-    if len(str(min)) == 1:
-        min = "0" + str(min)
-    if hour >= 12:
-        if hour != 12:
-            hour -= 12
-        time = str(hour) + ":" + str(min) + " PM"
-    else:
-        time = str(hour) + ":" + str(min) + " AM"
-    return time
+    t = time.fromisoformat(ts[11:19])
+    t = t + timedelta(hours=5, minutes=21, seconds=10)
+    return t.strftime("%I:%M %p")
+
+def reformat_meeting_date(ts):
+    d = date.fromisoformat(ts[:10])
+    h = int(ts.split(":")[0][-2:]) + 5
+    if h >= 24:
+        d = d + timedelta(days=1)
+    return d.strftime("%d-%m-%Y")
+
+def reformat_meeting_time(ts):
+    t = time.fromisoformat(ts[11:19])
+    t = t + timedelta(hours=5, minutes=30)
+    return t.strftime("%I:%M %p")
 
 @slack_events_adapter.on("team_join")
 def team_join(event_data):
