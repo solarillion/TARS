@@ -58,7 +58,7 @@ hyouka_db = hyouka_firebase.database()
 
 @app.route("/", methods=["GET"])
 def index():
-    return render_template("index.html")
+    return redirect("https://solarillionfoundation.org/projects/TARS")
 
 @slack_events_adapter.on("message")
 def message(event_data):
@@ -336,11 +336,11 @@ def app_home_opened_event_handler(event_data):
                         "fields": [
                             {
                                 "type": "mrkdwn",
-                                "text": ":point_right: `book meeting MEETING_TITLE DAY_OF_WEEK TIME DURATION`\n`@PERSON_1 @PERSON_2 ...`\nExample: `book meeting Paper Review on Friday at 7pm for 15 minutes`\n`@YOURSELF @TEAMMATE`"
+                                "text": ":point_right: `book meeting MEETING_TITLE DAY_OF_WEEK TIME DURATION`\n:arrow_right:`@PERSON_1 @PERSON_2 ...`\nExample: `book meeting Paper Review on Friday at 7pm for 15 minutes`\n`@YOURSELF @TEAMMATE`"
                             },
                             {
                                 "type": "mrkdwn",
-                                "text": ":exclamation: This works with simple, natural language. You can enter `minutes` or `mins`, enter a date or a day or even something like `tomorrow`. The default duration is `15 minutes`. Press `enter` or `return` after typing the meeting details to add participants. You are not added as a participant by default, so `@YOURSELF` to add yourself. Do not add Sir as a participant, he is added automatically. You may also choose to not add participants at all."
+                                "text": ":exclamation: This works with simple, natural language. You can enter `minutes` or `mins`, enter a date or a day or even something like `tomorrow`. The default duration is `15 minutes`. Press `enter` or `return` after typing the meeting details to add participants, in a new line. You are not added as a participant by default, so `@YOURSELF` to add yourself. Do not add Sir as a participant, he is added automatically. You may also choose to not add participants at all."
                             },
                             {
                                 "type": "mrkdwn",
@@ -356,7 +356,7 @@ def app_home_opened_event_handler(event_data):
                             },
                             {
                                 "type": "mrkdwn",
-                                "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the MEETING_NUMBER. Cancel the meeting using that number."
+                                "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number."
                             }
                         ]
                     },
