@@ -218,7 +218,7 @@ def reformat_meeting_date(ts):
 
 def reformat_meeting_time(ts):
     t = time.fromisoformat(ts[11:19])
-    t = t + timedelta(hours=5, minutes=30)
+    t = datetime.combine(date.today(), t) + timedelta(hours=5, minutes=30)
     return t.strftime("%I:%M %p")
 
 @slack_events_adapter.on("team_join")
