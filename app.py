@@ -219,6 +219,12 @@ def im_event_handler(event_data):
                 break
         if not cancel:
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="I couldn't find that meeting. Check again with `show meetings` and enter the correct meeting number.")
+    elif "request ta hours":
+        pass
+    elif "post weekday ta hours":
+        pass
+    elif "post weekend ta hours":
+        pass
 
 def reformat_time(ts):
     t = time.fromisoformat(ts[11:19])
