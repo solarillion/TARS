@@ -188,8 +188,11 @@ def im_event_handler(event_data):
             id = slack_id + "_" + n
         lines = texto.split("\n")
         meeting = " ".join(lines[0].split(" ")[2:])
-        people = lines[1].replace("@", "").replace("<", "").replace(">", "").upper().split()
-        people = list(map(lambda x: tars.users_info(user=x).data["user"]["profile"]["email"], people))
+        people = [vineethv_id, slack_id]
+        if len(lines) == 2:
+            add =  lines[1].replace("@", "").replace("<", "").replace(">", "").upper().split()
+            add = list(map(lambda x: tars.users_info(user=x).data["user"]["profile"]["email"], add))
+            people = people + add
         db.child("bookings").child(id).set({"meeting": meeting, "people": people})
         tars.chat_postMessage(channel=event_data["event"]["channel"], text="The meeting has been booked!")
     elif "show meeting" in text:
@@ -342,11 +345,11 @@ def app_home_opened_event_handler(event_data):
                         "fields": [
                             {
                                 "type": "mrkdwn",
-                                "text": ":point_right: `book meeting MEETING_TITLE DAY_OF_WEEK TIME DURATION`\n:arrow_right:`@PERSON_1 @PERSON_2 ...`\nExample: `book meeting Paper Review on Friday at 7pm for 15 minutes`\n`@YOURSELF @TEAMMATE`"
+                                "text": ":point_right: `book meeting MEETING_TITLE DAY_OF_WEEK TIME DURATION`\n:arrow_right:`@PERSON_1 @PERSON_2 ...`\nExample: `book meeting Paper Review on Friday at 7pm for 15 minutes`\n`@TEAMMATE1 @TEAMMATE2`"
                             },
                             {
                                 "type": "mrkdwn",
-                                "text": ":exclamation: This works with simple, natural language. You can enter `minutes` or `mins`, enter a date or a day or even something like `tomorrow`. The default duration is `15 minutes`. Press `enter` or `return` after typing the meeting details to add participants, in a new line. You are not added as a participant by default, so `@YOURSELF` to add yourself. Do not add Sir as a participant, he is added automatically. You may also choose to not add participants at all."
+                                "text": ":exclamation: This works with simple, natural language. You can enter `minutes` or `mins`, enter a date or a day or even something like `tomorrow`. The default duration is `15 minutes`. Press `enter` or `return` after typing the meeting details to add participants, in a new line. You are added as a participant by default, so you needn't add yourself. Do not add Sir as a participant, he is also added automatically. You may choose to not add any additional participants at all."
                             },
                             {
                                 "type": "mrkdwn",
