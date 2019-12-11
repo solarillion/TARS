@@ -7,7 +7,7 @@ from dateutil.rrule import *
 import json
 import requests
 import threading
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, redirect, request
 import slack
 from slackeventsapi import SlackEventAdapter
 import pyrebase
@@ -188,7 +188,7 @@ def im_event_handler(event_data):
             id = slack_id + "_" + n
         lines = texto.split("\n")
         meeting = " ".join(lines[0].split(" ")[2:])
-        people = [vineethv_id, slack_id]
+        people = [slack_id]
         if len(lines) == 2:
             add =  lines[1].replace("@", "").replace("<", "").replace(">", "").upper().split()
             add = list(map(lambda x: tars.users_info(user=x).data["user"]["profile"]["email"], add))
