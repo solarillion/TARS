@@ -15,8 +15,9 @@ import pyrebase
 app = Flask(__name__)
 app.debug = True
 
-tars_admin = os.environ.get("TARS_ADMIN")
 tars_token = os.environ.get("TARS_TOKEN")
+tars_user_token = os.environ.get("TARS_USER_TOKEN")
+tars_admin = os.environ.get("TARS_ADMIN")
 tars_secret = os.environ.get("TARS_SECRET")
 tars_bot_id = os.environ.get("TARS_BOT_ID")
 general_id = os.environ.get("GENERAL_ID")
@@ -36,6 +37,7 @@ hyouka_fb_sb = os.environ.get("HYOUKA_FB_SB")
 github_secret = os.environ.get("GITHUB_SECRET")
 
 tars = slack.WebClient(token=tars_token)
+tars_user = slack.WebClient(token=tars_user_token)
 slack_events_adapter = SlackEventAdapter(tars_secret, "/event", app)
 
 vineethv_im_request = tars.im_open(user=vineethv_id)
@@ -113,7 +115,7 @@ def im_event_handler(event_data):
         github = db.child("orientee").child(slack_id).get().val()["github"]
         db.child("orientee").child(slack_id).remove()
         hyouka_db.child(github).remove()
-        tars.chat_postMessage(channel=event_data["event"]["channel"], text="Removed from database. Also remove them from any orientee channels, and add them to research channels if required.")
+        tars.chat_postMessage(channel=event_data["event"]["channel"], text="Removed from database.")
     elif "show orientee" in text:
         ta = list(db.child("ta").get().val())
         if event_data["event"]["user"] not in ta:
@@ -163,20 +165,20 @@ def im_event_handler(event_data):
         elif "p" != status[-1]:
             db.child("orientee").child(slack_id).update({"progress": new_status[status]})
             hyouka_db.child(github).update({"progress": new_status[status]})
-            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified" + status + "!")
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified " + status + "!")
             orientee = tars.im_open(user=slack_id).data["channel"]["id"]
             tars.chat_postMessage(channel=orientee, text="Verified " + status + "! Move on to " + new_status[status] + " now.")
             if "p" in new_status[status]:
                 db.child("orientee").child(slack_id).update({"g_fin":str( date.today())})
-                tars.groups_kick(channel=orientation_id, user=slack_id)
-                tars.groups_invite(channel=project_id, user=slack_id)
+                tars_user.groups_kick(channel=orientation_id, user=slack_id)
+                tars_user.groups_invite(channel=project_id, user=slack_id)
                 tars.chat_postMessage(channel=event_data["event"]["channel"], text="On to the " + group + "project now. Next verification only after Sir's reviews.")
         else:
             db.child("orientee").child(slack_id).update({"progress": "done"})
             db.child("orientee").child(slack_id).update({"p_fin": str(date.today())})
             hyouka_db.child(github).update({"progress": "done"})
-            tars.groups_kick(channel=project_id, user=slack_id)
-            tars.groups_invite(channel=sf_research, user=slack_id)
+            tars_user.groups_kick(channel=project_id, user=slack_id)
+            tars_user.groups_invite(channel=sf_research, user=slack_id)
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified! Project and reviews complete, added orientee to #sf_research.")
             orientee = tars.im_open(user=slack_id).data["channel"]["id"]
             tars.chat_postMessage(channel=orientee, text="You have completed your project. Great work!")
@@ -284,7 +286,7 @@ def team_join_event_handler(event_data):
             }
         }
     ])
-    tars.chat_postMessage(chat=orientation_id, text="The Python assignments are available at https://github.com/solarillion/PythonBasics along with instructions. Create a GitHub account if you don't have one and follow the instructions given to do your assignments. Don't hesitate to contact a TA if you have any doubts!")
+    tars.chat_postMessage(channel=orientation_id, text="The Python assignments are available at https://github.com/solarillion/PythonBasics along with instructions. Create a GitHub account if you don't have one and follow the instructions given to do your assignments. Don't hesitate to contact a TA if you have any doubts!")
 
 @slack_events_adapter.on("app_home_opened")
 def app_home_opened(event_data):
