@@ -549,6 +549,8 @@ def app_mention_event_handler(event_data):
                     }
                 ]
             })
+            print(question_block)
+            print(options_blocks)
             poll = tars.chat_postMessage(channel=event_data["event"]["channel"], text=question + " Poll", blocks=list(question_block) + options_blocks)
         except Exception as e:
             print(e)
