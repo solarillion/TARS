@@ -274,7 +274,7 @@ def team_join_event_handler(event_data):
     user = event_data["event"]["user"]["id"]
     im_request = tars.im_open(user=user)
     chat = im_request.data["channel"]["id"]
-    tars.chat_postMessage(channel=chat, blocks=[
+    tars.chat_postMessage(channel=chat, text="Hello there!", blocks=[
         {
             "type": "section",
             "text": {
@@ -483,6 +483,32 @@ def app_home_opened_event_handler(event_data):
                     }
                 ]
         })
+
+@slack_events_adapter.on("app_mention")
+def app_mention(event_data):
+    thread = threading.Thread(target=app_mention_event_handler, args=(event_data,))
+    thread.start()
+    return "OK", 200
+    
+def app_mention_event_handler(event_data):
+    text = event_data["event"]["text"]
+    if "poll" in text.lower():
+        try:
+            text = text.split()[2:]
+            question = text[0]
+            options = text[1:]
+            question_block = {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "*" + question + "*"
+                }
+            }
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text=question + " Poll", blocks=[
+                question_block
+            ])
+        except:
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Syntax for polls is `@TARS poll question option1 option2 ...`")
 
 @app.route("/interact", methods=["GET"])
 def interact():
