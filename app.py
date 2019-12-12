@@ -495,15 +495,10 @@ def app_mention_event_handler(event_data):
     if "poll" in text.lower():
         try:
             text = text.split()[2:]
-            tars.chat_postMessage(channel="UDD17R796", text="LOL")
             question = text[0]
-            tars.chat_postMessage(channel="UDD17R796", text="LOL")
             options = text[1:]
-            tars.chat_postMessage(channel="UDD17R796", text="LOL")
             emoji = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "keycap_ten"]
-            tars.chat_postMessage(channel="UDD17R796", text="LOL")
             if len(options) > 10:
-                tars.chat_postMessage(channel="UDD17R796", text="LOL")
                 raise Exception("Too many options!")
             question_block = {
                 "type": "section",
@@ -512,11 +507,8 @@ def app_mention_event_handler(event_data):
                     "text": "*" + question + "*"
                 }
             }
-            tars.chat_postMessage(channel="UDD17R796", text="LOL")
             options_blocks = []
-            tars.chat_postMessage(channel="UDD17R796", text="LOL")
             for i in range(len(options)):
-                tars.chat_postMessage(channel="UDD17R796", text="LOL")
                 question_block["text"]["text"] += "\n:" + emoji[i] + ": " + options[i]
                 options_blocks.append({
                     "type": "actions",
@@ -531,7 +523,6 @@ def app_mention_event_handler(event_data):
                         }
                     ]
                 })
-            tars.chat_postMessage(channel="UDD17R796", text="LOL")
             options_blocks.append({
                 "type": "actions",
                 "elements": [
@@ -545,7 +536,6 @@ def app_mention_event_handler(event_data):
                     }
                 ]
             })
-            tars.chat_postMessage(channel="UDD17R796", text="LOL")
             options_blocks.append({
                 "type": "actions",
                 "elements": [
@@ -559,12 +549,9 @@ def app_mention_event_handler(event_data):
                     }
                 ]
             })
-            tars.chat_postMessage(channel="UDD17R796", text="LOL")
-            poll = tars.chat_postMessage(channel=event_data["event"]["channel"], text=question + " Poll", blocks=list(question_block) + options_blocks)
-            tars.chat_postMessage(channel="UDD17R796", text="LOL")
+            poll = tars.chat_postMessage(channel=event_data["event"]["channel"], text=question + " Poll", blocks=[question_block] + options_blocks)
         except Exception as e:
             print(e)
-            tars.chat_postMessage(channel="UDD17R796", text="LOL")
             tars.chat_postEphemeral(channel=event_data["event"]["channel"], user=event_data["event"]["user"], text="Syntax for polls is `@TARS poll question option1 option2 ...` with a maximum of `10` options.")
 
 @app.route("/interact", methods=["GET"])
