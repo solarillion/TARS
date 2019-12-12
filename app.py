@@ -21,6 +21,8 @@ tars_secret = os.environ.get("TARS_SECRET")
 tars_bot_id = os.environ.get("TARS_BOT_ID")
 general_id = os.environ.get("GENERAL_ID")
 orientation_id = os.environ.get("ORIENTATION_ID")
+project_id = os.environ.get("PROJECT_ID")
+sf_research = os.environ.get("SF_RESEARCH")
 vineethv_id = os.environ.get("VINEETHV_ID")
 office_hours_form = os.environ.get("OFFICE_HOURS_FORM")
 firebase_api_key = os.environ.get("FIREBASE_API_KEY")
@@ -166,14 +168,19 @@ def im_event_handler(event_data):
             tars.chat_postMessage(channel=orientee, text="Verified " + status + "! Move on to " + new_status[status] + " now.")
             if "p" in new_status[status]:
                 db.child("orientee").child(slack_id).update({"g_fin":str( date.today())})
-                tars.chat_postMessage(channel=event_data["event"]["channel"], text="On to the " + group + "project now.")
+                tars.groups_kick(channel=orientation_id, user=slack_id)
+                tars.groups_invite(channel=project_id, user=slack_id)
+                tars.chat_postMessage(channel=event_data["event"]["channel"], text="On to the " + group + "project now. Next verification only after Sir's reviews.")
         else:
             db.child("orientee").child(slack_id).update({"progress": "done"})
             db.child("orientee").child(slack_id).update({"p_fin": str(date.today())})
             hyouka_db.child(github).update({"progress": "done"})
-            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified! Project complete, book a review and remove orientee from database after this.")
+            tars.groups_kick(channel=project_id, user=slack_id)
+            tars.groups_invite(channel=sf_research, user=slack_id)
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified! Project and reviews complete, added orientee to #sf_research.")
             orientee = tars.im_open(user=slack_id).data["channel"]["id"]
-            tars.chat_postMessage(channel=orientee, text="You have completed your project! Discuss with TAs and review your report. Great work!")
+            tars.chat_postMessage(channel=orientee, text="You have completed your project. Great work!")
+            tars.chat_postMessage(channel=tars_admin, text="Added <@" + slack_id + "> to #sf_research, execute `remove orientee` later on.")
     elif "book meeting" in text:
         slack_id = event_data["event"]["user"]
         meetings = db.child("meetings").get().val()
@@ -470,6 +477,10 @@ def app_home_opened_event_handler(event_data):
                     }
                 ]
         })
+
+@app.route("/interact", methods=["GET"])
+def interact():
+    pass
 
 if __name__ == "__main__":
     app.run(threaded=True)
