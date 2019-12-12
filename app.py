@@ -497,6 +497,9 @@ def app_mention_event_handler(event_data):
             text = text.split()[2:]
             question = text[0]
             options = text[1:]
+            emoji = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "keycap_ten"]
+            if len(options) > 10:
+                raise Exception("Too many options!")
             question_block = {
                 "type": "section",
                 "text": {
@@ -504,11 +507,51 @@ def app_mention_event_handler(event_data):
                     "text": "*" + question + "*"
                 }
             }
-            tars.chat_postMessage(channel=event_data["event"]["channel"], text=question + " Poll", blocks=[
-                question_block
-            ])
+            options_blocks = []
+            for i in range(len(options)):
+                question_block["text"]["text"] += "\n:" + emoji[i] + ": " + options[i]
+                options_blocks.append({
+                    "type": "actions",
+                    "elements": [
+                        {
+                            "type": "button",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": ":" + emoji[i] + ":"
+                            },
+                            "value": emoji[i] + "_poll"
+                        }
+                    ]
+                })
+            options_blocks.append({
+                "type": "actions",
+                "elements": [
+                    {
+                        "type": "button",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": ":white_check_mark: End Poll"
+                        },
+                        "value": "end_poll"
+                    }
+                ]
+            })
+            options_blocks.append({
+                "type": "actions",
+                "elements": [
+                    {
+                        "type": "button",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": ":x: Delete Poll"
+                        },
+                        "value": "delete_poll"
+                    }
+                ]
+            })
+            poll = tars.chat_postMessage(channel=event_data["event"]["channel"], text=question + " Poll", blocks=blocks)
         except:
-            tars.chat_postEphemeral(channel=event_data["event"]["channel"], user=event_data["event"]["user"], text="Syntax for polls is `@TARS poll question option1 option2 ...`")
+            tars.chat_postEphemeral(channel=event_data["event"]["channel"], user=event_data["event"]["user"], text="Syntax for polls is `@TARS poll question option1 option2 ...` with a maximum of `10` options.")
 
 @app.route("/interact", methods=["GET"])
 def interact():
