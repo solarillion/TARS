@@ -22,6 +22,7 @@ tars_bot_id = os.environ.get("TARS_BOT_ID")
 general_id = os.environ.get("GENERAL_ID")
 orientation_id = os.environ.get("ORIENTATION_ID")
 vineethv_id = os.environ.get("VINEETHV_ID")
+office_hours_form = os.environ.get("OFFICE_HOURS_FORM")
 firebase_api_key = os.environ.get("FIREBASE_API_KEY")
 tars_fb_ad = os.environ.get("TARS_FB_AD")
 tars_fb_url = os.environ.get("TARS_FB_URL")
@@ -72,7 +73,7 @@ def im_event_handler(event_data):
     if "request office hours" in text:
         tars.chat_postMessage(channel=vineethv_im_channel, text="Sir, please fill your office hours in this form: https://forms.gle/eMoayTXg5KJCata68")
     elif "remind office hours" in text:
-        tars.chat_postMessage(channel=vineethv_im_channel, text="Sir, if you haven't filled your office hours yet, please do so by 9 pm tonight. Here's the link to the form: https://forms.gle/eMoayTXg5KJCata68")
+        tars.chat_postMessage(channel=vineethv_im_channel, text="Sir, if you haven't filled your office hours yet, please do so by 9 pm tonight. Here's the link to the form: " + office_hours_form)
     elif "post office hours" in text:
         data = db.child("officehours").get().val()
         message = "Sir's office hours for the week:\n"
@@ -222,11 +223,15 @@ def im_event_handler(event_data):
                 break
         if not cancel:
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="I couldn't find that meeting. Check again with `show meetings` and enter the correct meeting number.")
-    elif "request ta hours":
+    elif "request ta hours" in text:
         pass
-    elif "post weekday ta hours":
+    elif "remind weekday ta hours" in text:
         pass
-    elif "post weekend ta hours":
+    elif "remind weekend ta hours" in text:
+        pass
+    elif "post weekday ta hours" in text:
+        pass
+    elif "post weekend ta hours" in text:
         pass
 
 def reformat_time(ts):
