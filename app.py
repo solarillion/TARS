@@ -516,7 +516,7 @@ def app_mention_event_handler(event_data):
                         {
                             "type": "button",
                             "text": {
-                                "type": "mrkdwn",
+                                "type": "plain_text",
                                 "text": ":" + emoji[i] + ":"
                             },
                             "value": emoji[i] + "_poll"
@@ -529,7 +529,7 @@ def app_mention_event_handler(event_data):
                     {
                         "type": "button",
                         "text": {
-                            "type": "mrkdwn",
+                            "type": "plain_text",
                             "text": ":white_check_mark: End Poll"
                         },
                         "value": "end_poll"
@@ -542,7 +542,7 @@ def app_mention_event_handler(event_data):
                     {
                         "type": "button",
                         "text": {
-                            "type": "mrkdwn",
+                            "type": "plain_text",
                             "text": ":x: Delete Poll"
                         },
                         "value": "delete_poll"
