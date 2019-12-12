@@ -508,7 +508,7 @@ def app_mention_event_handler(event_data):
                 question_block
             ])
         except:
-            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Syntax for polls is `@TARS poll question option1 option2 ...`")
+            tars.chat_postEphemeral(channel=event_data["event"]["channel"], user=event_data["event"]["user"], text="Syntax for polls is `@TARS poll question option1 option2 ...`")
 
 @app.route("/interact", methods=["GET"])
 def interact():
