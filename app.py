@@ -30,10 +30,12 @@ firebase_api_key = os.environ.get("FIREBASE_API_KEY")
 tars_fb_ad = os.environ.get("TARS_FB_AD")
 tars_fb_url = os.environ.get("TARS_FB_URL")
 tars_fb_sb = os.environ.get("TARS_FB_SB")
+key_fb_tars = os.environ.get("KEY_FB_TARS")
 hyouka_fb_key = os.environ.get("HYOUKA_FB_KEY")
 hyouka_fb_ad = os.environ.get("HYOUKA_FB_AD")
 hyouka_fb_url = os.environ.get("HYOUKA_FB_URL")
 hyouka_fb_sb = os.environ.get("HYOUKA_FB_SB")
+key_fb_hyouka = os.environ.get("KEY_FB_HYOUKA")
 github_secret = os.environ.get("GITHUB_SECRET")
 
 tars = slack.WebClient(token=tars_token)
@@ -79,7 +81,7 @@ def im_event_handler(event_data):
     elif "remind office hours" in text:
         tars.chat_postMessage(channel=vineethv_im_channel, text="Sir, if you haven't filled your office hours yet, please do so by 9 pm tonight. Here's the link to the form: " + office_hours_form)
     elif "post office hours" in text:
-        data = db.child("officehours").get().val()
+        data = db.child(key_fb_tars).child("officehours").get().val()
         message = "Sir's office hours for the week:\n"
         for item in data[1:]:
             item["start"] = reformat_time(item["start"])
@@ -87,7 +89,7 @@ def im_event_handler(event_data):
             message += item["days"] + ": " + item["start"] + " - " + item["end"] + "\n"    
         tars.chat_postMessage(channel=general_id, text=message)
     elif "add orientee" in text:
-        ta = list(db.child("ta").get().val())
+        ta = list(db.child(key_fb_tars).child("ta").get().val())
         if event_data["event"]["user"] not in ta:
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
             return
@@ -101,30 +103,30 @@ def im_event_handler(event_data):
         group = words[2].upper()
         if "O" in group:
             group = "IoT"
-        db.child("orientee").child(slack_id).update({ "name": name, "join": join, "github": github, "group": group, "progress": "py1", "py_fin": "None", "g_fin": "None", "p_fin": "None"})
-        hyouka_db.child(github).update({"name": name, "group": group, "progress": "py1", "slack": slack_id})
+        db.child(key_fb_tars).child("orientee").child(slack_id).update({ "name": name, "join": join, "github": github, "group": group, "progress": "py1", "py_fin": "None", "g_fin": "None", "p_fin": "None"})
+        hyouka_db.child(key_fb_hyouka).child(github).update({"name": name, "group": group, "progress": "py1", "slack": slack_id})
         tars.chat_postMessage(channel=event_data["event"]["channel"], text="Added orientee!")
     elif "remove orientee" in text:
-        ta = list(db.child("ta").get().val())
+        ta = list(db.child(key_fb_tars).child("ta").get().val())
         if event_data["event"]["user"] not in ta:
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
             return
         slack_id = text.split()[2].replace("@", "").upper()
         slack_id = slack_id.replace("<", "")
         slack_id = slack_id.replace(">", "")
-        github = db.child("orientee").child(slack_id).get().val()["github"]
-        db.child("orientee").child(slack_id).remove()
-        hyouka_db.child(github).remove()
+        github = db.child(key_fb_tars).child("orientee").child(slack_id).get().val()["github"]
+        db.child(key_fb_tars).child("orientee").child(slack_id).remove()
+        hyouka_db.child(key_fb_hyouka).child(github).remove()
         tars.chat_postMessage(channel=event_data["event"]["channel"], text="Removed from database.")
     elif "show orientee" in text:
-        ta = list(db.child("ta").get().val())
+        ta = list(db.child(key_fb_tars).child("ta").get().val())
         if event_data["event"]["user"] not in ta:
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
             return
         slack_id = text.split()[2].replace("@", "").upper()
         slack_id = slack_id.replace("<", "")
         slack_id = slack_id.replace(">", "")
-        data = db.child("orientee").child(slack_id).get().val()
+        data = db.child(key_fb_tars).child("orientee").child(slack_id).get().val()
         message = "Progress of " + data["name"] + ":\nJoined: " + data["join"] + "\nGroup: " + data["group"] + "\nStatus: " + data["progress"]
         if data["py_fin"] != "None":
             message += "\nPython end: " + data["py_fin"]
@@ -134,14 +136,14 @@ def im_event_handler(event_data):
             message += "\nProject end: " + data["p_fin"] + "\nAfter the project review, don't forget to remove orientee."
         tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
     elif "verify orientee" in text:
-        ta = list(db.child("ta").get().val())
+        ta = list(db.child(key_fb_tars).child("ta").get().val())
         if event_data["event"]["user"] not in ta:
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
             return
         slack_id = text.split()[2].replace("@", "").upper()
         slack_id = slack_id.replace("<", "")
         slack_id = slack_id.replace(">", "")
-        data = db.child("orientee").child(slack_id).get().val()
+        data = db.child(key_fb_tars).child("orientee").child(slack_id).get().val()
         status = data["progress"]
         github = data["github"]
         message = "Current status: " + status
@@ -150,35 +152,35 @@ def im_event_handler(event_data):
         if status == "py1":
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verification for py1 will be done through Hyouka.")
         elif status == "py2" or status == "py3":
-            hyouka_status = hyouka_db.child(github).get().val()["progress"]
+            hyouka_status = hyouka_db.child(key_fb_hyouka).child(github).get().val()["progress"]
             if hyouka_status == status + "v":
-                db.child("orientee").child(slack_id).update({"progress": new_status[status]})
-                hyouka_db.child(github).update({"progress": new_status[status]})
+                db.child(key_fb_tars).child("orientee").child(slack_id).update({"progress": new_status[status]})
+                hyouka_db.child(key_fb_hyouka).child(github).update({"progress": new_status[status]})
                 tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified " + status + "!")
                 orientee = tars.im_open(user=slack_id).data["channel"]["id"]
                 tars.chat_postMessage(channel=orientee, text="Verified " + status + "! Move on to " + new_status[status] + " now.")
                 if status == "py3":
-                    db.child("orientee").child(slack_id).update({"py_fin": str(date.today())})
-                    group = db.child("orientee").child(slack_id).child("group").get().val()
+                    db.child(key_fb_tars).child("orientee").child(slack_id).update({"py_fin": str(date.today())})
+                    group = db.child(key_fb_tars).child("orientee").child(slack_id).child("group").get().val()
                     tars.chat_postMessage(channel=event_data["event"]["channel"], text="On to the " + group + " assignments now.")
             else:
                 tars.chat_postMessage(channel=event_data["event"]["channel"], text="Not yet evaluated on Hyouka!")
         elif "p" != status[-1]:
-            db.child("orientee").child(slack_id).update({"progress": new_status[status]})
-            hyouka_db.child(github).update({"progress": new_status[status]})
+            db.child(key_fb_tars).child("orientee").child(slack_id).update({"progress": new_status[status]})
+            hyouka_db.child(key_fb_hyouka).child(github).update({"progress": new_status[status]})
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified " + status + "!")
             orientee = tars.im_open(user=slack_id).data["channel"]["id"]
             tars.chat_postMessage(channel=orientee, text="Verified " + status + "! Move on to " + new_status[status] + " now.")
             if "p" in new_status[status]:
-                db.child("orientee").child(slack_id).update({"g_fin":str( date.today())})
-                group = db.child("orientee").child(slack_id).child("group").get().val()
+                db.child(key_fb_tars).child("orientee").child(slack_id).update({"g_fin":str( date.today())})
+                group = db.child(key_fb_tars).child("orientee").child(slack_id).child("group").get().val()
                 tars_user.groups_kick(channel=orientation_id, user=slack_id)
                 tars_user.groups_invite(channel=project_id, user=slack_id)
                 tars.chat_postMessage(channel=event_data["event"]["channel"], text="On to the " + group + " project now. Next verification only after Sir's reviews.")
         else:
-            db.child("orientee").child(slack_id).update({"progress": "done"})
-            db.child("orientee").child(slack_id).update({"p_fin": str(date.today())})
-            hyouka_db.child(github).update({"progress": "done"})
+            db.child(key_fb_tars).child("orientee").child(slack_id).update({"progress": "done"})
+            db.child(key_fb_tars).child("orientee").child(slack_id).update({"p_fin": str(date.today())})
+            hyouka_db.child(key_fb_hyouka).child(github).update({"progress": "done"})
             tars_user.groups_kick(channel=project_id, user=slack_id)
             tars_user.groups_invite(channel=sf_research, user=slack_id)
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified! Project and reviews complete, added orientee to #sf_research.")
@@ -187,7 +189,7 @@ def im_event_handler(event_data):
             tars.chat_postMessage(channel=tars_admin, text="Added <@" + slack_id + "> to #sf_research, execute `remove orientee` later on.")
     elif "book meeting" in text:
         slack_id = event_data["event"]["user"]
-        meetings = db.child("meetings").get().val()
+        meetings = db.child(key_fb_tars).child("meetings").get().val()
         id = "0"
         if meetings is not None:
             for i in list(meetings):
@@ -205,22 +207,22 @@ def im_event_handler(event_data):
             add =  lines[1].replace("@", "").replace("<", "").replace(">", "").upper().split()
             add = list(map(lambda x: tars.users_info(user=x).data["user"]["profile"]["email"], add))
             people = people + add
-        db.child("bookings").child(id).set({"meeting": meeting, "people": people})
+        db.child(key_fb_tars).child("bookings").child(id).set({"meeting": meeting, "people": people})
         tars.chat_postMessage(channel=event_data["event"]["channel"], text="The meeting has been booked!")
     elif "show meeting" in text:
         slack_id = event_data["event"]["user"]
-        meetings = db.child("meetings").get().val()
+        meetings = db.child(key_fb_tars).child("meetings").get().val()
         if meetings is not None:
             for i in list(meetings):
                 if slack_id in i:
-                    item = db.child("meetings").child(i).get().val()
+                    item = db.child(key_fb_tars).child("meetings").child(i).get().val()
                     text = "`" + i.split("_")[1] + "`: " + item["desc"] + ", " + reformat_meeting_date(item["start"]) + " " + reformat_meeting_time(item["start"]) + " - " + reformat_meeting_time(item["end"])
                     tars.chat_postMessage(channel=event_data["event"]["channel"], text=text)
         else:
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="You haven't booked any meetings!")
     elif "cancel meeting" in text:
         slack_id = event_data["event"]["user"]
-        meetings = db.child("meetings").get().val()
+        meetings = db.child(key_fb_tars).child("meetings").get().val()
         if meetings is None:
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="You haven't booked any meetings!")
             return
@@ -228,7 +230,7 @@ def im_event_handler(event_data):
         cancel = False
         for i in list(meetings):
             if slack_id in i and i.split("_")[1] == id:
-                db.child("cancels").update({i: "cancel"})
+                db.child(key_fb_tars).child("cancels").update({i: "cancel"})
                 tars.chat_postMessage(channel=event_data["event"]["channel"], text="Alright, I'll cancel that one.")
                 cancel = True
                 break
@@ -298,7 +300,7 @@ def app_home_opened(event_data):
     
 def app_home_opened_event_handler(event_data):
     user = event_data["event"]["user"]
-    ta = list(db.child("ta").get().val())
+    ta = list(db.child(key_fb_tars).child("ta").get().val())
     if user in ta:
         tars.views_publish(user_id=user, view={
                 "type": "home",
