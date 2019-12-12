@@ -159,7 +159,8 @@ def im_event_handler(event_data):
                 tars.chat_postMessage(channel=orientee, text="Verified " + status + "! Move on to " + new_status[status] + " now.")
                 if status == "py3":
                     db.child("orientee").child(slack_id).update({"py_fin": str(date.today())})
-                    tars.chat_postMessage(channel=event_data["event"]["channel"], text="On to the " + new_status[status] + "assignments now.")
+                    group = db.child("orientee").child(slack_id).child("group").get().val()
+                    tars.chat_postMessage(channel=event_data["event"]["channel"], text="On to the " + group + " assignments now.")
             else:
                 tars.chat_postMessage(channel=event_data["event"]["channel"], text="Not yet evaluated on Hyouka!")
         elif "p" != status[-1]:
@@ -170,9 +171,10 @@ def im_event_handler(event_data):
             tars.chat_postMessage(channel=orientee, text="Verified " + status + "! Move on to " + new_status[status] + " now.")
             if "p" in new_status[status]:
                 db.child("orientee").child(slack_id).update({"g_fin":str( date.today())})
+                group = db.child("orientee").child(slack_id).child("group").get().val()
                 tars_user.groups_kick(channel=orientation_id, user=slack_id)
                 tars_user.groups_invite(channel=project_id, user=slack_id)
-                tars.chat_postMessage(channel=event_data["event"]["channel"], text="On to the " + new_status[status][:-1].upper() + "project now. Next verification only after Sir's reviews.")
+                tars.chat_postMessage(channel=event_data["event"]["channel"], text="On to the " + group + " project now. Next verification only after Sir's reviews.")
         else:
             db.child("orientee").child(slack_id).update({"progress": "done"})
             db.child("orientee").child(slack_id).update({"p_fin": str(date.today())})
