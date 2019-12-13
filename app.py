@@ -561,7 +561,7 @@ def app_mention_event_handler(event_data):
                 ]
             })
             poll = tars.chat_postMessage(channel=event_data["event"]["channel"], text=question + " Poll", blocks=[question_block] + options_blocks)
-            db.child(key_fb_tars).child("polls").child(poll.data["ts"].replace(".", "-")).update({"user": event_data["event"]["user"], "question": question, "message": [question_block] + options_blocks, "votes": [str(i): ["-"] for i in options_blocks[:-2]]})
+            db.child(key_fb_tars).child("polls").child(poll.data["ts"].replace(".", "-")).update({"user": event_data["event"]["user"], "question": question, "message": [question_block] + options_blocks})
         except Exception as e:
             print(e)
             tars.chat_postEphemeral(channel=event_data["event"]["channel"], user=event_data["event"]["user"], text="Syntax for polls is `@TARS poll question option1 option2 ...` with a maximum of `10` options.")
@@ -602,7 +602,11 @@ def interact_handler(payload):
         value = value.split("_")[0]
         index = emoji.index(value) + 1
         poll = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).get().val()
-        votes = poll["votes"][index]
+        votes = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).get().val()
+        if len(votes) == 0:
+            db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({0: user})
+            current = db.child(key_fb_tars).child(polls).child(ts.replace(".", "-")).child("message").child(str(index)).child("accessory").child("text").child("text").get().val()
+            db.child(key_fb_tars).child(polls).child(ts.replace(".", "-")).child("message").child(str(index)).child("accessory").child("text").update({"text": current + "`1` <@" + user + ">"})
         
 if __name__ == "__main__":
     app.run(threaded=True)
