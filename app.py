@@ -591,10 +591,10 @@ def interact_handler(payload):
             tars.chat_postMessage(channel=channel, text="Poll closed!")
             poll = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).get().val()
             db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).remove()
-            text = "*Poll Results*\n"
+            tars.chat_postMessage(channel=channel, text="*Poll Results*")
             for block in poll["message"][1:-3]:
-                text = block["accessory"]["text"]["text"] + "\n"
-            tars.chat_postMessage(channel=channel, text=text)
+                text = block["text"]["text"]
+                tars.chat_postMessage(channel=channel, text=text)
         else:
             tars.chat_postEphemeral(channel=channel, user=user, text="You can only delete polls that you create.")
     elif "_poll" in value:
@@ -612,7 +612,7 @@ def interact_handler(payload):
             if user not in current:
                 i = len(votes)
                 db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({i: user})
-                db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0] + "`" + str(i + 1) + "` <@" + user + ">" + current.split(":")[1]})
+                db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0] + "`" + str(i + 1) + "` <@" + user + ">" + current.split("-")[1]})
         
 if __name__ == "__main__":
     app.run(threaded=True)
