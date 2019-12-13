@@ -614,13 +614,13 @@ def interact_handler(payload):
                 db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({i: user})
                 db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0] + "`" + str(i + 1) + "` - <@" + user + ">" + current.split("-")[1]})
             else:
-                for i in list(votes):
-                    if votes[i] == user:
-                        votes.pop(i)
+                for i in votes:
+                    if i == user:
+                        votes.remove(i)
                 db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).remove()
                 j = 0
-                for i in list(votes):
-                    db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({j: votes[i]})
+                for i in votes:
+                    db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({j: i})
                     j += 1
                 current = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").child("text").get().val()
                 if j == 0:
