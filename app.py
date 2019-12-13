@@ -580,7 +580,7 @@ def interact_handler(payload):
     value = payload["actions"][0]["value"]
     if value == "delete_poll":
         if db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("user").get().val() == user:
-            tars.chat_deleete(channel=channel, ts=ts)
+            tars.chat_delete(channel=channel, ts=ts)
             tars.chat_postMessage(channel=channel, text="Poll deleted!")
             db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).remove()
         else:
@@ -592,7 +592,7 @@ def interact_handler(payload):
             poll = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).get().val()
             db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).remove()
             text = "*Poll Results*\n"
-            for block in poll["message"][1:-2]:
+            for block in poll["message"][1:-3]:
                 text = block["accessory"]["text"]["text"] + "\n"
             tars.chat_postMessage(channel=channel, text=text)
         else:
@@ -603,10 +603,16 @@ def interact_handler(payload):
         index = emoji.index(value) + 1
         poll = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).get().val()
         votes = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).get().val()
-        if len(votes) == 0:
+        if votes is None:
             db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({0: user})
             current = db.child(key_fb_tars).child(polls).child(ts.replace(".", "-")).child("message").child(str(index)).child("accessory").child("text").child("text").get().val()
-            db.child(key_fb_tars).child(polls).child(ts.replace(".", "-")).child("message").child(str(index)).child("accessory").child("text").update({"text": current + "`1` <@" + user + ">"})
+            db.child(key_fb_tars).child(polls).child(ts.replace(".", "-")).child("message").child(str(index)).child("accessory").child("text").update({"text": current + "`1`: <@" + user + ">"})
+        else:
+            current = db.child(key_fb_tars).child(polls).child(ts.replace(".", "-")).child("message").child(str(index)).child("accessory").child("text").child("text").get().val()
+            if user not in current:
+                i = len(votes)
+                db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({i: user})
+                db.child(key_fb_tars).child(polls).child(ts.replace(".", "-")).child("message").child(str(index)).child("accessory").child("text").update({"text": "`" + str(i) + "` <@" + user + ">" + current.split(":")[1]})
         
 if __name__ == "__main__":
     app.run(threaded=True)
