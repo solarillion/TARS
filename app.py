@@ -5,6 +5,7 @@ from datetime import *
 from dateutil.relativedelta import *
 from dateutil.rrule import *
 import json
+from urllib.parse import parse_qs
 import requests
 import threading
 from flask import Flask, jsonify, redirect, request
@@ -551,13 +552,19 @@ def app_mention_event_handler(event_data):
                 ]
             })
             poll = tars.chat_postMessage(channel=event_data["event"]["channel"], text=question + " Poll", blocks=[question_block] + options_blocks)
-            db.child("polls").child(poll.data["ts"]).update({"user": event_data["event"]["user"], "question": question, "options": [i for i in options_blocks]})
+            db.child(key_fb_tars).child("polls").child(poll.data["ts"]).update({"user": event_data["event"]["user"], "question": question, "options": [i for i in options_blocks]})
         except Exception as e:
             print(e)
             tars.chat_postEphemeral(channel=event_data["event"]["channel"], user=event_data["event"]["user"], text="Syntax for polls is `@TARS poll question option1 option2 ...` with a maximum of `10` options.")
 
 @app.route("/interact", methods=["GET"])
 def interact():
+    payload = json.loads(parse_qs(event["body"])["payload"][0])
+    thread = threading.Thread(target=interact_handler, args=(payload,))
+    thread.start()
+    return "OK", 200
+
+def interact_handler(payload):
     pass
 
 if __name__ == "__main__":
