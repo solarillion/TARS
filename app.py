@@ -557,7 +557,7 @@ def app_mention_event_handler(event_data):
             print(e)
             tars.chat_postEphemeral(channel=event_data["event"]["channel"], user=event_data["event"]["user"], text="Syntax for polls is `@TARS poll question option1 option2 ...` with a maximum of `10` options.")
 
-@app.route("/interact", methods=["GET"])
+@app.route("/interact", methods=["POST"])
 def interact():
     payload = json.loads(parse_qs(event["body"])["payload"][0])
     thread = threading.Thread(target=interact_handler, args=(payload,))
@@ -565,7 +565,7 @@ def interact():
     return "OK", 200
 
 def interact_handler(payload):
-    pass
+    print(payload)
 
 if __name__ == "__main__":
     app.run(threaded=True)
