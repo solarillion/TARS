@@ -610,20 +610,31 @@ def app_mention_event_handler(event_data):
                     }
                 ]
             })
-            options_blocks.append({
-                "type": "context",
-                "elements": [
-                    {
-                        "type": "mrkdwn",
-                        "text": "Created by <@" + event_data["event"]["user"] + "> using TARS."
-                    }
-                ]
-            })
+            try:
+                options_blocks.append({
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": "Created by <@" + event_data["event"]["user"] + "> using TARS."
+                        }
+                    ]
+                })
+            except:
+                options_blocks.append({
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": "Created using TARS."
+                        }
+                    ]
+                })
             poll = tars.chat_postMessage(channel=event_data["event"]["channel"], text=question + " Poll", blocks=[question_block] + options_blocks)
             db.child(key_fb_tars).child("polls").child(poll.data["ts"].replace(".", "-")).update({"user": event_data["event"]["user"], "question": question, "message": [question_block] + options_blocks})
             if question == "Mon-Thu TA Hours":
                 db.child(key_fb_tars).child("tapoll").update({"monthu": poll.data["ts"].replace(".", "-")})
-            elif question == "Fri-Sun Hours":
+            elif question == "Fri-Sun TA Hours":
                 db.child(key_fb_tars).child("tapoll").update({"frisun": poll.data["ts"].replace(".", "-")})
         except Exception as e:
             print(e)
