@@ -552,7 +552,7 @@ def app_mention_event_handler(event_data):
                 ]
             })
             poll = tars.chat_postMessage(channel=event_data["event"]["channel"], text=question + " Poll", blocks=[question_block] + options_blocks)
-            db.child(key_fb_tars).child("polls").child(poll.data["ts"].replace(".", "-")).update({"user": event_data["event"]["user"], "question": question, "options": options_blocks})
+            db.child(key_fb_tars).child("polls").child(poll.data["ts"].replace(".", "-")).update({"user": event_data["event"]["user"], "question": question, "message": [question_block] + options_blocks})
         except Exception as e:
             print(e)
             tars.chat_postEphemeral(channel=event_data["event"]["channel"], user=event_data["event"]["user"], text="Syntax for polls is `@TARS poll question option1 option2 ...` with a maximum of `10` options.")
@@ -565,7 +565,13 @@ def interact():
     return "OK", 200
 
 def interact_handler(payload):
-    print(payload)
+    user = payload["user"]["id"]
+    channel = payload["container"]["channel_id"]
+    ts = payload["message"]["ts"]
+    value = payload["actions"][0]["value"]
+    if value == "delete_poll":
+        if db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("user").get().val() == user:
+            tars.chat_update(channel=channel_id, ts=ts, text="Deleted poll!")
 
 if __name__ == "__main__":
     app.run(threaded=True)
