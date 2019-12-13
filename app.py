@@ -203,7 +203,7 @@ def im_event_handler(event_data):
             id = slack_id + "_" + n
         lines = texto.split("\n")
         meeting = " ".join(lines[0].split(" ")[2:])
-        people = [slack_id]
+        people = [tars.users_info(user=slack_id).data["user"]["profile"]["email"]]
         if len(lines) == 2:
             add =  lines[1].replace("@", "").replace("<", "").replace(">", "").upper().split()
             add = list(map(lambda x: tars.users_info(user=x).data["user"]["profile"]["email"], add))
@@ -614,13 +614,12 @@ def interact_handler(payload):
                 db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({i: user})
                 db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0] + "`" + str(i + 1) + "` - <@" + user + ">" + current.split("-")[1]})
             else:
-                votes = dict(db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).get().val())
-                for i in votes:
+                for i in list(votes):
                     if votes[i] == user:
                         votes.pop(i)
                 db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).remove()
                 j = 0
-                for i in votes:
+                for i in list(votes):
                     db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({j: votes[i]})
                     j += 1
                 current = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").child("text").get().val()
