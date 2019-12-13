@@ -551,8 +551,17 @@ def app_mention_event_handler(event_data):
                     }
                 ]
             })
+            options_blocks.append({
+                "type": "context",
+                "elements": [
+                    {
+                        "type": "mrkdwn",
+                        "text": "Created by <@" + event_data["event"]["user"] + "> using TARS."
+                    }
+                ]
+            })
             poll = tars.chat_postMessage(channel=event_data["event"]["channel"], text=question + " Poll", blocks=[question_block] + options_blocks)
-            db.child(key_fb_tars).child("polls").child(poll.data["ts"].replace(".", "-")).update({"user": event_data["event"]["user"], "question": question, "message": [question_block] + options_blocks})
+            db.child(key_fb_tars).child("polls").child(poll.data["ts"].replace(".", "-")).update({"user": event_data["event"]["user"], "question": question, "message": [question_block] + options_blocks, "votes": {str(i): [-] for i in options_blocks[:-2]]}})
         except Exception as e:
             print(e)
             tars.chat_postEphemeral(channel=event_data["event"]["channel"], user=event_data["event"]["user"], text="Syntax for polls is `@TARS poll question option1 option2 ...` with a maximum of `10` options.")
@@ -574,14 +583,26 @@ def interact_handler(payload):
             tars.chat_deleete(channel=channel, ts=ts)
             tars.chat_postMessage(channel=channel, text="Poll deleted!")
             db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).remove()
-    if value == "end_poll":
+        else:
+            tars.chat_postEphemeral(channel=channel, user=user, text="You can only close polls that you create.")
+    elif value == "end_poll":
         if db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("user").get().val() == user:
             tars.chat_delete(channel=channel, ts=ts)
             tars.chat_postMessage(channel=channel, text="Poll closed!")
             poll = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).get().val()
             db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).remove()
-            text = "*Poll Results*\n" + str(poll)
+            text = "*Poll Results*\n"
+            for block in poll["message"][1:-2]:
+                text = block["accessory"]["text"]["text"] + "\n"
             tars.chat_postMessage(channel=channel, text=text)
-
+        else:
+            tars.chat_postEphemeral(channel=channel, user=user, text="You can only delete polls that you create.")
+    elif "_poll" in value:
+        emoji = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "keycap_ten"]
+        value = value.split("_")[0]
+        index = emoji.index(value) + 1
+        poll = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).get().val()
+        votes = poll["votes"][index]
+        
 if __name__ == "__main__":
     app.run(threaded=True)
