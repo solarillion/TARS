@@ -397,7 +397,7 @@ def app_home_opened_event_handler(event_data):
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": "*Polls*\nPolls can be created in all channels by mentioning me. Use `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` and include upto `10` options. The creator of the poll can close or delete the poll as well."
+                            "text": "*Polls*\nPolls can be created in all channels I've been added to by mentioning me. Use `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` and include upto `10` options. Tap on an option to select it, and tap on it again to deselect it. The creator of the poll can close or delete the poll as well."
                         }
                     },
                     {
@@ -531,7 +531,7 @@ def app_home_opened_event_handler(event_data):
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": "*Polls*\nPolls can be created in all channels by mentioning me. Use `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` and include upto `10` options. The creator of the poll can close or delete the poll as well."
+                            "text": "*Polls*\nPolls can be created in all channels I've been added to by mentioning me. Use `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` and include upto `10` options. Tap on an option to select it, and tap on it again to deselect it. The creator of the poll can close or delete the poll as well."
                         }
                     },
                     {
