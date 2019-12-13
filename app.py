@@ -571,11 +571,13 @@ def interact_handler(payload):
     value = payload["actions"][0]["value"]
     if value == "delete_poll":
         if db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("user").get().val() == user:
-            tars.chat_update(channel=channel, ts=ts, as_user=True, text="Poll deleted!")
+            tars.chat_deleete(channel=channel, ts=ts)
+            tars.chat_postMessage(channel=channel, text="Poll deleted!")
             db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).remove()
     if value == "end_poll":
         if db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("user").get().val() == user:
-            tars.chat_update(channel=channel, ts=ts, as_user=True, text="Poll closed!")
+            tars.chat_delete(channel=channel, ts=ts)
+            tars.chat_postMessage(channel=channel, text="Poll closed!")
             poll = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).get().val()
             db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).remove()
             text = "*Poll Results*\n" + str(poll)
