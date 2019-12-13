@@ -614,7 +614,7 @@ def interact_handler(payload):
                 db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({i: user})
                 db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0] + "`" + str(i + 1) + "` - <@" + user + ">" + current.split("-")[1]})
             else:
-                votes = dict(db.child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).get().val())
+                votes = dict(db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).get().val())
                 for i in votes:
                     if votes[i] == user:
                         votes.pop(i)
