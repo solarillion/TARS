@@ -559,7 +559,7 @@ def app_mention_event_handler(event_data):
 
 @app.route("/interact", methods=["POST"])
 def interact():
-    payload = json.loads(parse_qs(event["body"])["payload"][0])
+    payload = json.loads(parse_qs(request.get_data())["payload"][0])
     thread = threading.Thread(target=interact_handler, args=(payload,))
     thread.start()
     return "OK", 200
