@@ -8,6 +8,7 @@ import json
 from urllib.parse import parse_qs
 import requests
 import threading
+import shlex
 from flask import Flask, jsonify, redirect, request
 import slack
 from slackeventsapi import SlackEventAdapter
@@ -495,7 +496,7 @@ def app_mention_event_handler(event_data):
     text = event_data["event"]["text"]
     if "poll" in text.lower():
         try:
-            text = text.split()[2:]
+            text = shlex.split(text)[2:]
             question = text[0]
             options = text[1:]
             emoji = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "keycap_ten"]
@@ -605,7 +606,7 @@ def interact_handler(payload):
         votes = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).get().val()
         if votes is None:
             db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({0: user})
-            current = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").child("text").get().val()
+            current = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").child("text").get().val().replace(" ", "")
             db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current + " `1` - <@" + user + ">"})
         else:
             current = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").child("text").get().val()
