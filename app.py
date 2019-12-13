@@ -579,17 +579,32 @@ def interact_handler(payload):
     channel = payload["container"]["channel_id"]
     ts = payload["message"]["ts"]
     value = payload["actions"][0]["value"]
+    question = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("question").get().val()
     if value == "delete_poll":
         if db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("user").get().val() == user:
-            tars.chat_delete(channel=channel, ts=ts)
-            tars.chat_postMessage(channel=channel, text="Poll deleted!")
+            tars.chat_update(channel=channel, ts=ts, text="Poll " + question + " deleted!", blocks=[
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "Poll " + question + " deleted!"
+                    }
+                }
+            ])
             db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).remove()
         else:
             tars.chat_postEphemeral(channel=channel, user=user, text="You can only delete polls that you create.")
     elif value == "end_poll":
         if db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("user").get().val() == user:
-            tars.chat_delete(channel=channel, ts=ts)
-            tars.chat_postMessage(channel=channel, text="Poll closed!")
+            tars.chat_update(channel=channel, ts=ts, text="Poll " + question + " closed!", blocks=[
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "Poll " + question + " closed!"
+                    }
+                }
+            ])
             poll = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).get().val()
             db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).remove()
             tars.chat_postMessage(channel=channel, text="*Poll Results*")
