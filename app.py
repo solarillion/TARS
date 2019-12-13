@@ -521,7 +521,7 @@ def app_mention_event_handler(event_data):
                             "type": "plain_text",
                             "text": ":" + emoji[i] + ":"
                         },
-                        "value": emoji[i]
+                        "value": emoji[i] + "_poll"
                     }
                 })
             options_blocks.append({
@@ -551,6 +551,7 @@ def app_mention_event_handler(event_data):
                 ]
             })
             poll = tars.chat_postMessage(channel=event_data["event"]["channel"], text=question + " Poll", blocks=[question_block] + options_blocks)
+            db.child("polls").child(poll.data["ts"]).update({"user": event_data["event"]["user"], "question": question, "options": [i for i in options_blocks]})
         except Exception as e:
             print(e)
             tars.chat_postEphemeral(channel=event_data["event"]["channel"], user=event_data["event"]["user"], text="Syntax for polls is `@TARS poll question option1 option2 ...` with a maximum of `10` options.")
