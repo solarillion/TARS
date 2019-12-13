@@ -584,7 +584,7 @@ def interact_handler(payload):
             tars.chat_postMessage(channel=channel, text="Poll deleted!")
             db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).remove()
         else:
-            tars.chat_postEphemeral(channel=channel, user=user, text="You can only close polls that you create.")
+            tars.chat_postEphemeral(channel=channel, user=user, text="You can only delete polls that you create.")
     elif value == "end_poll":
         if db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("user").get().val() == user:
             tars.chat_delete(channel=channel, ts=ts)
@@ -596,7 +596,7 @@ def interact_handler(payload):
                 text = block["text"]["text"]
                 tars.chat_postMessage(channel=channel, text=text)
         else:
-            tars.chat_postEphemeral(channel=channel, user=user, text="You can only delete polls that you create.")
+            tars.chat_postEphemeral(channel=channel, user=user, text="You can only close polls that you create.")
     elif "_poll" in value:
         emoji = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "keycap_ten"]
         value = value.split("_")[0]
@@ -612,7 +612,10 @@ def interact_handler(payload):
             if user not in current:
                 i = len(votes)
                 db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({i: user})
-                db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0] + "`" + str(i + 1) + "` <@" + user + ">" + current.split("-")[1]})
+                db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0] + "`" + str(i + 1) + "` - <@" + user + ">" + current.split("-")[1]})
+            else:
+                pass
+        tars.chat_update(channel=channel, ts=ts, blocks=dict(db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")))["message"])
         
 if __name__ == "__main__":
     app.run(threaded=True)
