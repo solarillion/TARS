@@ -605,14 +605,14 @@ def interact_handler(payload):
         votes = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).get().val()
         if votes is None:
             db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({0: user})
-            current = db.child(key_fb_tars).child(polls).child(ts.replace(".", "-")).child("message").child(str(index)).child("accessory").child("text").child("text").get().val()
-            db.child(key_fb_tars).child(polls).child(ts.replace(".", "-")).child("message").child(str(index)).child("accessory").child("text").update({"text": current + "`1`: <@" + user + ">"})
+            current = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").child("text").get().val()
+            db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current + " `1` - <@" + user + ">"})
         else:
-            current = db.child(key_fb_tars).child(polls).child(ts.replace(".", "-")).child("message").child(str(index)).child("accessory").child("text").child("text").get().val()
+            current = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("accessory").child("text").child("text").get().val()
             if user not in current:
                 i = len(votes)
                 db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({i: user})
-                db.child(key_fb_tars).child(polls).child(ts.replace(".", "-")).child("message").child(str(index)).child("accessory").child("text").update({"text": "`" + str(i) + "` <@" + user + ">" + current.split(":")[1]})
+                db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("accessory").child("text").update({"text": current.split("`")[0] + "`" + str(i) + "` <@" + user + ">" + current.split(":")[1]})
         
 if __name__ == "__main__":
     app.run(threaded=True)
