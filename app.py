@@ -335,6 +335,10 @@ def app_home_opened_event_handler(event_data):
                             },
                             {
                                 "type": "plain_text",
+                                "text": "🤖 Creating and managing polls."
+                            },
+                            {
+                                "type": "plain_text",
                                 "text": "🤖 Helping TAs do their job."
                             }
                         ]
@@ -388,6 +392,13 @@ def app_home_opened_event_handler(event_data):
                                 "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number."
                             }
                         ]
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*Polls*\nPolls can be created in all channels by mentioning me. Use `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` and include upto `10` options. The creator of the poll can close or delete the poll as well."
+                        }
                     },
                     {
                         "type": "section",
@@ -458,6 +469,10 @@ def app_home_opened_event_handler(event_data):
                             },
                             {
                                 "type": "plain_text",
+                                "text": "🤖 Creating and managing polls."
+                            },
+                            {
+                                "type": "plain_text",
                                 "text": "🤖 Helping TAs do their job."
                             }
                         ]
@@ -474,6 +489,49 @@ def app_home_opened_event_handler(event_data):
                         "text": {
                             "type": "mrkdwn",
                             "text": "*Office Hours*\nSir is sent the office hours request automatically every Saturday evening. They are posted every Sunday evening. If the server is down, the server admins take over and request or post the office hours."
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*Meetings*\nBook meetings with Sir with my help. Check the week's office hours before you book a meeting. You can also view meetings you booked and cancel them. The functions are:"
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `book meeting MEETING_TITLE DAY_OF_WEEK TIME DURATION`\n:arrow_right:`@PERSON_1 @PERSON_2 ...`\nExample: `book meeting Paper Review on Friday at 7pm for 15 minutes`\n`@TEAMMATE1 @TEAMMATE2`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":exclamation: This works with simple, natural language. You can enter `minutes` or `mins`, enter a date or a day or even something like `tomorrow`. The default duration is `15 minutes`. Press `enter` or `return` after typing the meeting details to add participants, in a new line. You are added as a participant by default, so you needn't add yourself. Do not add Sir as a participant, he is also added automatically. You may choose to not add any additional participants at all."
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `show meetings`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":exclamation: This shows only the meetings that you have booked this week."
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `cancel meeting MEETING_NUMBER`\nExample: `cancel meeting 1`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number."
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*Polls*\nPolls can be created in all channels by mentioning me. Use `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` and include upto `10` options. The creator of the poll can close or delete the poll as well."
                         }
                     },
                     {
@@ -565,7 +623,7 @@ def app_mention_event_handler(event_data):
             db.child(key_fb_tars).child("polls").child(poll.data["ts"].replace(".", "-")).update({"user": event_data["event"]["user"], "question": question, "message": [question_block] + options_blocks})
         except Exception as e:
             print(e)
-            tars.chat_postEphemeral(channel=event_data["event"]["channel"], user=event_data["event"]["user"], text="Syntax for polls is `@TARS poll question option1 option2 ...` with a maximum of `10` options.")
+            tars.chat_postEphemeral(channel=event_data["event"]["channel"], user=event_data["event"]["user"], text="Syntax for polls is `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` with a maximum of `10` options.")
 
 @app.route("/interact", methods=["POST"])
 def interact():
