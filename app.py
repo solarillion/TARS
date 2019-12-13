@@ -509,19 +509,20 @@ def app_mention_event_handler(event_data):
             }
             options_blocks = []
             for i in range(len(options)):
-                question_block["text"]["text"] += "\n:" + emoji[i] + ": " + options[i]
                 options_blocks.append({
-                    "type": "actions",
-                    "elements": [
-                        {
-                            "type": "button",
-                            "text": {
-                                "type": "plain_text",
-                                "text": ":" + emoji[i] + ":"
-                            },
-                            "value": emoji[i] + "_poll"
-                        }
-                    ]
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": ":" + emoji[i] + ": " + options[i]
+                    },
+                    "accessory": {
+                        "type": "button",
+                        "text": {
+                            "type": "plain_text",
+                            "text": ":" + emoji[i] + ":"
+                        },
+                        "value": emoji[i]
+                    }
                 })
             options_blocks.append({
                 "type": "actions",
