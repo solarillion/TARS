@@ -621,7 +621,7 @@ def interact_handler(payload):
                 db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).remove()
                 j = 0
                 for i in votes:
-                    db.child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({j: votes[i]})
+                    db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({j: votes[i]})
                     j += 1
                 current = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").child("text").get().val()
                 if j == 0:
