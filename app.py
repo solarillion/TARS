@@ -81,10 +81,22 @@ def im_event_handler(event_data):
     texto = event_data["event"]["text"]
     text = event_data["event"]["text"].lower()
     if "request office hours" in text:
+        admin = list(db.child(key_fb_tars).child("admin").get().val())
+        if event_data["event"]["user"] not in admin:
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
+            return
         tars.chat_postMessage(channel=vineethv_im_channel, text="Sir, please fill your office hours in this form: https://forms.gle/eMoayTXg5KJCata68")
     elif "remind office hours" in text:
+        admin = list(db.child(key_fb_tars).child("admin").get().val())
+        if event_data["event"]["user"] not in admin:
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
+            return
         tars.chat_postMessage(channel=vineethv_im_channel, text="Sir, if you haven't filled your office hours yet, please do so by 9 pm tonight. Here's the link to the form: " + office_hours_form)
     elif "post office hours" in text:
+        admin = list(db.child(key_fb_tars).child("admin").get().val())
+        if event_data["event"]["user"] not in admin:
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
+            return
         data = db.child(key_fb_tars).child("officehours").get().val()
         message = "Sir's office hours for the week:\n"
         for item in data[1:]:
@@ -243,15 +255,31 @@ def im_event_handler(event_data):
         if not cancel:
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="I couldn't find that meeting. Check again with `show meetings` and enter the correct meeting number.")
     elif "request ta hours" in text:
+        admin = list(db.child(key_fb_tars).child("admin").get().val())
+        if event_data["event"]["user"] not in admin:
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
+            return
         tars_user.chat_postMessage(channel=sf_ta, text="<@" + tars_id + "> poll \"Mon-Thu TA Hours\" \"Monday 18:00-20:00\" \"Tuesday 18:00-20:00\" \"Wednesday 18:00-20:00\" \"Thursday 18:00-20:00\"", as_user=True)
         tars_user.chat_postMessage(channel=sf_ta, text="Mark your hours by 18:00 on Sunday for Mon-Thu.", as_user=True)
         tars_user.chat_postMessage(channel=sf_ta, text="<@" + tars_id + "> poll \"Fri-Sun TA Hours\" \"Friday 18:00-20:00\" \"Saturday 13:00-15:00\" \"Saturday 16:00-18:00\" \"Saturday 18:00-20:00\" \"Sunday 10:30-13:00\" \"Sunday 13:30-16:00\" \"Sunday 16:30-19:00\"", as_user=True)
         tars_user.chat_postMessage(channel=sf_ta, text="Mark your hours by 18:00 on Thursday for Fri-Sun.", as_user=True)
     elif "remind weekday ta hours" in text:
+        admin = list(db.child(key_fb_tars).child("admin").get().val())
+        if event_data["event"]["user"] not in admin:
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
+            return
         tars.chat_postMessage(channel=sf_ta, text="Don't forget to mark your Mon-Thu TA Hours before 18:00, Sunday.")
     elif "remind weekend ta hours" in text:
+        admin = list(db.child(key_fb_tars).child("admin").get().val())
+        if event_data["event"]["user"] not in admin:
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
+            return
         tars.chat_postMessage(channel=sf_ta, text="Don't forget to mark your Fri-Sun TA Hours before 18:00, Thursday.")
     elif "post weekday ta hours" in text:
+        admin = list(db.child(key_fb_tars).child("admin").get().val())
+        if event_data["event"]["user"] not in admin:
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
+            return
         mon_thu_poll = db.child(key_fb_tars).child("tapoll").child("monthu").get().val()
         poll = db.child(key_fb_tars).child("polls").child(mon_thu_poll).get().val()
         db.child(key_fb_tars).child("polls").child(mon_thu_poll).remove()
@@ -267,6 +295,10 @@ def im_event_handler(event_data):
         tars.chat_postMessage(channel=project_id, text=text)
         tars.chat_postMessage(channel=general_id, text=text)
     elif "post weekend ta hours" in text:
+        admin = list(db.child(key_fb_tars).child("admin").get().val())
+        if event_data["event"]["user"] not in admin:
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
+            return
         fri_sun_poll = db.child(key_fb_tars).child("tapoll").child("frisun").get().val()
         poll = db.child(key_fb_tars).child("polls").child(fri_sun_poll).get().val()
         db.child(key_fb_tars).child("polls").child(fri_sun_poll).remove()
