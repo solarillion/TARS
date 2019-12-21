@@ -22,10 +22,12 @@ tars_user_token = os.environ.get("TARS_USER_TOKEN")
 tars_admin = os.environ.get("TARS_ADMIN")
 tars_secret = os.environ.get("TARS_SECRET")
 tars_bot_id = os.environ.get("TARS_BOT_ID")
+tars_id = os.environ.get("TARS_ID")
 general_id = os.environ.get("GENERAL_ID")
 orientation_id = os.environ.get("ORIENTATION_ID")
 project_id = os.environ.get("PROJECT_ID")
 sf_research = os.environ.get("SF_RESEARCH")
+sf_ta = os.environ.get("SF_TA")
 vineethv_id = os.environ.get("VINEETHV_ID")
 office_hours_form = os.environ.get("OFFICE_HOURS_FORM")
 firebase_api_key = os.environ.get("FIREBASE_API_KEY")
@@ -215,13 +217,15 @@ def im_event_handler(event_data):
         slack_id = event_data["event"]["user"]
         meetings = db.child(key_fb_tars).child("meetings").get().val()
         if meetings is not None:
+            count = 0
             for i in list(meetings):
                 if slack_id in i:
+                    count += 1
                     item = db.child(key_fb_tars).child("meetings").child(i).get().val()
                     text = "`" + i.split("_")[1] + "`: " + item["desc"] + ", " + reformat_meeting_date(item["start"]) + " " + reformat_meeting_time(item["start"]) + " - " + reformat_meeting_time(item["end"])
                     tars.chat_postMessage(channel=event_data["event"]["channel"], text=text)
-        else:
-            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You haven't booked any meetings!")
+            if count == 0:
+                tars.chat_postMessage(channel=event_data["event"]["channel"], text="You haven't booked any meetings!")
     elif "cancel meeting" in text:
         slack_id = event_data["event"]["user"]
         meetings = db.child(key_fb_tars).child("meetings").get().val()
@@ -239,15 +243,46 @@ def im_event_handler(event_data):
         if not cancel:
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="I couldn't find that meeting. Check again with `show meetings` and enter the correct meeting number.")
     elif "request ta hours" in text:
-        pass
+        tars_user.chat_postMessage(channel=sf_ta, text="<@" + tars_id + "> poll \"Mon-Thu TA Hours\" \"Monday 18:00-20:00\" \"Tuesday 18:00-20:00\" \"Wednesday 18:00-20:00\" \"Thursday 18:00-20:00\"", as_user=True)
+        tars_user.chat_postMessage(channel=sf_ta, text="Mark your hours by 18:00 on Sunday for Mon-Thu.", as_user=True)
+        tars_user.chat_postMessage(channel=sf_ta, text="<@" + tars_id + "> poll \"Fri-Sun TA Hours\" \"Friday 18:00-20:00\" \"Saturday 13:00-15:00\" \"Saturday 16:00-18:00\" \"Saturday 18:00-20:00\" \"Sunday 10:30-13:00\" \"Sunday 13:30-16:00\" \"Sunday 16:30-19:00\"", as_user=True)
+        tars_user.chat_postMessage(channel=sf_ta, text="Mark your hours by 18:00 on Thursday for Fri-Sun.", as_user=True)
     elif "remind weekday ta hours" in text:
-        pass
+        tars.chat_postMessage(channel=sf_ta, text="Don't forget to mark your Mon-Thu TA Hours before 18:00, Sunday.")
     elif "remind weekend ta hours" in text:
-        pass
+        tars.chat_postMessage(channel=sf_ta, text="Don't forget to mark your Fri-Sun TA Hours before 18:00, Thursday.")
     elif "post weekday ta hours" in text:
-        pass
+        mon_thu_poll = db.child(key_fb_tars).child("tapoll").child("monthu").get().val()
+        poll = db.child(key_fb_tars).child("polls").child(mon_thu_poll).get().val()
+        db.child(key_fb_tars).child("polls").child(mon_thu_poll).remove()
+        text = "TA Hours for Monday to Thursday:\n"
+        for block in poll["message"][1:-3]:
+            try:
+                text += block["text"]["text"].split("`")[0].strip() + " " + block["text"]["text"].split("`")[2] + "\n"
+            except:
+                text += block["text"]["text"] + "\n"
+        tars.chat_delete(channel=sf_ta, ts=mon_thu_poll.replace("-", "."))
+        tars.chat_postMessage(channel=sf_ta, text=text)
+        tars.chat_postMessage(channel=orientation_id, text=text)
+        tars.chat_postMessage(channel=project_id, text=text)
+        tars.chat_postMessage(channel=general_id, text=text)
     elif "post weekend ta hours" in text:
-        pass
+        fri_sun_poll = db.child(key_fb_tars).child("tapoll").child("frisun").get().val()
+        poll = db.child(key_fb_tars).child("polls").child(fri_sun_poll).get().val()
+        db.child(key_fb_tars).child("polls").child(fri_sun_poll).remove()
+        text = "TA Hours for Friday to Sunday:\n"
+        for block in poll["message"][1:-3]:
+            try:
+                text += block["text"]["text"].split("`")[0].strip() + " " + block["text"]["text"].split("`")[2] + "\n"
+            except:
+                text += block["text"]["text"] + "\n"
+        tars.chat_delete(channel=sf_ta, ts=fri_sun_poll.replace("-", "."))
+        tars.chat_postMessage(channel=sf_ta, text=text)
+        tars.chat_postMessage(channel=orientation_id, text=text)
+        tars.chat_postMessage(channel=project_id, text=text)
+        tars.chat_postMessage(channel=general_id, text=text)
+    else:
+        tars.chat_postMessage(channel=event_data["event"]["channel"], text="Huh? 🧐")
 
 def reformat_time(ts):
     t = time.fromisoformat(ts[11:19])
@@ -303,7 +338,148 @@ def app_home_opened(event_data):
 def app_home_opened_event_handler(event_data):
     user = event_data["event"]["user"]
     ta = list(db.child(key_fb_tars).child("ta").get().val())
-    if user in ta:
+    if user in admin:
+        tars.views_publish(user_id=user, view={
+                "type": "home",
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "Hi 👋 I'm TARS. I help people at SF do just about everything. Here are a few things that I do:"
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Sending notifications and information."
+                            },
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Booking meetings."
+                            },
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Scheduling and posting Sir's office hours and TA hours."
+                            },
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Updating JupyterHub and server SSH links."
+                            },
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Creating and managing polls."
+                            },
+                            {
+                                "type": "plain_text",
+                                "text": "🤖 Helping TAs do their job."
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "And a whole lot more."
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*Office Hours*\nSir is sent the office hours request automatically every Saturday evening. They are posted every Sunday evening. If the server is down, use `request office hours` to request hours, `remind office hours` to remind Sir, and `post office hours` to post the hours."
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*TA Hours*\nWith the server's help, I request TAs to mark their hours for the upcoming week on Saturday. The hours for Mon-Thu are posted at 6 pm on Sunday, and the hours for Fri-Sun are posted at 6 pm on Thursday. If the server is down, use `request ta hours` to post the polls, `remind weekday ta hours` and `remind weekend ta hours` to send reminders, and `post weekday ta hours` and `post weekend ta hours` to post the hours."
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*Meetings*\nBook meetings with Sir with my help. Check the week's office hours before you book a meeting. You can also view meetings you booked and cancel them. The functions are:"
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `book meeting MEETING_TITLE DAY_OF_WEEK TIME DURATION`\n:arrow_right:`@PERSON_1 @PERSON_2 ...`\nExample: `book meeting Paper Review on Friday at 7pm for 15 minutes`\n`@TEAMMATE1 @TEAMMATE2`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":exclamation: This works with simple, natural language. You can enter `minutes` or `mins`, enter a date or a day or even something like `tomorrow`. The default duration is `15 minutes`. Press `enter` or `return` after typing the meeting details to add participants, in a new line. You are added as a participant by default, so you needn't add yourself. Do not add Sir as a participant, he is also added automatically. You may choose to not add any additional participants at all."
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `show meetings`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":exclamation: This shows only the meetings that you have booked this week."
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `cancel meeting MEETING_NUMBER`\nExample: `cancel meeting 1`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number."
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*Polls*\nPolls can be created in all channels I've been added to by mentioning me. Use `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` and include upto `10` options. Tap on an option to select it, and tap on it again to deselect it. The creator of the poll can close or delete the poll as well."
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*TA Orientee Tracking*\nAll TAs and Sir can add or remove orientees from the SF orientee database, track their progress and verify assignments. The functions are:"
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `add orientee @SLACK_ID GITHUB GROUP`\nExample: `add orientee @FakeOrientee fake_orientee ML`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `remove orientee @SLACK_ID`\nExample: `remove orientee @FakeOrientee`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `show orientee @SLACK_ID`\nExample: `show orientee @FakeOrientee`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `verify orientee @SLACK_ID`\nExample: `verify orientee @FakeOrientee`"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Well, that's it for now, but I'll be doing a lot more in the future. Use my services well. Oh, and contact the server team if you have any feature requests or need help. *flashes cue light*"
+                        }
+                    }
+                ]
+        })
+    elif user in ta:
         tars.views_publish(user_id=user, view={
                 "type": "home",
                 "blocks": [
@@ -355,6 +531,13 @@ def app_home_opened_event_handler(event_data):
                         "text": {
                             "type": "mrkdwn",
                             "text": "*Office Hours*\nSir is sent the office hours request automatically every Saturday evening. They are posted every Sunday evening. If the server is down, the server admins take over and request or post the office hours."
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*TA Hours*\nWith the server's help, I request TAs to mark their hours for the upcoming week on Saturday. The hours for Mon-Thu are posted at 6 pm on Sunday, and the hours for Fri-Sun are posted at 6 pm on Thursday. If the server is down, the server admins take over and request or post the hours."
                         }
                     },
                     {
@@ -489,6 +672,13 @@ def app_home_opened_event_handler(event_data):
                         "text": {
                             "type": "mrkdwn",
                             "text": "*Office Hours*\nSir is sent the office hours request automatically every Saturday evening. They are posted every Sunday evening. If the server is down, the server admins take over and request or post the office hours."
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*TA Hours*\nWith the server's help, I request TAs to mark their hours for the upcoming week on Saturday. The hours for Mon-Thu are posted at 6 pm on Sunday, and the hours for Fri-Sun are posted at 6 pm on Thursday. If the server is down, the server admins take over and request or post the hours."
                         }
                     },
                     {
