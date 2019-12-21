@@ -313,7 +313,7 @@ def im_event_handler(event_data):
         tars.chat_postMessage(channel=orientation_id, text=text)
         tars.chat_postMessage(channel=project_id, text=text)
         tars.chat_postMessage(channel=general_id, text=text)
-    else if text is not None:
+    elif text is not None:
         tars.chat_postMessage(channel=event_data["event"]["channel"], text="Huh? 🧐")
 
 def reformat_time(ts):
