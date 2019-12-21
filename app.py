@@ -337,6 +337,7 @@ def app_home_opened(event_data):
     
 def app_home_opened_event_handler(event_data):
     user = event_data["event"]["user"]
+    admin = list(db.child(key_fb_tars).child("admin").get().val())
     ta = list(db.child(key_fb_tars).child("ta").get().val())
     if user in admin:
         tars.views_publish(user_id=user, view={
