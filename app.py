@@ -924,7 +924,7 @@ def interact_handler(payload):
             if user not in current:
                 i = len(votes)
                 db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({i: user})
-                db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0] + "`" + str(i + 1) + "` - <@" + user + ">" + current.split("-")[1]})
+                db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0] + "`" + str(i + 1) + "` - <@" + user + ">" + current.split("-")[2]})
             else:
                 for i in votes:
                     if i == user:
@@ -938,7 +938,7 @@ def interact_handler(payload):
                 if j == 0:
                     db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0]})
                 else:
-                    db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0] + "`" + str(j) + "` -" + current.split("-")[1].replace("<@" + user + ">", "")})
+                    db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0] + "`" + str(j) + "` -" + current.split("-")[2].replace("<@" + user + ">", "")})
         blocks = dict(db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).get().val())["message"]
         tars.chat_update(channel=channel, ts=ts, blocks=blocks)
         
