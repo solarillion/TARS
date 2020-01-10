@@ -778,7 +778,7 @@ def app_mention_event_handler(event_data):
     text = event_data["event"]["text"]
     if "poll" in text.lower():
         try:
-            text = text.decode("utf-8").replace(u"\u201c", u"\u0022").replace(u"\u201d", u"\u0022").encode("utf-8")
+            text = text.replace(u"\u201c", u"\u0022").replace(u"\u201d", u"\u0022")
             text = shlex.split(text)[2:]
             question = text[0]
             options = text[1:]
