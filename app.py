@@ -2,6 +2,7 @@
 # Authors: Nanda H Krishna (https://github.com/nandahkrishna)
 
 import os
+import time
 from datetime import *
 from dateutil.relativedelta import *
 from dateutil.rrule import *
@@ -260,10 +261,14 @@ def im_event_handler(event_data):
         if event_data["event"]["user"] not in admin:
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
             return
-        tars_user.chat_postMessage(channel=sf_ta, text="<@" + tars_id + "> poll \"Mon-Thu TA Hours\" \"Monday 18:00-20:00\" \"Tuesday 18:00-20:00\" \"Wednesday 18:00-20:00\" \"Thursday 18:00-20:00\"", as_user=True)
-        tars_user.chat_postMessage(channel=sf_ta, text="Mark your hours by 18:00 on Sunday for Mon-Thu.", as_user=True)
-        tars_user.chat_postMessage(channel=sf_ta, text="<@" + tars_id + "> poll \"Fri-Sun TA Hours\" \"Friday 18:00-20:00\" \"Saturday 13:00-15:00\" \"Saturday 16:00-18:00\" \"Saturday 18:00-20:00\" \"Sunday 10:30-13:00\" \"Sunday 13:30-16:00\" \"Sunday 16:30-19:00\"", as_user=True)
-        tars_user.chat_postMessage(channel=sf_ta, text="Mark your hours by 18:00 on Thursday for Fri-Sun.", as_user=True)
+        message1 = tars_user.chat_postMessage(channel=sf_ta, text="<@" + tars_id + "> poll \"Mon-Thu TA Hours\" \"Monday 18:00-20:00\" \"Tuesday 18:00-20:00\" \"Wednesday 18:00-20:00\" \"Thursday 18:00-20:00\"", as_user=True)
+        message2 = tars_user.chat_postMessage(channel=sf_ta, text="<@" + tars_id + "> poll \"Fri-Sun TA Hours\" \"Friday 18:00-20:00\" \"Saturday 13:00-15:00\" \"Saturday 16:00-18:00\" \"Saturday 18:00-20:00\" \"Sunday 10:30-13:00\" \"Sunday 13:30-16:00\" \"Sunday 16:30-19:00\"", as_user=True)
+        time.sleep(3)
+        tars_user.chat_delete(channel=sf_ta, ts=message1.data["ts"], as_user=True)
+        tars_user.chat_delete(channel=sf_ta, ts=message2.data["ts"], as_user=True)
+        tars.chat_postMessage(channel=sf_ta, text="Mark your hours by 18:00 on Sunday for Mon-Thu.")
+        tars.chat_postMessage(channel=sf_ta, text="Mark your hours by 18:00 on Thursday for Fri-Sun.")
+        
     elif "remind weekday ta hours" in text:
         admin = list(db.child(key_fb_tars).child("admin").get().val())
         if event_data["event"]["user"] not in admin:
@@ -861,7 +866,6 @@ def app_mention_event_handler(event_data):
                 db.child(key_fb_tars).child("tapoll").update({"monthu": poll.data["ts"].replace(".", "-")})
             elif question == "Fri-Sun TA Hours":
                 db.child(key_fb_tars).child("tapoll").update({"frisun": poll.data["ts"].replace(".", "-")})
-            tars_user.chat_delete(channel=sf_ta, ts=event_data["event"]["ts"], as_user=True)
         except Exception as e:
             print(e)
             tars.chat_postEphemeral(channel=event_data["event"]["channel"], user=event_data["event"]["user"], text="Syntax for polls is `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` with a maximum of `10` options.")
