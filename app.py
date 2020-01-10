@@ -778,7 +778,7 @@ def app_mention_event_handler(event_data):
     text = event_data["event"]["text"]
     if "poll" in text.lower():
         try:
-            text = text.replace('“', '"').replace('”', '"')
+            text = text.decode("utf-8").replace(u"\u201c", u"\u0022").replace(u"\u201d", u"\u0022").encode("utf-8")
             text = shlex.split(text)[2:]
             question = text[0]
             options = text[1:]
@@ -861,7 +861,7 @@ def app_mention_event_handler(event_data):
                 db.child(key_fb_tars).child("tapoll").update({"monthu": poll.data["ts"].replace(".", "-")})
             elif question == "Fri-Sun TA Hours":
                 db.child(key_fb_tars).child("tapoll").update({"frisun": poll.data["ts"].replace(".", "-")})
-            tars.chat_delete(channel=sf_ta, ts=event_data["event"]["ts"])
+            tars_user.chat_delete(channel=sf_ta, ts=event_data["event"]["ts"], as_user=True)
         except Exception as e:
             print(e)
             tars.chat_postEphemeral(channel=event_data["event"]["channel"], user=event_data["event"]["user"], text="Syntax for polls is `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` with a maximum of `10` options.")
