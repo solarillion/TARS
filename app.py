@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Authors: Nanda H Krishna (https://github.com/nandahkrishna)
 
 import os
@@ -777,6 +778,7 @@ def app_mention_event_handler(event_data):
     text = event_data["event"]["text"]
     if "poll" in text.lower():
         try:
+            text = text.replace('“', '"').replace('”', '"')
             text = shlex.split(text)[2:]
             question = text[0]
             options = text[1:]
@@ -859,6 +861,7 @@ def app_mention_event_handler(event_data):
                 db.child(key_fb_tars).child("tapoll").update({"monthu": poll.data["ts"].replace(".", "-")})
             elif question == "Fri-Sun TA Hours":
                 db.child(key_fb_tars).child("tapoll").update({"frisun": poll.data["ts"].replace(".", "-")})
+            tars.chat_delete(channel=sf_ta, ts=event_data["event"]["ts"])
         except Exception as e:
             print(e)
             tars.chat_postEphemeral(channel=event_data["event"]["channel"], user=event_data["event"]["user"], text="Syntax for polls is `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` with a maximum of `10` options.")
@@ -918,13 +921,13 @@ def interact_handler(payload):
         if votes is None:
             db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({0: user})
             current = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").child("text").get().val()
-            db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.strip() + " `1` - <@" + user + ">"})
+            db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.strip() + " `1` ~ <@" + user + ">"})
         else:
             current = db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").child("text").get().val()
             if user not in current:
                 i = len(votes)
                 db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("votes").child(str(index)).update({i: user})
-                db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0] + "`" + str(i + 1) + "` - <@" + user + ">" + current.split("-")[2]})
+                db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0] + "`" + str(i + 1) + "` ~ <@" + user + ">" + current.split("~")[1]})
             else:
                 for i in votes:
                     if i == user:
@@ -938,7 +941,7 @@ def interact_handler(payload):
                 if j == 0:
                     db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0]})
                 else:
-                    db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0] + "`" + str(j) + "` - " + current.split("-")[2].replace("<@" + user + ">", "").strip()})
+                    db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).child("message").child(str(index)).child("text").update({"text": current.split("`")[0] + "`" + str(j) + "` ~ " + current.split("~")[1].replace("<@" + user + ">", "").strip()})
         blocks = dict(db.child(key_fb_tars).child("polls").child(ts.replace(".", "-")).get().val())["message"]
         tars.chat_update(channel=channel, ts=ts, blocks=blocks)
         
