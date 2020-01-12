@@ -116,12 +116,14 @@ def im_event_handler(event_data):
         slack_id = slack_id.replace("<", "")
         slack_id = slack_id.replace(">", "")
         name = tars.users_info(user=slack_id).data["user"]["profile"]["real_name"]
-        join = str(date.today())
+        join = date.today()
         github = words[1]
         group = words[2].upper()
         if "O" in group:
             group = "IoT"
-        db.child(key_fb_tars).child("orientee").child(slack_id).update({ "name": name, "join": join, "github": github, "group": group, "progress": "py1", "py_fin": "None", "g_fin": "None", "p_fin": "None"})
+        py_duration = int(words[3])
+        delta = timedelta(py_duration)
+        db.child(key_fb_tars).child("orientee").child(slack_id).update({"name": name, "join": str(join), "github": github, "group": group, "progress": "py1", "pyd": py_duration, "py1_d": join + delta, "py1_fin": "None", "py2_d": join + 2 * delta, "py2_fin": "None", "py3_d": join + 3 * delta, "py3_fin": "None", "gd": "None", "g1_d": "None", "g1_fin": "None", "g2_d": "None", "g2_fin": "None", "g3_d": "None", "g3_fin": "None", "pd": "None", "p_d": "None", "p_fin": "None"})
         hyouka_db.child(key_fb_hyouka).child(github).update({"name": name, "group": group, "progress": "py1", "slack": slack_id})
         tars.chat_postMessage(channel=event_data["event"]["channel"], text="Added orientee!")
     elif "remove orientee" in text:
@@ -145,14 +147,69 @@ def im_event_handler(event_data):
         slack_id = slack_id.replace("<", "")
         slack_id = slack_id.replace(">", "")
         data = db.child(key_fb_tars).child("orientee").child(slack_id).get().val()
-        message = "Progress of " + data["name"] + ":\nJoined: " + data["join"] + "\nGroup: " + data["group"] + "\nStatus: " + data["progress"]
-        if data["py_fin"] != "None":
-            message += "\nPython end: " + data["py_fin"]
-        if data["g_fin"] != "None":
-            message += "\nGroup end: " + data["g_fin"]
+        message = "Progress of " + data["name"] + ":\nJoined: " + data["join"] + "\nGroup: " + data["group"] + "\nStatus: " + data["progress"] + "\n*Report:*\nPython duration: " + data["pyd"] + "\nPython 1 deadline: " + data["py1_d"]
+        if data["py1_fin"] != "None":
+            message += "\nPython 1 end: " + data["py1_fin"] + "\nPython 2 deadline: " + data["py2_d"]
+        if data["py2_fin"] != "None":
+            message += "\nPython 2 end: " + data["py2_fin"] + "\nPython 3 deadline: " + data["py3_d"]
+        if data["py3_fin"] != "None":
+            message += "\nPython 3 end: " + data["py3_fin"] + "\nGroup duration: " + data["gd"] + "\nGroup 1 deadline: " + data["g1_d"]
+        if data["g1_fin"] != "None":
+            message += "\nGroup 1 end: " + data["g1_fin"] + "\nGroup 2 deadline: " + data["g2_d"]
+        if data["g2_fin"] != "None":
+            message += "\nGroup 2 end: " + data["g2_fin"] + "\nGroup 3 deadline: " + data["g3_d"]
+        if data["g3_fin"] != "None":
+            message += "\nGroup 3 end: " + data["g3_fin"] + "\nProject duration: " + data["pd"] + "\nProject deadline: " + data["p_d"]
         if data["p_fin"] != "None":
             message += "\nProject end: " + data["p_fin"] + "\nAfter the project review, don't forget to remove orientee."
         tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
+    elif "track all orientee" in text:
+        ta = list(db.child(key_fb_tars).child("ta").get().val())
+        if event_data["event"]["user"] not in ta:
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
+            return
+        today = date.today()
+        data = db.child(key_fb_tars).child("orientee").get().val()
+        data.pop("-", None)
+        message = "*Orientee Progress Tracker:*\n"
+        for slack in data.keys():
+            orientee = data[slack]
+            message += "\n<@" + slack + "> - " + orientee["progress"]
+            if orientee["progress"] != "done":
+                if "py" in orientee["progress"]:
+                    deadline = orientee["progress"] + "_d"
+                    deadline = orientee[deadline]
+                    message += "\nDeadline: " + deadline
+                    deadline = date.fromisoformat(deadline)
+                    delta = deadline - today
+                    if delta.days < 0:
+                        message += "\nLagging by " + str(-delta.days) + " day(s)"
+                    else:
+                        message += "\nOn track"
+                elif orientee["progress"][-1] != "p":
+                    deadline = "g" + orientee["progress"][-1] + "_d"
+                    deadline = orientee[deadline]
+                    message += "\nDeadline: " + deadline
+                    deadline = date.fromisoformat(deadline)
+                    delta = deadline - today
+                    if delta.days < 0:
+                        message += "\nLagging by " + str(-delta.days) + " day(s)"
+                    else:
+                        message += "\nOn track"
+                else:
+                    deadline = orientee["p_d"]
+                    message += "\nDeadline: " + deadline
+                    deadline = date.fromisoformat(deadline)
+                    delta = deadline - today
+                    if delta.days < 0:
+                        message += "\nLagging by " + str(-delta.days) + " day(s)"
+                    else:
+                        message += "\nOn track"
+            message += "\n"
+        if "sf_ta" in text:
+            tars.chat_postMessage(channel=sf_ta, text=message)
+        else:
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
     elif "verify orientee" in text:
         ta = list(db.child(key_fb_tars).child("ta").get().val())
         if event_data["event"]["user"] not in ta:
@@ -167,34 +224,27 @@ def im_event_handler(event_data):
         message = "Current status: " + status
         tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
         new_status = {"py2": "py3", "py3": data["group"].lower() + "1", "ml1": "ml2", "ml2": "ml3", "ml3": "mlp", "iot1": "iot2", "iot2": "iot3", "iot3": "iotp", "mg1": "mg2", "mg2": "mg3", "mg3": "mgp"}
-        if status == "py1":
-            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verification for py1 will be done through Hyouka.")
-        elif status == "py2" or status == "py3":
+        if status == "py1" or status == "py2" or status == "py3":
             hyouka_status = hyouka_db.child(key_fb_hyouka).child(github).get().val()["progress"]
-            if hyouka_status == status + "v":
-                db.child(key_fb_tars).child("orientee").child(slack_id).update({"progress": new_status[status]})
-                hyouka_db.child(key_fb_hyouka).child(github).update({"progress": new_status[status]})
-                tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified " + status + "!")
-                orientee = tars.im_open(user=slack_id).data["channel"]["id"]
-                tars.chat_postMessage(channel=orientee, text="Verified " + status + "! Move on to " + new_status[status] + " now.")
-                if status == "py3":
-                    db.child(key_fb_tars).child("orientee").child(slack_id).update({"py_fin": str(date.today())})
-                    group = db.child(key_fb_tars).child("orientee").child(slack_id).child("group").get().val()
-                    tars.chat_postMessage(channel=event_data["event"]["channel"], text="On to the " + group + " assignments now.")
-            else:
-                tars.chat_postMessage(channel=event_data["event"]["channel"], text="Not yet evaluated on Hyouka!")
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Hyouka status: " + str(hyouka_status))
+            db.child(key_fb_tars).child("orientee").child(slack_id).update({"progress": new_status[status]})
+            hyouka_db.child(key_fb_hyouka).child(github).update({"progress": new_status[status]})
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified " + status + "!")
+            orientee = tars.im_open(user=slack_id).data["channel"]["id"]
+            tars.chat_postMessage(channel=orientee, text="Verified " + status + "! Move on to " + new_status[status] + " now.")
+            db.child(key_fb_tars).child("orientee").child(slack_id).update({status + "_fin": str(date.today())})
+            if status == "py3":
+                tars.chat_postMessage(channel=event_data["event"]["channel"], text="Use `setd orientee` to set duration for group assignments.")
         elif "p" != status[-1]:
             db.child(key_fb_tars).child("orientee").child(slack_id).update({"progress": new_status[status]})
             hyouka_db.child(key_fb_hyouka).child(github).update({"progress": new_status[status]})
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified " + status + "!")
             orientee = tars.im_open(user=slack_id).data["channel"]["id"]
             tars.chat_postMessage(channel=orientee, text="Verified " + status + "! Move on to " + new_status[status] + " now.")
-            if "p" in new_status[status]:
-                db.child(key_fb_tars).child("orientee").child(slack_id).update({"g_fin":str( date.today())})
-                group = db.child(key_fb_tars).child("orientee").child(slack_id).child("group").get().val()
+            db.child(key_fb_tars).child("orientee").child(slack_id).update({"g" + status[-1] + "_fin":str( date.today())})
+            if "3" in status:
                 tars_user.groups_kick(channel=orientation_id, user=slack_id)
                 tars_user.groups_invite(channel=project_id, user=slack_id)
-                tars.chat_postMessage(channel=event_data["event"]["channel"], text="On to the " + group + " project now. Next verification only after Sir's reviews.")
         else:
             db.child(key_fb_tars).child("orientee").child(slack_id).update({"progress": "done"})
             db.child(key_fb_tars).child("orientee").child(slack_id).update({"p_fin": str(date.today())})
@@ -205,6 +255,25 @@ def im_event_handler(event_data):
             orientee = tars.im_open(user=slack_id).data["channel"]["id"]
             tars.chat_postMessage(channel=orientee, text="You have completed your project. Great work!")
             tars.chat_postMessage(channel=tars_admin, text="Added <@" + slack_id + "> to #sf_research, execute `remove orientee` later on.")
+    elif "setd orientee" in text:
+        ta = list(db.child(key_fb_tars).child("ta").get().val())
+        if event_data["event"]["user"] not in ta:
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="You're not allowed to do this!")
+            return
+        words = text.split()[2:]
+        slack_id = words[0].replace("@", "").upper()
+        slack_id = slack_id.replace("<", "")
+        slack_id = slack_id.replace(">", "")
+        today = date.today()
+        phase = words[1]
+        duration = words[2]
+        delta = timedelta(duration)
+        if phase == "g":
+            db.child(key_fb_tars).child("orientee").child(slack_id).update({"gd": duration, "g1_d": today + delta, "g2_d": today + 2 * delta, "g3_d": today + 3 * delta})
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Group deadlines set. Check progress tracker sheet in 10 minutes to verify.")
+        if phase == "g":
+            db.child(key_fb_tars).child("orientee").child(slack_id).update({"pd": duration, "p_d": today + delta})
+            tars.chat_postMessage(channel=event_data["event"]["channel"], text="Project deadline set. Check progress tracker sheet in 10 minutes to verify.")
     elif "book meeting" in text:
         slack_id = event_data["event"]["user"]
         meetings = db.child(key_fb_tars).child("meetings").get().val()
