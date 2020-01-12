@@ -146,22 +146,37 @@ def im_event_handler(event_data):
         slack_id = text.split()[2].replace("@", "").upper()
         slack_id = slack_id.replace("<", "")
         slack_id = slack_id.replace(">", "")
+        today = date.today()
         data = db.child(key_fb_tars).child("orientee").child(slack_id).get().val()
         message = "Progress of " + data["name"] + ":\nJoined: " + data["join"] + "\nGroup: " + data["group"] + "\nStatus: " + data["progress"] + "\n*Report:*\nPython duration: " + data["pyd"] + "\nPython 1 deadline: " + data["py1_d"]
+        deadline = date.fromisoformat(data["py1_d"])
         if data["py1_fin"] != "None":
             message += "\nPython 1 end: " + data["py1_fin"] + "\nPython 2 deadline: " + data["py2_d"]
+            deadline = date.fromisoformat(data["py2_d"])
         if data["py2_fin"] != "None":
             message += "\nPython 2 end: " + data["py2_fin"] + "\nPython 3 deadline: " + data["py3_d"]
+            deadline = date.fromisoformat(data["py3_d"])
         if data["py3_fin"] != "None":
             message += "\nPython 3 end: " + data["py3_fin"] + "\nGroup duration: " + data["gd"] + "\nGroup 1 deadline: " + data["g1_d"]
+            deadline = date.fromisoformat(data["g1_d"])
         if data["g1_fin"] != "None":
             message += "\nGroup 1 end: " + data["g1_fin"] + "\nGroup 2 deadline: " + data["g2_d"]
+            deadline = date.fromisoformat(data["g2_d"])
         if data["g2_fin"] != "None":
             message += "\nGroup 2 end: " + data["g2_fin"] + "\nGroup 3 deadline: " + data["g3_d"]
+            deadline = date.fromisoformat(data["g3_d"])
         if data["g3_fin"] != "None":
             message += "\nGroup 3 end: " + data["g3_fin"] + "\nProject duration: " + data["pd"] + "\nProject deadline: " + data["p_d"]
+            deadline = date.fromisoformat(data["p_d"])
         if data["p_fin"] != "None":
             message += "\nProject end: " + data["p_fin"] + "\nAfter the project review, don't forget to remove orientee."
+            deadline = None
+        if deadline is not None:
+            delta = deadline - today
+            if delta.days < 0:
+                message += "\nLagging by " + str(-delta.days) + " days(s)"
+            else:
+                message += "\nOn track"
         tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
     elif "track all orientee" in text:
         ta = list(db.child(key_fb_tars).child("ta").get().val())
@@ -206,7 +221,7 @@ def im_event_handler(event_data):
                     else:
                         message += "\nOn track"
             message += "\n"
-        else:
+        if len(data) == 0:
             message += "No orientees to track!"
         if "sf_ta" in text:
             tars.chat_postMessage(channel=sf_ta, text=message)
