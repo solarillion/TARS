@@ -206,6 +206,8 @@ def im_event_handler(event_data):
                     else:
                         message += "\nOn track"
             message += "\n"
+        else:
+            message += "No orientees to track!"
         if "sf_ta" in text:
             tars.chat_postMessage(channel=sf_ta, text=message)
         else:
@@ -266,12 +268,15 @@ def im_event_handler(event_data):
         slack_id = slack_id.replace(">", "")
         today = date.today()
         phase = words[1]
-        duration = words[2]
+        try:
+            duration = int(words[2])
+        except:
+            duration = 60
         delta = timedelta(duration)
         if phase == "g":
             db.child(key_fb_tars).child("orientee").child(slack_id).update({"gd": duration, "g1_d": today + delta, "g2_d": today + 2 * delta, "g3_d": today + 3 * delta})
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Group deadlines set. Check progress tracker sheet in 10 minutes to verify.")
-        if phase == "g":
+        if phase == "p":
             db.child(key_fb_tars).child("orientee").child(slack_id).update({"pd": duration, "p_d": today + delta})
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Project deadline set. Check progress tracker sheet in 10 minutes to verify.")
     elif "book meeting" in text:
@@ -337,7 +342,6 @@ def im_event_handler(event_data):
         tars_user.chat_delete(channel=sf_ta, ts=message2.data["ts"], as_user=True)
         tars.chat_postMessage(channel=sf_ta, text="Mark your hours by 18:00 on Sunday for Mon-Thu.")
         tars.chat_postMessage(channel=sf_ta, text="Mark your hours by 18:00 on Thursday for Fri-Sun.")
-        
     elif "remind weekday ta hours" in text:
         admin = list(db.child(key_fb_tars).child("admin").get().val())
         if event_data["event"]["user"] not in admin:
@@ -562,7 +566,7 @@ def app_home_opened_event_handler(event_data):
                         "fields": [
                             {
                                 "type": "mrkdwn",
-                                "text": ":point_right: `add orientee @SLACK_ID GITHUB GROUP`\nExample: `add orientee @FakeOrientee fake_orientee ML`"
+                                "text": ":point_right: `add orientee @SLACK_ID GITHUB GROUP PYTHON_DURATION`\nExample: `add orientee @FakeOrientee fake_orientee ML 7`"
                             },
                             {
                                 "type": "mrkdwn",
@@ -575,6 +579,14 @@ def app_home_opened_event_handler(event_data):
                             {
                                 "type": "mrkdwn",
                                 "text": ":point_right: `verify orientee @SLACK_ID`\nExample: `verify orientee @FakeOrientee`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `setd orientee @SLACK_ID PHASE [DURATION]`\nExamples: `setd orientee @FakeOrientee g 7` or `setd orientee @FakeOrientee p`\nNote that `g` is for setting ML, IoT or MG deadlines and `DURATION` is compulsory here, while `p` is for project deadline and `DURATION` must not be specified (defaults to 2 months)."
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `track all orientees` or `track all orientees sf_ta`"
                             }
                         ]
                     },
@@ -703,7 +715,7 @@ def app_home_opened_event_handler(event_data):
                         "fields": [
                             {
                                 "type": "mrkdwn",
-                                "text": ":point_right: `add orientee @SLACK_ID GITHUB GROUP`\nExample: `add orientee @FakeOrientee fake_orientee ML`"
+                                "text": ":point_right: `add orientee @SLACK_ID GITHUB GROUP PYTHON_DURATION`\nExample: `add orientee @FakeOrientee fake_orientee ML 7`"
                             },
                             {
                                 "type": "mrkdwn",
@@ -716,6 +728,14 @@ def app_home_opened_event_handler(event_data):
                             {
                                 "type": "mrkdwn",
                                 "text": ":point_right: `verify orientee @SLACK_ID`\nExample: `verify orientee @FakeOrientee`"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `setd orientee @SLACK_ID PHASE [DURATION]`\nExamples: `setd orientee @FakeOrientee g 7` or `setd orientee @FakeOrientee p`\nNote that `g` is for setting ML, IoT or MG deadlines and `DURATION` is compulsory here, while `p` is for project deadline and `DURATION` must not be specified (defaults to 2 months)."
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": ":point_right: `track all orientees` or `track all orientees sf_ta`"
                             }
                         ]
                     },
