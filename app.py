@@ -240,7 +240,7 @@ def im_event_handler(event_data):
         github = data["github"]
         message = "Current status: " + status
         tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
-        new_status = {"py2": "py3", "py3": data["group"].lower() + "1", "ml1": "ml2", "ml2": "ml3", "ml3": "mlp", "iot1": "iot2", "iot2": "iot3", "iot3": "iotp", "mg1": "mg2", "mg2": "mg3", "mg3": "mgp"}
+        new_status = {"py1": "py2", "py2": "py3", "py3": data["group"].lower() + "1", "ml1": "ml2", "ml2": "ml3", "ml3": "mlp", "iot1": "iot2", "iot2": "iot3", "iot3": "iotp", "mg1": "mg2", "mg2": "mg3", "mg3": "mgp"}
         if status == "py1" or status == "py2" or status == "py3":
             hyouka_status = hyouka_db.child(key_fb_hyouka).child(github).get().val()["progress"]
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Hyouka status: " + str(hyouka_status))
