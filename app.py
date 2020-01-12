@@ -123,7 +123,7 @@ def im_event_handler(event_data):
             group = "IoT"
         py_duration = int(words[3])
         delta = timedelta(py_duration)
-        db.child(key_fb_tars).child("orientee").child(slack_id).update({"name": name, "join": str(join), "github": github, "group": group, "progress": "py1", "pyd": py_duration, "py1_d": str(join + delta), "py1_fin": "None", "py2_d": str(join + 2 * delta), "py2_fin": "None", "py3_d": str(join + 3 * delta), "py3_fin": "None", "gd": "None", "g1_d": "None", "g1_fin": "None", "g2_d": "None", "g2_fin": "None", "g3_d": "None", "g3_fin": "None", "pd": "None", "p_d": "None", "p_fin": "None"})
+        db.child(key_fb_tars).child("orientee").child(slack_id).update({"name": name, "join": str(join), "github": github, "group": group, "progress": "py1", "pyd": str(py_duration), "py1_d": str(join + delta), "py1_fin": "None", "py2_d": str(join + 2 * delta), "py2_fin": "None", "py3_d": str(join + 3 * delta), "py3_fin": "None", "gd": "None", "g1_d": "None", "g1_fin": "None", "g2_d": "None", "g2_fin": "None", "g3_d": "None", "g3_fin": "None", "pd": "None", "p_d": "None", "p_fin": "None"})
         hyouka_db.child(key_fb_hyouka).child(github).update({"name": name, "group": group, "progress": "py1", "slack": slack_id})
         tars.chat_postMessage(channel=event_data["event"]["channel"], text="Added orientee!")
     elif "remove orientee" in text:
