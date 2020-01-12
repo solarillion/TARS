@@ -289,10 +289,10 @@ def im_event_handler(event_data):
             duration = 60
         delta = timedelta(duration)
         if phase == "g":
-            db.child(key_fb_tars).child("orientee").child(slack_id).update({"gd": duration, "g1_d": today + delta, "g2_d": today + 2 * delta, "g3_d": today + 3 * delta})
+            db.child(key_fb_tars).child("orientee").child(slack_id).update({"gd": str(duration), "g1_d": str(today + delta), "g2_d": str(today + 2 * delta), "g3_d": str(today + 3 * delta)})
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Group deadlines set. Check progress tracker sheet in 10 minutes to verify.")
         if phase == "p":
-            db.child(key_fb_tars).child("orientee").child(slack_id).update({"pd": duration, "p_d": today + delta})
+            db.child(key_fb_tars).child("orientee").child(slack_id).update({"pd": str(duration), "p_d": str(today + delta)})
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Project deadline set. Check progress tracker sheet in 10 minutes to verify.")
     elif "book meeting" in text:
         slack_id = event_data["event"]["user"]
