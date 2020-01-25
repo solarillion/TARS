@@ -158,6 +158,7 @@ def im_event_handler(event_data):
         slack_id = slack_id.replace("<", "")
         slack_id = slack_id.replace(">", "")
         today = date.today()
+        deadline = None
         data = db.child(key_fb_tars).child("orientee").child(slack_id).get().val()
         message = "Progress of " + data["name"] + ":\nJoined: " + data["join"] + "\nGroup: " + data["group"] + "\nStatus: " + data["progress"] + "\n*Report:*\n"
         if data["py1_d"] != "None":
