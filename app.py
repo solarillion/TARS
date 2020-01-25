@@ -122,7 +122,7 @@ def im_event_handler(event_data):
         name = tars.users_info(user=slack_id).data["user"]["profile"]["real_name"]
         join = date.today()
         github = words[1]
-        if github == "None":
+        if github == "none":
             db.child(key_fb_tars).child("orientee").child(slack_id).update({"name": name, "join": "None", "github": slack_id + "nogithub", "group": "None", "progress": "None", "pyd": "None", "py1_d": "None", "py1_fin": "None", "py2_d": "None", "py2_fin": "None", "py3_d": "None", "py3_fin": "None", "gd": "None", "g1_d": "None", "g1_fin": "None", "g2_d": "None", "g2_fin": "None", "g3_d": "None", "g3_fin": "None", "pd": "None", "p_d": "None", "p_fin": "None"})
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Added orientee with all None. Update Firebase.")
             return
