@@ -401,6 +401,415 @@ def im_event_handler(event_data):
         tars.chat_postMessage(channel=orientation_id, text=text)
         tars.chat_postMessage(channel=project_id, text=text)
         tars.chat_postMessage(channel=general_id, text=text)
+    elif "update app home" in text:
+        users = tars.users_list().data["members"]
+        users = [user["id"] for user in users]
+        admin = list(db.child(key_fb_tars).child("admin").get().val())
+        ta = list(db.child(key_fb_tars).child("ta").get().val())
+        for user in users:
+            if user in admin:
+                tars.views_publish(user_id=user, view={
+                    "type": "home",
+                    "blocks": [
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "Hi 👋 I'm TARS. I help people at SF do just about everything. Here are a few things that I do:"
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "fields": [
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Sending notifications and information."
+                                },
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Booking meetings."
+                                },
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Scheduling and posting Sir's office hours and TA hours."
+                                },
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Updating JupyterHub and server SSH links."
+                                },
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Creating and managing polls."
+                                },
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Helping TAs do their job."
+                                }
+                            ]
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "And a whole lot more."
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "*Office Hours*\nSir is sent the office hours request automatically every Saturday evening. They are posted every Sunday evening. If the server is down, use `request office hours` to request hours, `remind office hours` to remind Sir, and `post office hours` to post the hours."
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "*TA Hours*\nWith the server's help, I request TAs to mark their hours for the upcoming week on Saturday. The hours for Mon-Thu are posted at 6 pm on Sunday, and the hours for Fri-Sun are posted at 6 pm on Thursday. If the server is down, use `request ta hours` to post the polls, `remind weekday ta hours` and `remind weekend ta hours` to send reminders, and `post weekday ta hours` and `post weekend ta hours` to post the hours."
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "*Meetings*\nBook meetings with Sir with my help. Check the week's office hours before you book a meeting. You can also view meetings you booked and cancel them. The functions are:"
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "fields": [
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `book meeting MEETING_TITLE DAY_OF_WEEK TIME DURATION`\n:arrow_right:`@PERSON_1 @PERSON_2 ...`\nExample: `book meeting Paper Review on Friday at 7pm for 15 minutes`\n`@TEAMMATE1 @TEAMMATE2`"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":exclamation: This works with simple, natural language. You can enter `minutes` or `mins`, enter a date or a day or even something like `tomorrow`. The default duration is `15 minutes`. Press `enter` or `return` after typing the meeting details to add participants, in a new line. You are added as a participant by default, so you needn't add yourself. Do not add Sir as a participant, he is also added automatically. You may choose to not add any additional participants at all."
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `show meetings`"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":exclamation: This shows only the meetings that you have booked this week."
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `cancel meeting MEETING_NUMBER`\nExample: `cancel meeting 1`"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number."
+                                }
+                            ]
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "*Polls*\nPolls can be created in all channels I've been added to by mentioning me. Use `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` and include upto `10` options. Tap on an option to select it, and tap on it again to deselect it. The creator of the poll can close or delete the poll as well."
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "*TA Orientee Tracking*\nAll TAs and Sir can add or remove orientees from the SF orientee database, track their progress and verify assignments. The functions are:"
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "fields": [
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `add orientee @SLACK_ID GITHUB GROUP PYTHON_DURATION`\nExample: `add orientee @FakeOrientee fake_orientee ML 7`\nNote that PYTHON_DURATION must be `7` or `10` or `14`. Group duration is set to `14` by default while project duration is `2 months`."
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `remove orientee @SLACK_ID`\nExample: `remove orientee @FakeOrientee`"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `show orientee @SLACK_ID`\nExample: `show orientee @FakeOrientee`"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `verify orientee @SLACK_ID`\nExample: `verify orientee @FakeOrientee`"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `track all orientees` or `track all orientees sf_ta`"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "plain_text",
+                                "text": "Well, that's it for now, but I'll be doing a lot more in the future. Use my services well. Oh, and contact the server team if you have any feature requests or need help. *flashes cue light*"
+                            }
+                        }
+                    ]
+                })
+            elif user in ta:
+                tars.views_publish(user_id=user, view={
+                    "type": "home",
+                    "blocks": [
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "Hi 👋 I'm TARS. I help people at SF do just about everything. Here are a few things that I do:"
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "fields": [
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Sending notifications and information."
+                                },
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Booking meetings."
+                                },
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Scheduling and posting Sir's office hours and TA hours."
+                                },
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Updating JupyterHub and server SSH links."
+                                },
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Creating and managing polls."
+                                },
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Helping TAs do their job."
+                                }
+                            ]
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "And a whole lot more."
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "*Office Hours*\nSir is sent the office hours request automatically every Saturday evening. They are posted every Sunday evening. If the server is down, the server admins take over and request or post the office hours."
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "*TA Hours*\nWith the server's help, I request TAs to mark their hours for the upcoming week on Saturday. The hours for Mon-Thu are posted at 6 pm on Sunday, and the hours for Fri-Sun are posted at 6 pm on Thursday. If the server is down, the server admins take over and request or post the hours."
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "*Meetings*\nBook meetings with Sir with my help. Check the week's office hours before you book a meeting. You can also view meetings you booked and cancel them. The functions are:"
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "fields": [
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `book meeting MEETING_TITLE DAY_OF_WEEK TIME DURATION`\n:arrow_right:`@PERSON_1 @PERSON_2 ...`\nExample: `book meeting Paper Review on Friday at 7pm for 15 minutes`\n`@TEAMMATE1 @TEAMMATE2`"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":exclamation: This works with simple, natural language. You can enter `minutes` or `mins`, enter a date or a day or even something like `tomorrow`. The default duration is `15 minutes`. Press `enter` or `return` after typing the meeting details to add participants, in a new line. You are added as a participant by default, so you needn't add yourself. Do not add Sir as a participant, he is also added automatically. You may choose to not add any additional participants at all."
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `show meetings`"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":exclamation: This shows only the meetings that you have booked this week."
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `cancel meeting MEETING_NUMBER`\nExample: `cancel meeting 1`"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number."
+                                }
+                            ]
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "*Polls*\nPolls can be created in all channels I've been added to by mentioning me. Use `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` and include upto `10` options. Tap on an option to select it, and tap on it again to deselect it. The creator of the poll can close or delete the poll as well."
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "*TA Orientee Tracking*\nAll TAs and Sir can add or remove orientees from the SF orientee database, track their progress and verify assignments. The functions are:"
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "fields": [
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `add orientee @SLACK_ID GITHUB GROUP PYTHON_DURATION`\nExample: `add orientee @FakeOrientee fake_orientee ML 7`\nNote that PYTHON_DURATION must be `7` or `10` or `14`. Group duration is set to `14` by default while project duration is `2 months`."
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `remove orientee @SLACK_ID`\nExample: `remove orientee @FakeOrientee`"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `show orientee @SLACK_ID`\nExample: `show orientee @FakeOrientee`"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `verify orientee @SLACK_ID`\nExample: `verify orientee @FakeOrientee`"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `track all orientees` or `track all orientees sf_ta`"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "plain_text",
+                                "text": "Well, that's it for now, but I'll be doing a lot more in the future. Use my services well. Oh, and contact the server team if you have any feature requests or need help. *flashes cue light*"
+                            }
+                        }
+                    ]
+                })
+            else:
+                tars.views_publish(user_id=user, view={
+                    "type": "home",
+                    "blocks": [
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "Hi 👋 I'm TARS. I help people at SF do just about everything. Here are a few things that I do:"
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "fields": [
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Sending notifications and information."
+                                },
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Scheduling and posting Sir's office hours and TA hours."
+                                },
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Updating JupyterHub and server SSH links."
+                                },
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Booking meetings."
+                                },
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Creating and managing polls."
+                                },
+                                {
+                                    "type": "plain_text",
+                                    "text": "🤖 Helping TAs do their job."
+                                }
+                            ]
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "And a whole lot more."
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "*Office Hours*\nSir is sent the office hours request automatically every Saturday evening. They are posted every Sunday evening. If the server is down, the server admins take over and request or post the office hours."
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "*TA Hours*\nWith the server's help, I request TAs to mark their hours for the upcoming week on Saturday. The hours for Mon-Thu are posted at 6 pm on Sunday, and the hours for Fri-Sun are posted at 6 pm on Thursday. If the server is down, the server admins take over and request or post the hours."
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "*Meetings*\nBook meetings with Sir with my help. Check the week's office hours before you book a meeting. You can also view meetings you booked and cancel them. The functions are:"
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "fields": [
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `book meeting MEETING_TITLE DAY_OF_WEEK TIME DURATION`\n:arrow_right:`@PERSON_1 @PERSON_2 ...`\nExample: `book meeting Paper Review on Friday at 7pm for 15 minutes`\n`@TEAMMATE1 @TEAMMATE2`"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":exclamation: This works with simple, natural language. You can enter `minutes` or `mins`, enter a date or a day or even something like `tomorrow`. The default duration is `15 minutes`. Press `enter` or `return` after typing the meeting details to add participants, in a new line. You are added as a participant by default, so you needn't add yourself. Do not add Sir as a participant, he is also added automatically. You may choose to not add any additional participants at all."
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `show meetings`"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":exclamation: This shows only the meetings that you have booked this week."
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":point_right: `cancel meeting MEETING_NUMBER`\nExample: `cancel meeting 1`"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number."
+                                }
+                            ]
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "*Polls*\nPolls can be created in all channels I've been added to by mentioning me. Use `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` and include upto `10` options. Tap on an option to select it, and tap on it again to deselect it. The creator of the poll can close or delete the poll as well."
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "plain_text",
+                                "text": "Well, that's it for now, but I'll be doing a lot more in the future. Use my services well. Oh, and contact the server team if you have any feature requests or need help. *flashes cue light*­"
+                            }
+                        }
+                    ]
+                })
     elif any([a in text.split() for a in ["hi", "hello"]]):
         tars.chat_postMessage(channel=event_data["event"]["channel"], text="TARS says 👋 back. *flashes cue light*­")
 
@@ -448,420 +857,6 @@ def team_join_event_handler(event_data):
         }
     ])
     tars.chat_postMessage(channel=orientation_id, text="The Python assignments are available at https://github.com/solarillion/PythonBasics along with instructions. Create a GitHub account if you don't have one and follow the instructions given to do your assignments. Don't hesitate to contact a TA if you have any doubts!")
-
-@slack_events_adapter.on("app_home_opened")
-def app_home_opened(event_data):
-    thread = threading.Thread(target=app_home_opened_event_handler, args=(event_data,))
-    thread.start()
-    return "OK", 200
-    
-def app_home_opened_event_handler(event_data):
-    user = event_data["event"]["user"]
-    admin = list(db.child(key_fb_tars).child("admin").get().val())
-    ta = list(db.child(key_fb_tars).child("ta").get().val())
-    if user in admin:
-        tars.views_publish(user_id=user, view={
-                "type": "home",
-                "blocks": [
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "Hi 👋 I'm TARS. I help people at SF do just about everything. Here are a few things that I do:"
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Sending notifications and information."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Booking meetings."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Scheduling and posting Sir's office hours and TA hours."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Updating JupyterHub and server SSH links."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Creating and managing polls."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Helping TAs do their job."
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "And a whole lot more."
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*Office Hours*\nSir is sent the office hours request automatically every Saturday evening. They are posted every Sunday evening. If the server is down, use `request office hours` to request hours, `remind office hours` to remind Sir, and `post office hours` to post the hours."
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*TA Hours*\nWith the server's help, I request TAs to mark their hours for the upcoming week on Saturday. The hours for Mon-Thu are posted at 6 pm on Sunday, and the hours for Fri-Sun are posted at 6 pm on Thursday. If the server is down, use `request ta hours` to post the polls, `remind weekday ta hours` and `remind weekend ta hours` to send reminders, and `post weekday ta hours` and `post weekend ta hours` to post the hours."
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*Meetings*\nBook meetings with Sir with my help. Check the week's office hours before you book a meeting. You can also view meetings you booked and cancel them. The functions are:"
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `book meeting MEETING_TITLE DAY_OF_WEEK TIME DURATION`\n:arrow_right:`@PERSON_1 @PERSON_2 ...`\nExample: `book meeting Paper Review on Friday at 7pm for 15 minutes`\n`@TEAMMATE1 @TEAMMATE2`"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":exclamation: This works with simple, natural language. You can enter `minutes` or `mins`, enter a date or a day or even something like `tomorrow`. The default duration is `15 minutes`. Press `enter` or `return` after typing the meeting details to add participants, in a new line. You are added as a participant by default, so you needn't add yourself. Do not add Sir as a participant, he is also added automatically. You may choose to not add any additional participants at all."
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `show meetings`"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":exclamation: This shows only the meetings that you have booked this week."
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `cancel meeting MEETING_NUMBER`\nExample: `cancel meeting 1`"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number."
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*Polls*\nPolls can be created in all channels I've been added to by mentioning me. Use `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` and include upto `10` options. Tap on an option to select it, and tap on it again to deselect it. The creator of the poll can close or delete the poll as well."
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*TA Orientee Tracking*\nAll TAs and Sir can add or remove orientees from the SF orientee database, track their progress and verify assignments. The functions are:"
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `add orientee @SLACK_ID GITHUB GROUP PYTHON_DURATION`\nExample: `add orientee @FakeOrientee fake_orientee ML 7`\nNote that PYTHON_DURATION must be `7` or `10` or `14`. Group duration is set to `14` by default while project duration is `2 months`."
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `remove orientee @SLACK_ID`\nExample: `remove orientee @FakeOrientee`"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `show orientee @SLACK_ID`\nExample: `show orientee @FakeOrientee`"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `verify orientee @SLACK_ID`\nExample: `verify orientee @FakeOrientee`"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `track all orientees` or `track all orientees sf_ta`"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Well, that's it for now, but I'll be doing a lot more in the future. Use my services well. Oh, and contact the server team if you have any feature requests or need help. *flashes cue light*"
-                        }
-                    }
-                ]
-        })
-    elif user in ta:
-        tars.views_publish(user_id=user, view={
-                "type": "home",
-                "blocks": [
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "Hi 👋 I'm TARS. I help people at SF do just about everything. Here are a few things that I do:"
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Sending notifications and information."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Booking meetings."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Scheduling and posting Sir's office hours and TA hours."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Updating JupyterHub and server SSH links."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Creating and managing polls."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Helping TAs do their job."
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "And a whole lot more."
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*Office Hours*\nSir is sent the office hours request automatically every Saturday evening. They are posted every Sunday evening. If the server is down, the server admins take over and request or post the office hours."
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*TA Hours*\nWith the server's help, I request TAs to mark their hours for the upcoming week on Saturday. The hours for Mon-Thu are posted at 6 pm on Sunday, and the hours for Fri-Sun are posted at 6 pm on Thursday. If the server is down, the server admins take over and request or post the hours."
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*Meetings*\nBook meetings with Sir with my help. Check the week's office hours before you book a meeting. You can also view meetings you booked and cancel them. The functions are:"
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `book meeting MEETING_TITLE DAY_OF_WEEK TIME DURATION`\n:arrow_right:`@PERSON_1 @PERSON_2 ...`\nExample: `book meeting Paper Review on Friday at 7pm for 15 minutes`\n`@TEAMMATE1 @TEAMMATE2`"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":exclamation: This works with simple, natural language. You can enter `minutes` or `mins`, enter a date or a day or even something like `tomorrow`. The default duration is `15 minutes`. Press `enter` or `return` after typing the meeting details to add participants, in a new line. You are added as a participant by default, so you needn't add yourself. Do not add Sir as a participant, he is also added automatically. You may choose to not add any additional participants at all."
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `show meetings`"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":exclamation: This shows only the meetings that you have booked this week."
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `cancel meeting MEETING_NUMBER`\nExample: `cancel meeting 1`"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number."
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*Polls*\nPolls can be created in all channels I've been added to by mentioning me. Use `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` and include upto `10` options. Tap on an option to select it, and tap on it again to deselect it. The creator of the poll can close or delete the poll as well."
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*TA Orientee Tracking*\nAll TAs and Sir can add or remove orientees from the SF orientee database, track their progress and verify assignments. The functions are:"
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `add orientee @SLACK_ID GITHUB GROUP PYTHON_DURATION`\nExample: `add orientee @FakeOrientee fake_orientee ML 7`\nNote that PYTHON_DURATION must be `7` or `10` or `14`. Group duration is set to `14` by default while project duration is `2 months`."
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `remove orientee @SLACK_ID`\nExample: `remove orientee @FakeOrientee`"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `show orientee @SLACK_ID`\nExample: `show orientee @FakeOrientee`"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `verify orientee @SLACK_ID`\nExample: `verify orientee @FakeOrientee`"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `track all orientees` or `track all orientees sf_ta`"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Well, that's it for now, but I'll be doing a lot more in the future. Use my services well. Oh, and contact the server team if you have any feature requests or need help. *flashes cue light*"
-                        }
-                    }
-                ]
-        })
-    else:
-        tars.views_publish(user_id=user, view={
-                "type": "home",
-                "blocks": [
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "Hi 👋 I'm TARS. I help people at SF do just about everything. Here are a few things that I do:"
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Sending notifications and information."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Scheduling and posting Sir's office hours and TA hours."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Updating JupyterHub and server SSH links."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Booking meetings."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Creating and managing polls."
-                            },
-                            {
-                                "type": "plain_text",
-                                "text": "🤖 Helping TAs do their job."
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "And a whole lot more."
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*Office Hours*\nSir is sent the office hours request automatically every Saturday evening. They are posted every Sunday evening. If the server is down, the server admins take over and request or post the office hours."
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*TA Hours*\nWith the server's help, I request TAs to mark their hours for the upcoming week on Saturday. The hours for Mon-Thu are posted at 6 pm on Sunday, and the hours for Fri-Sun are posted at 6 pm on Thursday. If the server is down, the server admins take over and request or post the hours."
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*Meetings*\nBook meetings with Sir with my help. Check the week's office hours before you book a meeting. You can also view meetings you booked and cancel them. The functions are:"
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `book meeting MEETING_TITLE DAY_OF_WEEK TIME DURATION`\n:arrow_right:`@PERSON_1 @PERSON_2 ...`\nExample: `book meeting Paper Review on Friday at 7pm for 15 minutes`\n`@TEAMMATE1 @TEAMMATE2`"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":exclamation: This works with simple, natural language. You can enter `minutes` or `mins`, enter a date or a day or even something like `tomorrow`. The default duration is `15 minutes`. Press `enter` or `return` after typing the meeting details to add participants, in a new line. You are added as a participant by default, so you needn't add yourself. Do not add Sir as a participant, he is also added automatically. You may choose to not add any additional participants at all."
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `show meetings`"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":exclamation: This shows only the meetings that you have booked this week."
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":point_right: `cancel meeting MEETING_NUMBER`\nExample: `cancel meeting 1`"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number."
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*Polls*\nPolls can be created in all channels I've been added to by mentioning me. Use `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` and include upto `10` options. Tap on an option to select it, and tap on it again to deselect it. The creator of the poll can close or delete the poll as well."
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Well, that's it for now, but I'll be doing a lot more in the future. Use my services well. Oh, and contact the server team if you have any feature requests or need help. *flashes cue light*­"
-                        }
-                    }
-                ]
-        })
 
 @slack_events_adapter.on("app_mention")
 def app_mention(event_data):
