@@ -304,25 +304,43 @@ def im_event_handler(event_data):
         lines = texto.split("\n")
         meeting = " ".join(lines[0].split(" ")[2:])
         people = [tars.users_info(user=slack_id).data["user"]["profile"]["email"]]
+        people_slack = [slack_id, vineethv_id]
         if len(lines) == 2:
             add =  lines[1].replace("@", "").replace("<", "").replace(">", "").upper().split()
+            people_slack += add
             add = list(map(lambda x: tars.users_info(user=x).data["user"]["profile"]["email"], add))
             people = people + add
-        db.child(key_fb_tars).child("bookings").child(id).set({"meeting": meeting, "people": people})
+        db.child(key_fb_tars).child("bookings").child(id).set({"meeting": meeting, "people": people, "people_slack": people_slack})
         tars.chat_postMessage(channel=event_data["event"]["channel"], text="The meeting has been booked!")
     elif "show meeting" in text:
         slack_id = event_data["event"]["user"]
         meetings = db.child(key_fb_tars).child("meetings").get().val()
         if meetings is not None:
+            meetings = dict(meetings)
             count = 0
-            for i in list(meetings):
+            keys = list(meetings.keys())
+            for i in keys:
                 if slack_id in i:
                     count += 1
                     item = db.child(key_fb_tars).child("meetings").child(i).get().val()
                     text = "`" + i.split("_")[1] + "`: " + item["desc"] + ", " + reformat_meeting_date(item["start"]) + " " + reformat_meeting_time(item["start"]) + " - " + reformat_meeting_time(item["end"])
+                    if count == 1:
+                        tars.chat_postMessage(channel=event_data["event"]["channel"], text="*Meetings you booked:*")
                     tars.chat_postMessage(channel=event_data["event"]["channel"], text=text)
-            if count == 0:
-                tars.chat_postMessage(channel=event_data["event"]["channel"], text="You haven't booked any meetings!")
+                    meetings.pop(i)
+            invites = 0
+            keys = list(meetings.keys())
+            for i in keys:
+                if slack_id in list(meetings[i]["people"]):
+                    invites += 1
+                    item = db.child(key_fb_tars).child("meetings").child(i).get().val()
+                    text = "`*`: " + item["desc"] + ", " + reformat_meeting_date(item["start"]) + " " + reformat_meeting_time(item["start"]) + " - " + reformat_meeting_time(item["end"])
+                    if invites == 1:
+                        tars.chat_postMessage(channel=event_data["event"]["channel"], text="*Meetings you've been invited to:*")
+                    tars.chat_postMessage(channel=event_data["event"]["channel"], text=text)
+                    meetings.pop(i)
+            if count == 0 and invites == 0:
+                tars.chat_postMessage(channel=event_data["event"]["channel"], text="You haven't booked or been invited to any meetings!")
     elif "cancel meeting" in text:
         slack_id = event_data["event"]["user"]
         meetings = db.child(key_fb_tars).child("meetings").get().val()
@@ -492,7 +510,7 @@ def im_event_handler(event_data):
                                 },
                                 {
                                     "type": "mrkdwn",
-                                    "text": ":exclamation: This shows only the meetings that you have booked this week."
+                                    "text": ":exclamation: This shows the meetings that you have booked or have been invited to this week."
                                 },
                                 {
                                     "type": "mrkdwn",
@@ -500,7 +518,7 @@ def im_event_handler(event_data):
                                 },
                                 {
                                     "type": "mrkdwn",
-                                    "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number."
+                                    "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number. You can only cancel meetings that you booked."
                                 }
                             ]
                         },
@@ -637,7 +655,7 @@ def im_event_handler(event_data):
                                 },
                                 {
                                     "type": "mrkdwn",
-                                    "text": ":exclamation: This shows only the meetings that you have booked this week."
+                                    "text": ":exclamation: This shows only the meetings that you have booked or have been invited to this week."
                                 },
                                 {
                                     "type": "mrkdwn",
@@ -645,7 +663,7 @@ def im_event_handler(event_data):
                                 },
                                 {
                                     "type": "mrkdwn",
-                                    "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number."
+                                    "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number. You can only cancel meetings that you have booked."
                                 }
                             ]
                         },
@@ -782,7 +800,7 @@ def im_event_handler(event_data):
                                 },
                                 {
                                     "type": "mrkdwn",
-                                    "text": ":exclamation: This shows only the meetings that you have booked this week."
+                                    "text": ":exclamation: This shows only the meetings that you have booked or have been invited to this week."
                                 },
                                 {
                                     "type": "mrkdwn",
@@ -790,7 +808,7 @@ def im_event_handler(event_data):
                                 },
                                 {
                                     "type": "mrkdwn",
-                                    "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number."
+                                    "text": ":exclamation: Use `show meetings` to list the meetings you've booked and get the `MEETING_NUMBER`. Cancel the meeting using that number. You can only cancel meetings that you booked."
                                 }
                             ]
                         },
