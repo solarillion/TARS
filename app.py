@@ -1175,7 +1175,9 @@ def getFormDetailsFromUser():
 	print(" Inside webpage ",os.listdir("solarillion.github.io"))
 	def git_push():
 		try:
+			
 			repo = Repo(PATH_OF_GIT_REPO)
+			print("repo created ",repo)
 			with open("solarillion.github.io/_data/publications.yml", "a") as file:
 				dump(outr_d, file)
 			  
