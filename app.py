@@ -1203,7 +1203,9 @@ def getFormDetailsFromUser():
 	repo = g.get_repo("naveenggmu/Solarillion.github.io")
 	pr = repo.create_pull(title="Added publication", body=pr_body, head=dt_string, base="master")
 	print("Created pull request ",pr)
-	return render_template("login.html") 
+	data1 = {}
+	data1["status"] = "Come On man, You have added"
+	return render_template("login.html",data=data1) 
 
 @app.route("/logout")
 @flask_login.login_required
