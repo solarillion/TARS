@@ -25,31 +25,62 @@ from yaml import load, dump
 
 
 
+# tars_token = os.environ.get("TARS_TOKEN")
+# tars_user_token = os.environ.get("TARS_USER_TOKEN")
+# tars_admin = os.environ.get("TARS_ADMIN")
+# tars_secret = os.environ.get("TARS_SECRET")
+# tars_bot_id = os.environ.get("TARS_BOT_ID")
+# tars_id = os.environ.get("TARS_ID")
+# general_id = os.environ.get("GENERAL_ID")
+# orientation_id = os.environ.get("ORIENTATION_ID")
+# project_id = os.environ.get("PROJECT_ID")
+# sf_research = os.environ.get("SF_RESEARCH")
+# sf_ta = os.environ.get("SF_TA")
+# vineethv_id = os.environ.get("VINEETHV_ID")
+# office_hours_form = os.environ.get("OFFICE_HOURS_FORM")
+# firebase_api_key = os.environ.get("FIREBASE_API_KEY")
+# tars_fb_ad = os.environ.get("TARS_FB_AD")
+# tars_fb_url = os.environ.get("TARS_FB_URL")
+# tars_fb_sb = os.environ.get("TARS_FB_SB")
+# key_fb_tars = os.environ.get("KEY_FB_TARS")
+# hyouka_fb_key = os.environ.get("HYOUKA_FB_KEY")
+# hyouka_fb_ad = os.environ.get("HYOUKA_FB_AD")
+# hyouka_fb_url = os.environ.get("HYOUKA_FB_URL")
+# hyouka_fb_sb = os.environ.get("HYOUKA_FB_SB")
+# key_fb_hyouka = os.environ.get("KEY_FB_HYOUKA")
+# github_secret = os.environ.get("GITHUB_SECRET")
+# username = os.environ.get("USERNAME")
+# password = os.environ.get("PASSWORD")
+# git_username = os.environ.get("GIT_USERNAME")
+# git_password = os.environ.get("GIT_ACCESS_TOKEN")
+# secret = os.environ.get("SECRET")
+
 tars_token = os.environ.get("TARS_TOKEN")
-tars_user_token = os.environ.get("TARS_USER_TOKEN")
-tars_admin = os.environ.get("TARS_ADMIN")
+tars_user_token = ""
+tars_admin = ""
 tars_secret = os.environ.get("TARS_SECRET")
-tars_bot_id = os.environ.get("TARS_BOT_ID")
-tars_id = os.environ.get("TARS_ID")
-general_id = os.environ.get("GENERAL_ID")
-orientation_id = os.environ.get("ORIENTATION_ID")
-project_id = os.environ.get("PROJECT_ID")
-sf_research = os.environ.get("SF_RESEARCH")
-sf_ta = os.environ.get("SF_TA")
-vineethv_id = os.environ.get("VINEETHV_ID")
-office_hours_form = os.environ.get("OFFICE_HOURS_FORM")
-firebase_api_key = os.environ.get("FIREBASE_API_KEY")
-tars_fb_ad = os.environ.get("TARS_FB_AD")
-tars_fb_url = os.environ.get("TARS_FB_URL")
-tars_fb_sb = os.environ.get("TARS_FB_SB")
-key_fb_tars = os.environ.get("KEY_FB_TARS")
-hyouka_fb_key = os.environ.get("HYOUKA_FB_KEY")
-hyouka_fb_ad = os.environ.get("HYOUKA_FB_AD")
-hyouka_fb_url = os.environ.get("HYOUKA_FB_URL")
-hyouka_fb_sb = os.environ.get("HYOUKA_FB_SB")
-key_fb_hyouka = os.environ.get("KEY_FB_HYOUKA")
-github_secret = os.environ.get("GITHUB_SECRET")
-username = "solarillion_pub"
+tars_bot_id = ""
+tars_id = ""
+general_id = ""
+orientation_id = ""
+project_id = ""
+sf_research = ""
+sf_ta = ""
+vineethv_id = ""
+office_hours_form = ""
+firebase_api_key = ""
+tars_fb_ad = ""
+tars_fb_url = ""
+tars_fb_sb = ""
+key_fb_tars = ""
+hyouka_fb_key = ""
+hyouka_fb_ad = ""
+hyouka_fb_url = ""
+hyouka_fb_sb = ""
+key_fb_hyouka = ""
+github_secret = ""
+username = os.environ.get("USERNAME")
+password = os.environ.get("PASSWORD")
 git_username = os.environ.get("GIT_USERNAME")
 git_password = os.environ.get("GIT_ACCESS_TOKEN")
 secret = os.environ.get("SECRET")
@@ -74,29 +105,29 @@ def load_user(id):
 	return user
 
 tars = slack.WebClient(token=tars_token)
-tars_user = slack.WebClient(token=tars_user_token)
+# tars_user = slack.WebClient(token=tars_user_token)
 slack_events_adapter = SlackEventAdapter(tars_secret, "/event", app)
 
-vineethv_im_request = tars.im_open(user=vineethv_id)
-vineethv_im_channel = vineethv_im_request.data["channel"]["id"]
+# vineethv_im_request = tars.im_open(user=vineethv_id)
+# vineethv_im_channel = vineethv_im_request.data["channel"]["id"]
 
-config = {
-  "apiKey": firebase_api_key,
-  "authDomain": tars_fb_ad,
-  "databaseURL": tars_fb_url,
-  "storageBucket": tars_fb_sb
-}
-firebase = pyrebase.initialize_app(config)
-db = firebase.database()
+# config = {
+#   "apiKey": firebase_api_key,
+#   "authDomain": tars_fb_ad,
+#   "databaseURL": tars_fb_url,
+#   "storageBucket": tars_fb_sb
+# }
+# firebase = pyrebase.initialize_app(config)
+# db = firebase.database()
 
-hyouka_config = {
-  "apiKey": hyouka_fb_key,
-  "authDomain": hyouka_fb_ad,
-  "databaseURL": hyouka_fb_url,
-  "storageBucket": hyouka_fb_sb
-}
-hyouka_firebase = pyrebase.initialize_app(hyouka_config)
-hyouka_db = hyouka_firebase.database()
+# hyouka_config = {
+#   "apiKey": hyouka_fb_key,
+#   "authDomain": hyouka_fb_ad,
+#   "databaseURL": hyouka_fb_url,
+#   "storageBucket": hyouka_fb_sb
+# }
+# hyouka_firebase = pyrebase.initialize_app(hyouka_config)
+# hyouka_db = hyouka_firebase.database()
 
 @app.route("/", methods=["GET"])
 def index():
