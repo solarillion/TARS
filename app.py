@@ -1173,6 +1173,7 @@ def getFormDetailsFromUser():
 	print(os.listdir())
 	print("--------------------------")
 	print(" Inside webpage ",os.listdir("solarillion.github.io"))
+	print("CWD : ",os.getcwd())
 	def git_push():
 		try:
 			print("Into the try blocks")
