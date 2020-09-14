@@ -1166,7 +1166,7 @@ def getFormDetailsFromUser():
 	remote = f"https://{git_username}:{git_password}@github.com/naveenggmu/solarillion.github.io.git" 
 	Repo.clone_from(remote, full_local_path)
 	
-	PATH_OF_GIT_REPO = "solarillion.github.io"  # make sure .git folder is properly configured
+	PATH_OF_GIT_REPO = "naveenggmu/solarillion.github.io"  # make sure .git folder is properly configured
 	COMMIT_MESSAGE = "Added publication"
 	print("Cloned and shit")
 	print("--------------------------")
