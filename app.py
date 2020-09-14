@@ -1162,16 +1162,16 @@ def getFormDetailsFromUser():
 	print(outr_d)
 	pr_body = "Added a new publication: \"" + record["title"] + "\""
 	full_local_path = "solarillion/solarillion.github.io"
-	remote = f"https://{git_username}:{git_password}@github.com/solarillion/solarillion.github.io.git" 
+	remote = f"https://{git_username}:{git_password}@github.com/naveenggmu/solarillion.github.io.git" 
 	Repo.clone_from(remote, full_local_path)
 	
-	PATH_OF_GIT_REPO = "solarillion/solarillion.github.io"  # make sure .git folder is properly configured
+	PATH_OF_GIT_REPO = "naveenggmu/solarillion.github.io"  # make sure .git folder is properly configured
 	COMMIT_MESSAGE = "Added publication"
 	print("Cloned and shit")
 	def git_push():
 		try:
 			repo = Repo(PATH_OF_GIT_REPO)
-			with open("solarillion/solarillion.github.io/_data/publications.yml", "a") as file:
+			with open("naveenggmu/solarillion.github.io/_data/publications.yml", "a") as file:
 				dump(outr_d, file)
 			  
 			now = datetime.datetime.now()
@@ -1186,9 +1186,9 @@ def getFormDetailsFromUser():
 			print("Some error occured while pushing the code")    
 	dt_string = git_push()
 	print("Pushed")
-	shutil.rmtree("solarillion/solarillion.github.io")
+	shutil.rmtree("naveenggmu/solarillion.github.io")
 	g = Github(git_password)
-	repo = g.get_repo("solarillion/Solarillion.github.io")
+	repo = g.get_repo("naveenggmu/Solarillion.github.io")
 	pr = repo.create_pull(title="Added publication", body=pr_body, head=dt_string, base="master")
 	print("Created pull request ",pr)
 	return render_template("login.html") 
