@@ -1161,6 +1161,7 @@ def getFormDetailsFromUser():
 	outr_d[pkey] = record
 	print(outr_d)
 	pr_body = "Added a new publication: \"" + record["title"] + "\""
+	print("pr_body ",pr_body)
 	full_local_path = "solarillion.github.io"
 	remote = f"https://{git_username}:{git_password}@github.com/naveenggmu/solarillion.github.io.git" 
 	Repo.clone_from(remote, full_local_path)
@@ -1168,6 +1169,10 @@ def getFormDetailsFromUser():
 	PATH_OF_GIT_REPO = "solarillion.github.io"  # make sure .git folder is properly configured
 	COMMIT_MESSAGE = "Added publication"
 	print("Cloned and shit")
+	print("--------------------------")
+	print(os.listdir())
+	print("--------------------------")
+	print(" Inside webpage ",os.listdir("solarillion.github.io"))
 	def git_push():
 		try:
 			repo = Repo(PATH_OF_GIT_REPO)
