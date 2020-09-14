@@ -1180,12 +1180,16 @@ def getFormDetailsFromUser():
 			print("repo created ",repo)
 			with open("solarillion.github.io/_data/publications.yml", "a") as file:
 				dump(outr_d, file)
-			  
+			print("Written File")
 			now = datetime.datetime.now()
-			dt_string = now.strftime("%Y%m%d%H%M%S")              
+			dt_string = now.strftime("%Y%m%d%H%M%S")        
+			print("before adding")
 			repo.git.add(update=True)
+			print("after adding before commit")
 			repo.index.commit(COMMIT_MESSAGE)
+			print("After Commit")
 			origin = repo.remote(name="origin")
+			print("Creating origin ",origin)
 			repo.create_head(dt_string)
 			origin.push(dt_string)
 			return dt_string
