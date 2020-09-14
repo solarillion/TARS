@@ -80,7 +80,7 @@ hyouka_fb_sb = ""
 key_fb_hyouka = ""
 github_secret = ""
 username = os.environ.get("USERNAME")
-password = os.environ.get("PASSWORD")
+password = os.environ.get("PASSWORD").encode()
 git_username = os.environ.get("GIT_USERNAME")
 git_password = os.environ.get("GIT_ACCESS_TOKEN")
 secret = os.environ.get("SECRET")
@@ -1126,7 +1126,7 @@ def login():
 	if(request.method=="POST"):
 		username_form=request.form.get("username")
 		password_form=request.form.get("password").encode()
-		if(username_form==username and bcrypt.checkpw(password_form, git_password)):
+		if(username_form==username and bcrypt.checkpw(password_form, password)):
 			user = User()
 			user.id = username
 			flask_login.login_user(user)
