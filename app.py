@@ -1182,7 +1182,7 @@ def getFormDetailsFromUser():
 			with open("solarillion.github.io/_data/publications.yml", "a") as file:
 				dump(outr_d, file)
 			print("Written File")
-			now = datetime.datetime.now()
+			now = datetime.now()
 			dt_string = now.strftime("%Y%m%d%H%M%S")        
 			print("before adding")
 			repo.git.add(update=True)
