@@ -1136,7 +1136,7 @@ def login():
 			return redirect(request.args.get("next") or url_for("index"))
 		else:
 			data1={}
-			data1["status"]="invalid shit bro"
+			data1["status"]="Credentials incorrect"
 			return render_template("login.html",data=data1)
 
 @app.route("/addpublication",methods=["GET","POST"])
