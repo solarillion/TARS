@@ -1119,7 +1119,7 @@ def interact_handler(payload):
 def login():
 	if(request.method == "GET"):
 		data1={}
-		data1["status"]="enter deets"
+		data1["status"]="Enter Credentials"
 		print("Sending login page")
 		return render_template("login.html", data=data1)
 	
@@ -1131,7 +1131,7 @@ def login():
 			user.id = username
 			flask_login.login_user(user)
 			data1={}
-			data1["status"] = "Are you in the right place?"
+			data1["status"] = "Enter the above details and submit"
 			# return render_template("formPage.html",data=data1)
 			return redirect(request.args.get("next") or url_for("index"))
 		else:
@@ -1144,12 +1144,12 @@ def login():
 def getFormDetailsFromUser():
 	if(request.method=='GET'):
 		data1={}
-		data1['status'] = "Yo Yo Yo"
+		data1['status'] = "Enter the above Details and submit"
 		return render_template("addPublication.html", data=data1)
 	record = {}
-	record["title"] = request.form["Pname"]
-	record["conference"] = request.form["Cname"]
-	record["year"] = request.form["Cyear"]
+	record["title"] = str(request.form["Pname"])
+	record["conference"] = str(request.form["Cname"])
+	record["year"] = str(request.form["Cyear"])
 	record["status"] = request.form["Status"]
 	record["team"] = request.form["Team"]
 	record["authors"] = request.form["Authors"].split(";")
@@ -1204,7 +1204,7 @@ def getFormDetailsFromUser():
 	pr = repo.create_pull(title="Added publication", body=pr_body, head=dt_string, base="master")
 	print("Created pull request ",pr)
 	data1 = {}
-	data1["status"] = "Come On man, You have added"
+	data1["status"] = "Thank you for adding your paper to the website. Congrats if accepted, All the best if submitted."
 	return render_template("login.html",data=data1) 
 
 @app.route("/logout")
