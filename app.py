@@ -1150,7 +1150,7 @@ def getFormDetailsFromUser():
 	dt_string = git_push()
 	shutil.rmtree("solarillion.github.io")
 	g = Github(git_password)
-	repo = g.get_repo("solarillion/Solarillion.github.io")
+	repo = g.get_repo("solarillion/solarillion.github.io")
 	pr = repo.create_pull(title="Added publication", body=pr_body, head=dt_string, base="master")
 	data1 = {}
 	data1["status"] = "Thank you for adding your paper to the website. Congrats if accepted, All the best if submitted."
