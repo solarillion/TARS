@@ -24,61 +24,30 @@ from urllib.parse import parse_qs
 from yaml import load, dump
 
 
-
-# tars_token = os.environ.get("TARS_TOKEN")
-# tars_user_token = os.environ.get("TARS_USER_TOKEN")
-# tars_admin = os.environ.get("TARS_ADMIN")
-# tars_secret = os.environ.get("TARS_SECRET")
-# tars_bot_id = os.environ.get("TARS_BOT_ID")
-# tars_id = os.environ.get("TARS_ID")
-# general_id = os.environ.get("GENERAL_ID")
-# orientation_id = os.environ.get("ORIENTATION_ID")
-# project_id = os.environ.get("PROJECT_ID")
-# sf_research = os.environ.get("SF_RESEARCH")
-# sf_ta = os.environ.get("SF_TA")
-# vineethv_id = os.environ.get("VINEETHV_ID")
-# office_hours_form = os.environ.get("OFFICE_HOURS_FORM")
-# firebase_api_key = os.environ.get("FIREBASE_API_KEY")
-# tars_fb_ad = os.environ.get("TARS_FB_AD")
-# tars_fb_url = os.environ.get("TARS_FB_URL")
-# tars_fb_sb = os.environ.get("TARS_FB_SB")
-# key_fb_tars = os.environ.get("KEY_FB_TARS")
-# hyouka_fb_key = os.environ.get("HYOUKA_FB_KEY")
-# hyouka_fb_ad = os.environ.get("HYOUKA_FB_AD")
-# hyouka_fb_url = os.environ.get("HYOUKA_FB_URL")
-# hyouka_fb_sb = os.environ.get("HYOUKA_FB_SB")
-# key_fb_hyouka = os.environ.get("KEY_FB_HYOUKA")
-# github_secret = os.environ.get("GITHUB_SECRET")
-# username = os.environ.get("USERNAME")
-# password = os.environ.get("PASSWORD")
-# git_username = os.environ.get("GIT_USERNAME")
-# git_password = os.environ.get("GIT_ACCESS_TOKEN")
-# secret = os.environ.get("SECRET")
-
 tars_token = os.environ.get("TARS_TOKEN")
-tars_user_token = ""
-tars_admin = ""
+tars_user_token = os.environ.get("TARS_USER_TOKEN")
+tars_admin = os.environ.get("TARS_ADMIN")
 tars_secret = os.environ.get("TARS_SECRET")
-tars_bot_id = ""
-tars_id = ""
-general_id = ""
-orientation_id = ""
-project_id = ""
-sf_research = ""
-sf_ta = ""
-vineethv_id = ""
-office_hours_form = ""
-firebase_api_key = ""
-tars_fb_ad = ""
-tars_fb_url = ""
-tars_fb_sb = ""
-key_fb_tars = ""
-hyouka_fb_key = ""
-hyouka_fb_ad = ""
-hyouka_fb_url = ""
-hyouka_fb_sb = ""
-key_fb_hyouka = ""
-github_secret = ""
+tars_bot_id = os.environ.get("TARS_BOT_ID")
+tars_id = os.environ.get("TARS_ID")
+general_id = os.environ.get("GENERAL_ID")
+orientation_id = os.environ.get("ORIENTATION_ID")
+project_id = os.environ.get("PROJECT_ID")
+sf_research = os.environ.get("SF_RESEARCH")
+sf_ta = os.environ.get("SF_TA")
+vineethv_id = os.environ.get("VINEETHV_ID")
+office_hours_form = os.environ.get("OFFICE_HOURS_FORM")
+firebase_api_key = os.environ.get("FIREBASE_API_KEY")
+tars_fb_ad = os.environ.get("TARS_FB_AD")
+tars_fb_url = os.environ.get("TARS_FB_URL")
+tars_fb_sb = os.environ.get("TARS_FB_SB")
+key_fb_tars = os.environ.get("KEY_FB_TARS")
+hyouka_fb_key = os.environ.get("HYOUKA_FB_KEY")
+hyouka_fb_ad = os.environ.get("HYOUKA_FB_AD")
+hyouka_fb_url = os.environ.get("HYOUKA_FB_URL")
+hyouka_fb_sb = os.environ.get("HYOUKA_FB_SB")
+key_fb_hyouka = os.environ.get("KEY_FB_HYOUKA")
+github_secret = os.environ.get("GITHUB_SECRET")
 username = os.environ.get("USERNAME")
 password = os.environ.get("PASSWORD").encode()
 git_username = os.environ.get("GIT_USERNAME")
@@ -105,29 +74,29 @@ def load_user(id):
 	return user
 
 tars = slack.WebClient(token=tars_token)
-# tars_user = slack.WebClient(token=tars_user_token)
+tars_user = slack.WebClient(token=tars_user_token)
 slack_events_adapter = SlackEventAdapter(tars_secret, "/event", app)
 
-# vineethv_im_request = tars.im_open(user=vineethv_id)
-# vineethv_im_channel = vineethv_im_request.data["channel"]["id"]
+vineethv_im_request = tars.im_open(user=vineethv_id)
+vineethv_im_channel = vineethv_im_request.data["channel"]["id"]
 
-# config = {
-#   "apiKey": firebase_api_key,
-#   "authDomain": tars_fb_ad,
-#   "databaseURL": tars_fb_url,
-#   "storageBucket": tars_fb_sb
-# }
-# firebase = pyrebase.initialize_app(config)
-# db = firebase.database()
+config = {
+  "apiKey": firebase_api_key,
+  "authDomain": tars_fb_ad,
+  "databaseURL": tars_fb_url,
+  "storageBucket": tars_fb_sb
+}
+firebase = pyrebase.initialize_app(config)
+db = firebase.database()
 
-# hyouka_config = {
-#   "apiKey": hyouka_fb_key,
-#   "authDomain": hyouka_fb_ad,
-#   "databaseURL": hyouka_fb_url,
-#   "storageBucket": hyouka_fb_sb
-# }
-# hyouka_firebase = pyrebase.initialize_app(hyouka_config)
-# hyouka_db = hyouka_firebase.database()
+hyouka_config = {
+  "apiKey": hyouka_fb_key,
+  "authDomain": hyouka_fb_ad,
+  "databaseURL": hyouka_fb_url,
+  "storageBucket": hyouka_fb_sb
+}
+hyouka_firebase = pyrebase.initialize_app(hyouka_config)
+hyouka_db = hyouka_firebase.database()
 
 @app.route("/", methods=["GET"])
 def index():
@@ -1132,7 +1101,6 @@ def login():
 			flask_login.login_user(user)
 			data1={}
 			data1["status"] = "Enter the above details and submit"
-			# return render_template("formPage.html",data=data1)
 			return redirect(request.args.get("next") or url_for("index"))
 		else:
 			data1={}
@@ -1159,50 +1127,31 @@ def getFormDetailsFromUser():
 	for i in title_upper.split(' '):
 		pkey+=i[0]
 	outr_d[pkey] = record
-	print(outr_d)
 	pr_body = "Added a new publication: \"" + record["title"] + "\""
-	print("pr_body ",pr_body)
 	full_local_path = "solarillion.github.io"
-	remote = f"https://{git_username}:{git_password}@github.com/naveenggmu/solarillion.github.io.git" 
+	remote = f"https://{git_username}:{git_password}@github.com/solarillion/solarillion.github.io.git" 
 	Repo.clone_from(remote, full_local_path)
-	
-	PATH_OF_GIT_REPO = "solarillion.github.io"  # make sure .git folder is properly configured
-	COMMIT_MESSAGE = "Added publication"
-	print("Cloned and shit")
-	print("--------------------------")
-	print(os.listdir())
-	print("--------------------------")
-	print(" Inside webpage ",os.listdir("solarillion.github.io"))
-	print("CWD : ",os.getcwd())
+	commit_message = "Added publication"
 	def git_push():
 		try:
-			print("Into the try blocks")
-			repo = Repo(PATH_OF_GIT_REPO)
-			print("repo created ",repo)
+			repo = Repo(full_local_path)
 			with open("solarillion.github.io/_data/publications.yml", "a") as file:
 				dump(outr_d, file)
-			print("Written File")
 			now = datetime.now()
 			dt_string = now.strftime("%Y%m%d%H%M%S")        
-			print("before adding")
 			repo.git.add(update=True)
-			print("after adding before commit")
-			repo.index.commit(COMMIT_MESSAGE)
-			print("After Commit")
+			repo.index.commit(commit_message)
 			origin = repo.remote(name="origin")
-			print("Creating origin ",origin)
 			repo.create_head(dt_string)
 			origin.push(dt_string)
 			return dt_string
 		except:
 			print("Some error occured while pushing the code")    
 	dt_string = git_push()
-	print("Pushed")
 	shutil.rmtree("solarillion.github.io")
 	g = Github(git_password)
-	repo = g.get_repo("naveenggmu/Solarillion.github.io")
+	repo = g.get_repo("solarillion/Solarillion.github.io")
 	pr = repo.create_pull(title="Added publication", body=pr_body, head=dt_string, base="master")
-	print("Created pull request ",pr)
 	data1 = {}
 	data1["status"] = "Thank you for adding your paper to the website. Congrats if accepted, All the best if submitted."
 	return render_template("login.html",data=data1) 
