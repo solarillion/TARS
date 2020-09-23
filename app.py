@@ -26,6 +26,7 @@ import shlex
 import time
 import threading
 from urllib.parse import parse_qs
+import yaml
 from yaml import load, dump
 
 
@@ -55,8 +56,8 @@ key_fb_hyouka = os.environ.get("KEY_FB_HYOUKA")
 github_secret = os.environ.get("GITHUB_SECRET")
 username = os.environ.get("USERNAME")
 password = os.environ.get("PASSWORD").encode()
-git_username = os.environ.get("GIT_USERNAME")
-git_password = os.environ.get("GIT_ACCESS_TOKEN")
+github_username = os.environ.get("GITHUB_USERNAME")
+github_password = os.environ.get("GITHUB_ACCESS_TOKEN")
 secret = os.environ.get("SECRET")
 
 app = Flask(__name__)
@@ -454,8 +455,8 @@ def im_event_handler(event_data):
 		tars.chat_postMessage(channel=project_id, text=text)
 		tars.chat_postMessage(channel=general_id, text=text)
 	elif "add publication" in text:
-		text_msg = "Visit https://sf-tars.herokuapp.com/addpublication to add the publication."
-		tars.chat_postMessage(channel=event_data["event"]["channel"], text=text_msg)
+		message = "Visit https://sf-tars.herokuapp.com/addpublication to add the publication."
+		tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
 	elif "update app home" in text:
 		users = tars.users_list().data["members"]
 		users = [user["id"] for user in users]
@@ -1094,9 +1095,7 @@ def login():
 	if(request.method == "GET"):
 		data1={}
 		data1["status"]="Enter Credentials"
-		print("Sending login page")
 		return render_template("login.html", data=data1)
-	
 	if(request.method=="POST"):
 		username_form=request.form.get("username")
 		password_form=request.form.get("password").encode()
@@ -1117,27 +1116,36 @@ def login():
 def getFormDetailsFromUser():
 	if(request.method=='GET'):
 		data1={}
-		data1['status'] = "Enter the above Details and submit"
-		return render_template("addPublication.html", data=data1)
+		data1["status"] = "Enter the above Details and submit"
+		full_local_path = "solarillion.github.io"
+		remote = f"https://{github_username}:{github_password}@github.com/solarillion/solarillion.github.io.git" 
+		Repo.clone_from(remote, full_local_path)
+		with open("solarillion.github.io/_data/people.yml", "r") as file:
+			people_data = load(file,Loader=yaml.FullLoader)
+		data1["people"] = people_data
+		return render_template("add-publication.html", data=data1)
+	with open("solarillion.github.io/_data/people.yml", "r") as file:
+		people_data = load(file,Loader=yaml.FullLoader)
 	record = {}
-	record["title"] = str(request.form["Pname"])
-	record["conference"] = str(request.form["Cname"])
-	record["year"] = str(request.form["Cyear"])
-	record["status"] = request.form["Status"]
-	record["team"] = request.form["Team"]
-	record["authors"] = request.form["Authors"].split(";")
+	record["title"] = str(request.form["pname"])
+	record["conference"] = str(request.form["cname"])
+	record["year"] = str(request.form["cyear"])
+	record["status"] = request.form["status"]
+	record["team"] = request.form["team"]
+	authors = request.form.getlist("authors")
+	authors_full_name = []
+	for i in authors:
+		authors_full_name.append(people_data[i]["name"])
+	record["authors"] = authors_full_name
 	outr_d = {}
 	pkey = ""
 	title_upper = record["title"].upper()
-	for i in title_upper.split(' '):
+	for i in title_upper.split(" "):
 		pkey+=i[0]
 	outr_d[pkey] = record
 	pr_body = "Added a new publication: \"" + record["title"] + "\""
-	full_local_path = "solarillion.github.io"
-	remote = f"https://{git_username}:{git_password}@github.com/solarillion/solarillion.github.io.git" 
-	Repo.clone_from(remote, full_local_path)
 	commit_message = "Added publication"
-	def git_push():
+	def git_push(title):
 		try:
 			repo = Repo(full_local_path)
 			with open("solarillion.github.io/_data/publications.yml", "a") as file:
@@ -1151,14 +1159,15 @@ def getFormDetailsFromUser():
 			origin.push(dt_string)
 			return dt_string
 		except:
-			print("Some error occured while pushing the code")    
-	dt_string = git_push()
+			message = "Some error occured while pushing " + title + " publication to the website"
+			tars.chat_postMessage(channel=tars_admin, text=message)
+	dt_string = git_push(record["title"])
 	shutil.rmtree("solarillion.github.io")
-	g = Github(git_password)
+	g = Github(github_password)
 	repo = g.get_repo("solarillion/solarillion.github.io")
 	pr = repo.create_pull(title="Added publication", body=pr_body, head=dt_string, base="master")
 	data1 = {}
-	data1["status"] = "Thank you for adding your paper to the website. Congrats if accepted, All the best if submitted."
+	data1["status"] = "Paper has been added to the website !!"
 	return render_template("login.html",data=data1) 
 
 @app.route("/logout")
@@ -1167,6 +1176,5 @@ def logout():
 	flask_login.logout_user()
 	return redirect(url_for("login"))
 
-	 
 if __name__ == "__main__":
 	app.run(threaded=True)

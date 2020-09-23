@@ -1,0 +1,37 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>Enter Publication Details</h2>
+    <form action="/addpublication" method="post">
+        <label for="pname">Paper Name:</label>
+        <input type="text" id="pname" name="pname"><br><br>
+        <label for="cname">Conference name:</label>
+        <input type="text" id="cname" name="cname"><br><br>
+        <label for="cyear">Conference Year:</label>
+        <input type="text" id="cyear" name="cyear"><br><br>
+        <label for="status">Status: </label>
+        <select name="status" id="status">
+            <option value="Submitted">Submitted</option>
+            <option value="Accepted">Accepted</option>
+        </select><br><br>
+        <label for="team">Choose Team: </label>
+        <select name="team" id="team">
+            <option value="MG">MG</option>
+            <option value="IOT">IOT</option>
+            <option value="ML">ML</option>
+        </select><br><br>
+        <label for="authors">Choose Authors: </label>
+        <select name="authors" id="authors" multiple>
+            {% for key,values in data['people'].items() %}
+            <option value={{key}}>{{values['name']}}</option>
+            {% endfor %}
+        </select><br><br>
+        <input type="submit" value="Submit">
+    </form>
+    <h4>{{data["status"]}}</h4>
+</body>
+</html>
