@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Authors: Nanda H Krishna (https://github.com/nandahkrishna)
+# Authors: Nanda H Krishna (https://github.com/nandahkrishna), Naveen Narayanan (https://github.com/naveenggmu)
 
 import bcrypt
 from datetime import *
@@ -1089,7 +1089,7 @@ def interact_handler(payload):
 def login():
     if request.method == "GET":
         data1 = {}
-        data1["status"] = "Enter Credentials"
+        data1["status"] = "Enter credentials."
         return render_template("login.html", data=data1)
     if request.method=="POST":
         username_form = request.form.get("username")
@@ -1099,11 +1099,11 @@ def login():
             user.id = username
             flask_login.login_user(user)
             data1 = {}
-            data1["status"] = "Enter the above details and submit"
+            data1["status"] = "Enter the details and submit."
             return redirect(request.args.get("next") or url_for("index"))
         else:
             data1 = {}
-            data1["status"] = "Credentials incorrect"
+            data1["status"] = "Incorrect credentials."
             return render_template("login.html", data=data1)
 
 def git_push(title, full_local_path, outr_d, commit_message):
@@ -1120,24 +1120,24 @@ def git_push(title, full_local_path, outr_d, commit_message):
         origin.push(dt_string)
         return dt_string
     except:
-        message = "An error occured while adding \"" + title + "\" publication to the website"
+        message = "An error occurred while adding the publication titled \"" + title + "\" to the website."
         tars.chat_postMessage(channel=tars_admin, text=message)
 
-@app.route("/add-publication",methods=["GET", "POST"])
+@app.route("/add-publication", methods=["GET", "POST"])
 @flask_login.login_required
 def add_publication():
     if request.method == "GET":
         data1 = {}
-        data1["status"] = "Enter the above Details and submit"
+        data1["status"] = "Enter the details and submit."
         full_local_path = "solarillion.github.io"
         remote = f"https://{github_username}:{github_password}@github.com/solarillion/solarillion.github.io.git" 
         Repo.clone_from(remote, full_local_path)
         with open("solarillion.github.io/_data/people.yml", "r") as file:
-            people_data = load(file,Loader=yaml.FullLoader)
+            people_data = load(file, Loader=yaml.FullLoader)
         data1["people"] = people_data
         return render_template("add-publication.html", data=data1)
     with open("solarillion.github.io/_data/people.yml", "r") as file:
-        people_data = load(file,Loader=yaml.FullLoader)
+        people_data = load(file, Loader=yaml.FullLoader)
     record = {}
     record["title"] = str(request.form["pname"])
     record["conference"] = str(request.form["cname"])
@@ -1156,14 +1156,14 @@ def add_publication():
         pkey += i[0]
     outr_d[pkey] = record
     pr_body = "Added a new publication: \"" + record["title"] + "\"."
-    commit_message = "Added publication"
+    commit_message = "publications.yml: added publication"
     dt_string = git_push(record["title"], full_local_path, outr_d, commit_message)
     shutil.rmtree("solarillion.github.io")
     g = Github(github_password)
     repo = g.get_repo("solarillion/solarillion.github.io")
-    pr = repo.create_pull(title="Added publication", body=pr_body, head=dt_string, base="master")
+    pr = repo.create_pull(title="Add new publication", body=pr_body, head=dt_string, base="master")
     data1 = {}
-    data1["status"] = "Paper has been added to the website !!"
+    data1["status"] = "The publication will be added to the website."
     return render_template("login.html",data=data1) 
 
 @app.route("/logout")
