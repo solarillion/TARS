@@ -455,7 +455,7 @@ def im_event_handler(event_data):
 		tars.chat_postMessage(channel=project_id, text=text)
 		tars.chat_postMessage(channel=general_id, text=text)
 	elif "add publication" in text:
-		message = "Visit https://sf-tars.herokuapp.com/addpublication to add the publication."
+		message = "Visit https://sf-tars.herokuapp.com/add-publication to add the publication."
 		tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
 	elif "update app home" in text:
 		users = tars.users_list().data["members"]
@@ -1092,30 +1092,47 @@ def interact_handler(payload):
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-	if(request.method == "GET"):
-		data1={}
-		data1["status"]="Enter Credentials"
+	if request.method == "GET":
+		data1 = {}
+		data1["status"] = "Enter Credentials"
 		return render_template("login.html", data=data1)
-	if(request.method=="POST"):
-		username_form=request.form.get("username")
-		password_form=request.form.get("password").encode()
-		if(username_form==username and bcrypt.checkpw(password_form, password)):
+	if request.method=="POST":
+		username_form = request.form.get("username")
+		password_form = request.form.get("password").encode()
+		if username_form == username and bcrypt.checkpw(password_form, password):
 			user = User()
 			user.id = username
 			flask_login.login_user(user)
-			data1={}
+			data1 = {}
 			data1["status"] = "Enter the above details and submit"
 			return redirect(request.args.get("next") or url_for("index"))
 		else:
-			data1={}
-			data1["status"]="Credentials incorrect"
-			return render_template("login.html",data=data1)
+			data1 = {}
+			data1["status"] = "Credentials incorrect"
+			return render_template("login.html", data=data1)
 
-@app.route("/addpublication",methods=["GET","POST"])
+def git_push(title, full_local_path, outr_d, commit_message):
+	try:
+		repo = Repo(full_local_path)
+		with open("solarillion.github.io/_data/publications.yml", "a") as file:
+			dump(outr_d, file)
+		now = datetime.now()
+		dt_string = now.strftime("%Y%m%d%H%M%S")        
+		repo.git.add(update=True)
+		repo.index.commit(commit_message)
+		origin = repo.remote(name="origin")
+		repo.create_head(dt_string)
+		origin.push(dt_string)
+		return dt_string
+	except:
+		message = "An error occured while adding \"" + title + "\" publication to the website"
+		tars.chat_postMessage(channel=tars_admin, text=message)
+
+@app.route("/add-publication",methods=["GET", "POST"])
 @flask_login.login_required
-def getFormDetailsFromUser():
-	if(request.method=='GET'):
-		data1={}
+def add_publication():
+	if request.method == "GET":
+		data1 = {}
 		data1["status"] = "Enter the above Details and submit"
 		full_local_path = "solarillion.github.io"
 		remote = f"https://{github_username}:{github_password}@github.com/solarillion/solarillion.github.io.git" 
@@ -1141,27 +1158,11 @@ def getFormDetailsFromUser():
 	pkey = ""
 	title_upper = record["title"].upper()
 	for i in title_upper.split(" "):
-		pkey+=i[0]
+		pkey += i[0]
 	outr_d[pkey] = record
-	pr_body = "Added a new publication: \"" + record["title"] + "\""
+	pr_body = "Added a new publication: \"" + record["title"] + "\"."
 	commit_message = "Added publication"
-	def git_push(title):
-		try:
-			repo = Repo(full_local_path)
-			with open("solarillion.github.io/_data/publications.yml", "a") as file:
-				dump(outr_d, file)
-			now = datetime.now()
-			dt_string = now.strftime("%Y%m%d%H%M%S")        
-			repo.git.add(update=True)
-			repo.index.commit(commit_message)
-			origin = repo.remote(name="origin")
-			repo.create_head(dt_string)
-			origin.push(dt_string)
-			return dt_string
-		except:
-			message = "Some error occured while pushing " + title + " publication to the website"
-			tars.chat_postMessage(channel=tars_admin, text=message)
-	dt_string = git_push(record["title"])
+	dt_string = git_push(record["title"], full_local_path, outr_d, commit_message)
 	shutil.rmtree("solarillion.github.io")
 	g = Github(github_password)
 	repo = g.get_repo("solarillion/solarillion.github.io")
