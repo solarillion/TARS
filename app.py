@@ -29,7 +29,6 @@ from urllib.parse import parse_qs
 import yaml
 from yaml import load, dump
 
-
 tars_token = os.environ.get("TARS_TOKEN")
 tars_user_token = os.environ.get("TARS_USER_TOKEN")
 tars_admin = os.environ.get("TARS_ADMIN")
@@ -57,6 +56,7 @@ github_secret = os.environ.get("GITHUB_SECRET")
 username = os.environ.get("USERNAME")
 password = os.environ.get("PASSWORD").encode()
 github_username = os.environ.get("GITHUB_USERNAME")
+github_email = os.environ.get("GITHUB_EMAIL")
 github_password = os.environ.get("GITHUB_ACCESS_TOKEN")
 secret = os.environ.get("SECRET")
 
@@ -1114,28 +1114,35 @@ def login():
 def git_push(title, full_local_path, outr_d, commit_message):
     try:
         repo = Repo(full_local_path)
-        with open("solarillion.github.io/_data/publications.yml", "a") as file:
-            dump(outr_d, file)
+        repo.config_writer().set_value("user", "name", github_username).release()
+        repo.config_writer().set_value("user", "email", github_email).release()
         now = datetime.now()
-        dt_string = now.strftime("%Y%m%d%H%M%S")        
+        dt_string = str(now.strftime("%Y%m%d%H%M%S"))
+        repo.git.checkout("-b", dt_string)
+        with open("solarillion.github.io/_data/publications.yml", "a") as file:
+            dump(outr_d, file, width=1000)
         repo.git.add(update=True)
         repo.index.commit(commit_message)
         origin = repo.remote(name="origin")
-        repo.create_head(dt_string)
         origin.push(dt_string)
         return dt_string
-    except:
+    except Exception as e:
         message = "An error occurred while adding the publication titled \"" + title + "\" to the website."
+        message += "\nException:\n" + str(e)
         tars.chat_postMessage(channel=tars_admin, text=message)
 
 @app.route("/add-publication", methods=["GET", "POST"])
 @flask_login.login_required
 def add_publication():
+    full_local_path = "solarillion.github.io"
     if request.method == "GET":
         data1 = {}
         data1["status"] = "Enter the details and submit."
-        full_local_path = "solarillion.github.io"
-        remote = f"https://{github_username}:{github_password}@github.com/solarillion/solarillion.github.io.git" 
+        remote = f"https://{github_username}:{github_password}@github.com/solarillion/solarillion.github.io.git"
+        try:
+            shutil.rmtree(full_local_path)
+        except:
+            pass
         Repo.clone_from(remote, full_local_path)
         with open("solarillion.github.io/_data/people.yml", "r") as file:
             people_data = load(file, Loader=yaml.FullLoader)
