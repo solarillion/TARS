@@ -21,6 +21,7 @@ import shlex
 import time
 import threading
 from urllib.parse import parse_qs
+from werkzeug.utils import secure_filename
 import yaml
 from yaml import load, dump
 
@@ -316,7 +317,9 @@ def im_event_handler(event_data):
             tars_user.groups_invite(channel=sf_research, user=slack_id)
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified! Project and reviews complete, added orientee to #sf_research.")
             orientee = tars.im_open(user=slack_id).data["channel"]["id"]
-            tars.chat_postMessage(channel=orientee, text="You have completed your project. Great work!")
+            message = "You have completed your project. Great work!\
+                \nvisit https://sf-tars.herokuapp.com/add-person to add yourself to the Solarillion webpage!"
+            tars.chat_postMessage(channel=orientee, text=message)
             tars.chat_postMessage(channel=tars_admin, text="Added <@" + slack_id + "> to #sf_research, execute `remove orientee` later on.")
     elif "book meeting" in text:
         slack_id = event_data["event"]["user"]
@@ -451,6 +454,9 @@ def im_event_handler(event_data):
         tars.chat_postMessage(channel=general_id, text=text)
     elif "add publication" in text:
         message = "Visit https://sf-tars.herokuapp.com/add-publication to add the publication."
+        tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
+    elif "add person" in text:
+        message = "Visit https://sf-tars.herokuapp.com/add-person to add yourself to the Solarillion webpage."
         tars.chat_postMessage(channel=event_data["event"]["channel"], text=message)
     elif "update app home" in text:
         users = tars.users_list().data["members"]
@@ -1106,72 +1112,147 @@ def login():
             data1["status"] = "Incorrect credentials."
             return render_template("login.html", data=data1)
 
-def git_push(title, full_local_path, outr_d, commit_message):
+def git_clone(full_local_path: str):
     try:
-        repo = Repo(full_local_path)
-        repo.config_writer().set_value("user", "name", github_username).release()
-        repo.config_writer().set_value("user", "email", github_email).release()
-        now = datetime.now()
-        dt_string = str(now.strftime("%Y%m%d%H%M%S"))
-        repo.git.checkout("-b", dt_string)
-        with open("solarillion.github.io/_data/publications.yml", "a") as file:
-            dump(outr_d, file, width=1000)
-        repo.git.add(update=True)
-        repo.index.commit(commit_message)
-        origin = repo.remote(name="origin")
-        origin.push(dt_string)
-        return dt_string
-    except Exception as e:
-        message = "An error occurred while adding the publication titled \"" + title + "\" to the website."
-        message += "\nException:\n" + str(e)
-        tars.chat_postMessage(channel=tars_admin, text=message)
+        shutil.rmtree(full_local_path)
+    except:
+        pass
+    remote = f"https://{github_username}:{github_password}@github.com/solarillion/solarillion.github.io.git"
+    Repo.clone_from(remote, full_local_path)
+    
+def git_push(full_local_path, branch_name, commit_message, pr_title, pr_body):
+    repo = Repo(full_local_path)
+    repo.config_writer().set_value("user", "name", github_username).release()
+    repo.config_writer().set_value("user", "email", github_email).release()
+    
+    repo.git.checkout("-b", branch_name)
+
+    repo.git.add('.')
+    repo.index.commit(commit_message)
+    origin = repo.remote(name="origin")
+    origin.push(branch_name)
+
+    shutil.rmtree("solarillion.github.io")
+    g = Github(github_password)
+    repo = g.get_repo("solarillion/solarillion.github.io")
+    _ = repo.create_pull(title=pr_title, body=pr_body, head=branch_name, base="master")
 
 @app.route("/add-publication", methods=["GET", "POST"])
 @flask_login.login_required
 def add_publication():
-    full_local_path = "solarillion.github.io"
-    if request.method == "GET":
-        data1 = {}
-        data1["status"] = "Enter the details and submit."
-        remote = f"https://{github_username}:{github_password}@github.com/solarillion/solarillion.github.io.git"
-        try:
-            shutil.rmtree(full_local_path)
-        except:
-            pass
-        Repo.clone_from(remote, full_local_path)
+    try:
+        full_local_path = "solarillion.github.io"
+        if request.method == "GET":
+            data1 = {}
+            data1["status"] = "Enter the details and submit."
+            git_clone(full_local_path)
+            with open("solarillion.github.io/_data/people.yml", "r") as file:
+                people_data = load(file, Loader=yaml.FullLoader)
+            data1["people"] = people_data
+            return render_template("add-publication.html", data=data1)
+
         with open("solarillion.github.io/_data/people.yml", "r") as file:
             people_data = load(file, Loader=yaml.FullLoader)
-        data1["people"] = people_data
-        return render_template("add-publication.html", data=data1)
-    with open("solarillion.github.io/_data/people.yml", "r") as file:
-        people_data = load(file, Loader=yaml.FullLoader)
-    record = {}
-    record["title"] = str(request.form["pname"])
-    record["conference"] = str(request.form["cname"])
-    record["year"] = str(request.form["cyear"])
-    record["status"] = request.form["status"]
-    record["team"] = request.form["team"]
-    authors = request.form.getlist("authors")
-    authors_full_name = []
-    for i in authors:
-        authors_full_name.append(people_data[i]["name"])
-    record["authors"] = authors_full_name
-    outr_d = {}
-    pkey = ""
-    title_upper = record["title"].upper()
-    for i in title_upper.split(" "):
-        pkey += i[0]
-    outr_d[pkey] = record
-    pr_body = "Added a new publication: \"" + record["title"] + "\"."
-    commit_message = "publications.yml: added publication"
-    dt_string = git_push(record["title"], full_local_path, outr_d, commit_message)
-    shutil.rmtree("solarillion.github.io")
-    g = Github(github_password)
-    repo = g.get_repo("solarillion/solarillion.github.io")
-    pr = repo.create_pull(title="Add new publication", body=pr_body, head=dt_string, base="master")
-    data1 = {}
-    data1["status"] = "The publication will be added to the website."
-    return render_template("login.html",data=data1) 
+        record = {}
+        record["title"] = str(request.form["pname"])
+        record["conference"] = str(request.form["cname"])
+        record["year"] = str(request.form["cyear"])
+        record["status"] = request.form["status"]
+        record["team"] = request.form["team"]
+        authors = request.form.getlist("authors")
+        authors_full_name = []
+        for i in authors:
+            authors_full_name.append(people_data[i]["name"])
+        record["authors"] = authors_full_name
+        outr_d = {}
+        pkey = ""
+        title_upper = record["title"].upper()
+        for i in title_upper.split(" "):
+            pkey += i[0]
+        outr_d[pkey] = record
+        
+        with open("solarillion.github.io/_data/publications.yml", "a") as file:
+                dump(outr_d, file, width=1000)
+        
+        branch_name = 'add-publication-' + pkey
+        commit_message = "publications.yml: added publication"
+        pr_title = "Added new publication"
+        pr_body = "Added a new publication: \"" + record["title"] + "\"."
+
+        git_push(full_local_path, branch_name, commit_message, pr_title, pr_body)
+        
+        data1 = {}
+        data1["status"] = "The publication will be added to the website."
+        return render_template("login.html",data=data1) 
+    except Exception as e:
+        message = "An error occurred while adding publication: " + str(request.form['pname'])
+        message += "\nException:\n" + str(e)
+        tars.chat_postMessage(channel=tars_admin, text=message)
+
+
+@app.route("/add-person", methods=['GET', 'POST'])
+@flask_login.login_required
+def addperson():
+    if request.method == 'GET':
+        return render_template('add-person.html')
+ 
+    try:
+        data = request.form
+        img_file = request.files['file']
+        full_local_path = "solarillion.github.io"
+        git_clone(full_local_path)
+
+        person = data['name'].replace(" ","") + ":\n"
+        person += '  group: ra\n'
+        person += '  avatar: /assets/images/headshots/' + data['name'].replace(" ","") +\
+            '.' + img_file.filename.split('.')[-1].lower() + "\n"
+        person += '  page: /people/' + data['name'].replace(" ","") + "\n"
+        for key in data.keys():
+            if key == 'bio':
+                roles = data.getlist(key)
+                temp_str = ', '.join(roles)
+                person += '  bio: ' + temp_str + '\n'
+            elif key == 'about':
+                person += '  about:\n    \"' + data.get(key) + '\"\n\n'
+            else:
+                value = data.get(key)
+                if len(value) > 0:
+                    person += '  ' + key + ': ' + value + '\n'
+        
+        with open("solarillion.github.io/_data/people.yml", 'at') as file:
+            file.write(person)
+
+        with open('templates/person_template.html', 'rt') as file:
+            html = file.read()
+            name = data['name']
+            html = html.replace('{{name}}', name)
+            html = html.replace('{{name_trim}}', name.replace(' ',''))
+            html = html.replace('{{first_name}}', name.split(' ')[0])
+
+            with open('solarillion.github.io/_pages/people/' + name.replace(' ','') + '.html', 'wt') as fout:
+                fout.write(html)
+
+        img_save_path = 'solarillion.github.io/assets/images/headshots/'
+        
+        filename = data['name'].replace(' ', '') + '.'
+        filename += img_file.filename.split('.')[-1].lower()
+        img_file.save(img_save_path + secure_filename(filename))
+
+        branch_name = 'add-person-' + data['name'].split(' ')[0].lower()
+        commit_message = "added new research assistant"
+        pr_body = 'Added new Research Assistant: ' + data['name']
+        pr_title = 'Added new Research Assistant'
+
+        git_push(full_local_path, branch_name, commit_message, pr_title, pr_body)
+
+    except Exception as e:
+        message = "An error occurred while adding person: " + str(data['name'])
+        message += "\nException:\n" + str(e)
+        tars.chat_postMessage(channel=tars_admin, text=message)
+
+    return redirect(url_for('logout'))    
+    
+
 
 @app.route("/logout")
 @flask_login.login_required

@@ -1,0 +1,25 @@
+---
+layout: personal
+title: {{name}}
+permalink: /people/{{name_trim}}/
+author: {{name_trim}}
+author_profile: true
+---
+<h2>About {{first_name}}</h2>
+{% assign data = site.data.people[page.author] %}
+<div style="text-align: justify">{{ data.about | markdownify }}</div>
+
+{% assign data = site.data.publications %}
+{% assign flag = 0 %}
+{% for pub in data %}
+{% for author in pub[1]["authors"] %}
+{% if author == page.author %}
+{% if flag == 0 %}
+{% assign flag = 1 %}
+<h2>Publications</h2>
+{% endif %}
+{% assign id = pub[1] %}
+{% include publication.html publication=id %}
+{% endif %}
+{% endfor %}
+{% endfor %}
