@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <style>
+    body {
+      background: url('https://solarillionfoundation.org/assets/images/Circuit.png');
+    }
+
+    .jumbotron {
+      background: #FF7B00;
+      color: #eeeeee;
+    }
+
+    h1 {
+      font-weight: 400;
+      font-size: 4rem;
+    }
+
+    @media (max-width: 425px) {
+      h1 {
+        font-size: 2rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 3rem;
+      }
+    }
+  </style>
+  <title>SF Research</title>
+</head>
+
+<body>
+  <div class="jumbotron text-center">
+    <h1>SF Research Details</h1>
+  </div>
+  <div class="container">
+    <div class="justify-content-center">
+      <form class="from-horizontal" method="POST" enctype=multipart/form-data>
+        <div class="form-group row">
+          <label for="name" class="col-4 col-form-label">Name</label>
+          <div class="col-8">
+            <input id="name" name="name" placeholder="John Smith" type="text" required="required" class="form-control">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="email" class="col-4 col-form-label">Email ID</label>
+          <div class="col-8">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">
+                  <i class="fa fa-envelope"></i>
+                </div>
+              </div>
+              <input id="email" name="email" placeholder="example@rocketmail.com" type="text" class="form-control"
+                required="required">
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="linkedin" class="col-4 col-form-label">Website</label>
+          <div class="col-8">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">
+                  <i class="fa fa-internet-explorer"></i>
+                </div>
+              </div>
+              <input id="uri" name="uri" placeholder="example.github.io" type="text" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="github" class="col-4 col-form-label">GitHub Username</label>
+          <div class="col-8">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">
+                  <i class="fa fa-github"></i>
+                </div>
+              </div>
+              <input id="github" name="github" placeholder="solarillion" type="text" class="form-control"
+                required="required">
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="linkedin" class="col-4 col-form-label">LinkedIn Username</label>
+          <div class="col-8">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">
+                  <i class="fa fa-linkedin-square"></i>
+                </div>
+              </div>
+              <input id="linkedin" name="linkedin" type="text" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="twitter" class="col-4 col-form-label">Twitter handle</label>
+          <div class="col-8">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">
+                  <i class="fa fa-twitter"></i>
+                </div>
+              </div>
+              <input id="twitter" name="twitter" placeholder="darthvader123" type="text" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-4 col-form-label">Role</label>
+          <div class="col-8">
+            <div class="custom-controls-stacked">
+              <div class="custom-control custom-checkbox">
+                <input name="bio" id="bio_0" type="checkbox" checked="checked" aria-describedby="bioHelpBlock"
+                  class="custom-control-input" value="Research Assistant">
+                <label for="bio_0" class="custom-control-label">Research Assistant</label>
+              </div>
+            </div>
+            <div class="custom-controls-stacked">
+              <div class="custom-control custom-checkbox">
+                <input name="bio" id="bio_1" type="checkbox" aria-describedby="bioHelpBlock"
+                  class="custom-control-input" value="Teaching Assistant">
+                <label for="bio_1" class="custom-control-label">Teaching Assistant</label>
+              </div>
+            </div>
+            <div class="custom-controls-stacked">
+              <div class="custom-control custom-checkbox">
+                <input name="bio" id="bio_2" type="checkbox" aria-describedby="bioHelpBlock"
+                  class="custom-control-input" value="Server Administrator">
+                <label for="bio_2" class="custom-control-label">Server Administrator</label>
+              </div>
+            </div>
+            <span id="bioHelpBlock" class="form-text text-muted">Select all applicable</span>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="about" class="col-4 col-form-label">About</label>
+          <div class="col-8">
+            <textarea id="about" name="about" cols="40" rows="5" class="form-control" aria-describedby="aboutHelpBlock"
+              required="required"></textarea>
+            <span id="aboutHelpBlock" class="form-text text-muted">Short biography</span>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="input-group offset-4 col-4">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="inputGroupFileAddon01">Profile picture</span>
+            </div>
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" id="file" name="file"
+                aria-describedby="inputGroupFileAddon01" required>
+              <label class="custom-file-label" for="file" id="file-field">Choose image</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="offset-4 col-8">
+            <button name="submit" type="submit" class="btn btn-primary">Submit</button>
+            <button name="clear" type="reset" class="btn btn-danger" style="margin-left: 1rem;">Clear</button>
+          </div>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</body>
+
+</html>
