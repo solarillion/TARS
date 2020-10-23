@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Authors: Nanda H Krishna (https://github.com/nandahkrishna), Naveen Narayanan (https://github.com/naveenggmu)
+# Authors: Nanda H Krishna (https://github.com/nandahkrishna), Naveen Narayanan (https://github.com/naveenggmu), Mahesh Bharadwaj (https://github.com/MaheshBharadwaj)
 
 import bcrypt
 from datetime import *
@@ -317,8 +317,7 @@ def im_event_handler(event_data):
             tars_user.groups_invite(channel=sf_research, user=slack_id)
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified! Project and reviews complete, added orientee to #sf_research.")
             orientee = tars.im_open(user=slack_id).data["channel"]["id"]
-            message = "You have completed your project. Great work!\
-                \nvisit https://sf-tars.herokuapp.com/add-person to add yourself to the Solarillion webpage!"
+            message = "You have completed your project. Great work! Visit https://sf-tars.herokuapp.com/add-person to add yourself to the website."
             tars.chat_postMessage(channel=orientee, text=message)
             tars.chat_postMessage(channel=tars_admin, text="Added <@" + slack_id + "> to #sf_research, execute `remove orientee` later on.")
     elif "book meeting" in text:
