@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 # Authors: Nanda H Krishna (https://github.com/nandahkrishna)
 
+import newrelic.agent
+newrelic.agent.initialize()
+
 import os
 import time
 from datetime import *
