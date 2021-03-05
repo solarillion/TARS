@@ -84,7 +84,7 @@ tars = slack.WebClient(token=tars_token)
 tars_user = slack.WebClient(token=tars_user_token)
 slack_events_adapter = SlackEventAdapter(tars_secret, "/event", app)
 
-vineethv_im_request = tars.im_open(user=vineethv_id)
+vineethv_im_request = tars.conversations_open(user=vineethv_id)
 vineethv_im_channel = vineethv_im_request.data["channel"]["id"]
 
 config = {
@@ -297,7 +297,7 @@ def im_event_handler(event_data):
             db.child(key_fb_tars).child("orientee").child(slack_id).update({"progress": new_status[status]})
             hyouka_db.child(key_fb_hyouka).child(github).update({"progress": new_status[status]})
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified " + status + "!")
-            orientee = tars.im_open(user=slack_id).data["channel"]["id"]
+            orientee = tars.conversations_open(user=slack_id).data["channel"]["id"]
             tars.chat_postMessage(channel=orientee, text="Verified " + status + "! Move on to " + new_status[status] + " now.")
             tars.chat_postMessage(channel=orientation_id, text="<@" + slack_id + "> has completed " + status + ", verified by <@" + event_data["event"]["user"] + ">.")
             db.child(key_fb_tars).child("orientee").child(slack_id).update({status + "_fin": str(date.today())})
@@ -305,7 +305,7 @@ def im_event_handler(event_data):
             db.child(key_fb_tars).child("orientee").child(slack_id).update({"progress": new_status[status]})
             hyouka_db.child(key_fb_hyouka).child(github).update({"progress": new_status[status]})
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified " + status + "!")
-            orientee = tars.im_open(user=slack_id).data["channel"]["id"]
+            orientee = tars.conversations_open(user=slack_id).data["channel"]["id"]
             tars.chat_postMessage(channel=orientee, text="Verified " + status + "! Move on to " + new_status[status] + " now.")
             tars.chat_postMessage(channel=orientation_id, text="<@" + slack_id + "> has completed " + status + ", verified by <@" + event_data["event"]["user"] + ">.")
             db.child(key_fb_tars).child("orientee").child(slack_id).update({"g" + status[-1] + "_fin":str( date.today())})
@@ -321,7 +321,7 @@ def im_event_handler(event_data):
             tars_user.groups_kick(channel=project_id, user=slack_id)
             tars_user.groups_invite(channel=sf_research, user=slack_id)
             tars.chat_postMessage(channel=event_data["event"]["channel"], text="Verified! Project and reviews complete, added orientee to #sf_research.")
-            orientee = tars.im_open(user=slack_id).data["channel"]["id"]
+            orientee = tars.conversations_open(user=slack_id).data["channel"]["id"]
             message = "You have completed your project. Great work! Visit https://sf-tars.herokuapp.com/add-person to add yourself to the website."
             tars.chat_postMessage(channel=orientee, text=message)
             tars.chat_postMessage(channel=tars_admin, text="Added <@" + slack_id + "> to #sf_research, execute `remove orientee` later on.")
@@ -899,7 +899,7 @@ def team_join(event_data):
 
 def team_join_event_handler(event_data):
     user = event_data["event"]["user"]["id"]
-    im_request = tars.im_open(user=user)
+    im_request = tars.conversations_open(user=user)
     chat = im_request.data["channel"]["id"]
     tars.chat_postMessage(channel=chat, text="Hello there!", blocks=[
         {
