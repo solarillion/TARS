@@ -8,7 +8,7 @@ GitPython==3.1.8
 PyGithub==1.53
 pyrebase==3.0.27
 python-dateutil==2.8.0
-PyYAML==5.3.1
+PyYAML==5.4
 requests==2.20.0
 slackclient==2.3.0
 slackeventsapi==2.1.0
