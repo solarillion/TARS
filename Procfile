@@ -1,1 +1,1 @@
-web: gunicorn app:app -k gevent --worker-connections 25
+web: gunicorn app:flask_app
