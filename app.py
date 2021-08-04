@@ -24,11 +24,11 @@ tars_user_token = os.environ.get("TARS_USER_TOKEN")  # user OAuth
 tars_admin = os.environ.get("TARS_ADMIN")  # channel for testing
 tars_secret = os.environ.get("TARS_SECRET")  # signing secret
 
-firebase_api_key = os.environ.get("FIREBASE_API_KEY")
+firebase_api_key = os.environ.get("FIREBASE_API_KEY")  # firebase API key
 tars_fb_ad = os.environ.get("TARS_FB_AD")  # firebase auth domain
-tars_fb_url = os.environ.get("TARS_FB_URL")  # database base url
+tars_fb_url = os.environ.get("TARS_FB_URL")  # firebase db url
 tars_fb_sb = os.environ.get("TARS_FB_SB")  # storage bucket
-key_fb_tars = os.environ.get("KEY_FB_TARS")  # the long sha
+key_fb_tars = os.environ.get("KEY_FB_TARS")  # SHA used to access child
 
 vineethv_id = os.environ.get("VINEETHV_ID")  # Sir's user id
 general = os.environ.get("GENERAL")  # general channel id
@@ -116,9 +116,10 @@ def logout():
     return redirect(url_for("login"))
 
 
-@app.message("ping")
+@app.event("app_mention")
 def message_hello(message, say):
-    say("pong")
+    if message.text == "ping":
+        say("pong")
 
 
 @app.message("request office hours")
