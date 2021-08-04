@@ -117,8 +117,8 @@ def logout():
 
 
 @app.event("app_mention")
-def message_hello(message, say):
-    if message.text == "ping":
+def message_hello(event, say):
+    if "ping" in event["text"]:
         say("pong")
 
 
