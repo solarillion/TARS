@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-# Mahesh Bharadwaj K(https://github.com/MaheshBharadwaj)
-
-
 from concurrent.futures import thread
 import bcrypt
 import flask_login
@@ -37,6 +33,9 @@ username = os.environ.get("USERNAME")  # webpage login
 password = os.environ.get("PASSWORD").encode()  # webpage password
 secret = os.environ.get("SECRET")  # dont change
 
+office_hours_form_url = os.environ.get(
+    "OFFICE_FORM_URL"
+)  # google form for office hours
 
 config = {
     "apiKey": firebase_api_key,
@@ -131,7 +130,8 @@ def request_office_hours(message, say):
 
     app.client.chat_postMessage(
         channel=vineethv_id,
-        text="Sir, please fill your office hours in this form: https://forms.gle/eMoayTXg5KJCata68",
+        text="Sir, please fill your office hours in this form: "
+        + office_hours_form_url,
     )
     logging.info("Sent request to sir")
 
@@ -146,7 +146,8 @@ def remind_office_hours(message, say):
 
     app.client.chat_postMessage(
         channel=vineethv_id,
-        text="Sir, if you haven't filled your office hours yet, please do so by 9 pm tonight. Here's the link to the form: https://forms.gle/eMoayTXg5KJCata68",
+        text="Sir, if you haven't filled your office hours yet, please do so by 9 pm tonight. Here's the link to the form: "
+        + office_hours_form_url,
     )
     logging.info("Sent reminder to sir")
 
