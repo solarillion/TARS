@@ -127,12 +127,8 @@ def request_office_hours(message, say):
     if message["user"] not in admin:
         say("You're not allowed to do this!")
         return
-
-    app.client.chat_postMessage(
-        channel=vineethv_id,
-        text="Sir, please fill your office hours in this form: "
-        + office_hours_form_url,
-    )
+    msg = "Sir, please fill your office hours in this form: " + office_hours_form_url
+    app.client.chat_postMessage(channel=vineethv_id, text=msg)
     logging.info("Sent request to sir")
 
 
@@ -144,11 +140,12 @@ def remind_office_hours(message, say):
         say("You're not allowed to do this!")
         return
 
-    app.client.chat_postMessage(
-        channel=vineethv_id,
-        text="Sir, if you haven't filled your office hours yet, please do so by 9 pm tonight. Here's the link to the form: "
-        + office_hours_form_url,
+    msg = (
+        "Sir, if you haven't filled your office hours yet, please do so by 9 pm tonight. Here's the link to the form: "
+        + office_hours_form_url
     )
+
+    app.client.chat_postMessage(channel=vineethv_id, text=msg)
     logging.info("Sent reminder to sir")
 
 
