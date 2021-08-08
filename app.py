@@ -34,7 +34,7 @@ password = os.environ.get("PASSWORD").encode()  # webpage password
 secret = os.environ.get("SECRET")  # dont change
 
 office_hours_form_url = os.environ.get(
-    "OFFICE_FORM_URL"
+    "OFFICE_HOURS_FORM"
 )  # google form for office hours
 
 config = {
