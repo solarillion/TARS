@@ -27,7 +27,7 @@ tars_fb_sb = os.environ.get("TARS_FB_SB")  # storage bucket
 key_fb_tars = os.environ.get("KEY_FB_TARS")  # SHA used to access child
 
 vineethv_id = os.environ.get("VINEETHV_ID")  # Sir's user id
-general = os.environ.get("GENERAL")  # general channel id
+general = os.environ.get("GENERAL_ID")  # general channel id
 
 username = os.environ.get("USERNAME")  # webpage login
 password = os.environ.get("PASSWORD").encode()  # webpage password
