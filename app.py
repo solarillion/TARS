@@ -1,16 +1,16 @@
-from concurrent.futures import thread
 import bcrypt
 import flask_login
+import json
 import logging
 import os
 import pyrebase
-import threading
 
+import threading
 from dotenv import load_dotenv
 from helpers import *
 from slack_bolt import App
 from slack_bolt.adapter.flask import SlackRequestHandler
-from flask import Flask, jsonify, redirect, request, render_template, redirect, url_for
+from flask import Flask, redirect, request, render_template, redirect, url_for
 
 load_dotenv()
 
@@ -114,11 +114,18 @@ def logout():
     flask_login.logout_user()
     return redirect(url_for("login"))
 
+@flask_app.route("/interact", methods=["POST"])
+def interact():
+    payload = json.loads(request.form.get("payload"))
+    thread = threading.Thread(target=interact_handler, args=(app, db, key_fb_tars, payload,))
+    thread.start()
+    return "OK", 200
 
 @app.event("app_mention")
-def message_hello(event, say):
-    if "ping" in event["text"]:
-        say("pong")
+def app_mention_function(event, say):
+    thread = threading.Thread(target=app_mention_event_handler, args=(app, db, key_fb_tars, event,))
+    thread.start()
+    return "OK", 200
 
 
 @app.message("request office hours")
