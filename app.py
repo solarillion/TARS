@@ -29,7 +29,7 @@ key_fb_tars = os.environ.get("KEY_FB_TARS")  # SHA used to access child
 vineethv_id = os.environ.get("VINEETHV_ID")  # Sir's user id
 general = os.environ.get("GENERAL_ID")  # general channel id
 tars = os.environ.get("TARS_ID") # TARS id
-vineeth_emailid = os.environ("VINEETH_EMAIL_ID") #Sir's email id
+vineeth_emailid = os.environ.get("VINEETH_EMAIL_ID") #Sir's email id
 
 username = os.environ.get("USERNAME")  # webpage login
 password = os.environ.get("PASSWORD").encode()  # webpage password
