@@ -168,6 +168,7 @@ def post_office_hours(message, say):
 
 @app.message("book meeting")
 def book_meeting(message, say):
+    say("message recieved")
     slack_id = message["user"]
     meetings = db.child(key_fb_tars).child("meetings").get().val()
     id = "0"
