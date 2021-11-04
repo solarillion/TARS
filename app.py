@@ -169,6 +169,7 @@ def post_office_hours(message, say):
 @app.message("book meeting")
 def book_meeting(message, say):
     say("message recieved")
+    print(app.client.users_info(user=slack_id).data["user"])
     slack_id = message["user"]
     meetings = db.child(key_fb_tars).child("meetings").get().val()
     id = "0"
@@ -183,7 +184,6 @@ def book_meeting(message, say):
     # what is the split of book meeting, to extract other users...
     lines = message['text'].lower().split("\n")
     meeting_description = " ".join(lines[0].split(" ")[2:])
-    print(app.client.users_info(user=slack_id).data["user"])
     people = [app.client.users_info(user=slack_id).data["user"]["profile"]["email"]]
     people = people + vineeth_emailid # add sir's email id
     people_slack = [slack_id, vineethv_id]
