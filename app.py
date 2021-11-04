@@ -196,6 +196,7 @@ def book_meeting(message, say):
 @app.message("show meeting")
 def show_meeting(message, say):
     slack_id = message["user"]
+    print(slack_id)
     meetings = db.child(key_fb_tars).child("meetings").get().val()
     if meetings is not None:
         meetings = dict(meetings)
