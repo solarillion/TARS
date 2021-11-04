@@ -31,6 +31,16 @@ function addEvent() {
     for(var e = 0; e < data[l].people.length; e++) {
       event.addGuest(data[l].people[e])
     }
+    event.conferenceData = {
+        "createRequest": {
+            "conferenceSolutionKey": {
+                "type": "hangoutsMeet"
+            },
+            "requestId": event.getId()
+        }
+    };
+    event = Calendar.Events.update(event, data[0].people, event.getId());
+
     UrlFetchApp.fetch(itemUrl, deletion);
     payload = {
       id:event.getId(),

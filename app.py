@@ -1,3 +1,4 @@
+import re
 import bcrypt
 import flask_login
 import json
@@ -14,7 +15,6 @@ from flask import Flask, redirect, request, render_template, redirect, url_for
 
 load_dotenv()
 
-
 tars_token = os.environ.get("TARS_TOKEN")  # bot user OAuth
 tars_user_token = os.environ.get("TARS_USER_TOKEN")  # user OAuth
 tars_admin = os.environ.get("TARS_ADMIN")  # channel for testing
@@ -28,6 +28,8 @@ key_fb_tars = os.environ.get("KEY_FB_TARS")  # SHA used to access child
 
 vineethv_id = os.environ.get("VINEETHV_ID")  # Sir's user id
 general = os.environ.get("GENERAL_ID")  # general channel id
+tars = os.environ.get("TARS_ID") # TARS id
+vineeth_emailid = os.environ("VINEETH_EMAIL_ID") #Sir's email id
 
 username = os.environ.get("USERNAME")  # webpage login
 password = os.environ.get("PASSWORD").encode()  # webpage password
@@ -59,15 +61,12 @@ login_manager = flask_login.LoginManager()
 login_manager.init_app(flask_app)
 login_manager.login_view = "login"
 
-
 class User(flask_login.UserMixin):
     pass
-
 
 @flask_app.route("/slack/events", methods=["POST"])
 def slack_events():
     return handler.handle(request)
-
 
 @login_manager.user_loader
 def load_user(id):
@@ -77,11 +76,9 @@ def load_user(id):
     user.id = id
     return user
 
-
 @flask_app.route("/", methods=["GET"])
 def index():
     return redirect("https://solarillionfoundation.org/")
-
 
 @flask_app.route("/login", methods=["GET", "POST"])
 def login():
@@ -127,7 +124,6 @@ def app_mention_function(event, say):
     thread.start()
     return "OK", 200
 
-
 @app.message("request office hours")
 def request_office_hours(message, say):
     admin = list(db.child(key_fb_tars).child("admin").get().val())
@@ -169,6 +165,80 @@ def post_office_hours(message, say):
         item["end"] = reformat_time(item["end"])
         message += item["days"] + ": " + item["start"] + " - " + item["end"] + "\n"
     app.client.chat_postMessage(channel=general, text=message)
+
+@app.message("book meeting")
+def book_meeting(message, say):
+    slack_id = message["user"]
+    meetings = db.child(key_fb_tars).child("meetings").get().val()
+    id = "0"
+    if meetings is not None:
+        for i in list(meetings): 
+            if slack_id in i:
+                id = i
+    if id == "0":
+        id = slack_id + "_1"
+    else:
+        id = slack_id + "_" + str(int(id.split("_")[1]) + 1)
+    # what is the split of book meeting, to extract other users...
+    lines = message['text'].lower().split("\n")
+    meeting_description = " ".join(lines[0].split(" ")[2:])
+    people = [app.client.users_info(user=slack_id).data["users"]["profile"]["email"]]
+    people = people + vineeth_emailid # add sir's email id
+    people_slack = [slack_id, vineethv_id]
+    if len(lines) == 2:
+        attendees =  lines[1].replace("@", "").replace("<", "").replace(">", "").upper().split()
+        people_slack += attendees
+        attendees = list(map(lambda x: app.client.users_info(user=x).data["user"]["profile"]["email"], attendees))
+        people = people + attendees
+        db.child(key_fb_tars).child("bookings").child(id).set({"meeting": meeting_description, "people": people, "people_slack": people_slack})
+        say("The meeting has been booked!")
+
+@app.message("show meeting")
+def show_meeting(message, say):
+    slack_id = message["user"]
+    meetings = db.child(key_fb_tars).child("meetings").get().val()
+    if meetings is not None:
+        meetings = dict(meetings)
+        count = 0 
+        for meet in meetings.keys():
+            if slack_id in meet:
+                count += 1
+                item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
+                meeting_info = f'`{meet.split("_")[1]} : {item["desc"]}, {reformat_time(item["start"])} {reformat_time(item["start"])}-{reformat_time(item["end"])}'
+                if count == 1: 
+                    say("List of meetings booked by you : ")
+                say(meeting_info)
+                meetings.pop(meet)
+        invites = 0
+        for meet in meetings.keys():
+            if (slack_id in meetings[meet]["people"]):
+                invites += 1
+                item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
+                meeting_info = f'`* : {item["desc"]}, {reformat_time(item["start"])} {reformat_time(item["start"])}-{reformat_time(item["end"])}'
+                if invites == 1:
+                    say("List of meetings you've been invited to : ")
+                say(meeting_info)
+                meetings.pop(meet)
+        if count == 0 and invites == 0:
+            say("You have no upcoming meetings!.")
+        
+@app.message("cancel meeting")
+def cancel_meeting(message, say):
+    slack_id = message["user"]
+    meetings = db.child(key_fb_tars).child("meetings").get().val()
+    if meetings is None:
+        say("You haven't booked any meetings")
+        return
+    id = message["text"].lower().split(" ")[2]
+    cancel = False
+    for meet in meetings:
+        if slack_id in meet and meet.split("_")[1] == id:
+            db.child(key_fb_tars).child("cancels").update({meet : "cancel"})
+            say(f'Meeting with ID:{id} has been called off')
+            cancel = True
+            break
+    if not cancel:
+        say("Sorry!. You've entered the incorrect meeting id. Verify the meeting number using `show meeting`")
 
 
 @app.event("message")
