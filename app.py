@@ -169,8 +169,8 @@ def post_office_hours(message, say):
 @app.message("book meeting")
 def book_meeting(message, say):
     say("message recieved")
-    print(app.client.users_info(user=slack_id).data["user"])
     slack_id = message["user"]
+    print(app.client.users_info(user=slack_id).data["user"])
     meetings = db.child(key_fb_tars).child("meetings").get().val()
     id = "0"
     if meetings is not None:
