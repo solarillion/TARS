@@ -9,7 +9,7 @@ def reformat_time(ts):
 def app_mention_event_handler(app, db, key_fb_tars, event_data):
     text = event_data["text"]
     if "ping" in text.lower():
-        app.client.chat_postMessage(channel=event_data["user"], text="pong")
+        app.client.chat_postMessage(channel=event_data["user"], text="hello")
     elif "poll" in text.lower():
         handle_poll(app, db, key_fb_tars, event_data)
 
