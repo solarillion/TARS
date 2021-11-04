@@ -25,7 +25,7 @@ def interact_handler(app, db, key_fb_tars, payload):
                 {
                     "type": "section",
                     "text": {
-                        "type": "mrkdwn",
+                        "type": "mrkdwn",       
                         "text": "Poll " + question + " deleted!"
                     }
                 }
