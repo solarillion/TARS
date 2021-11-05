@@ -185,7 +185,7 @@ def book_meeting(message, say):
     lines = message['text'].lower().split("\n")
     meeting_description = " ".join(lines[0].split(" ")[2:])
     people = [app.client.users_info(user=slack_id).data["user"]["profile"]["email"]]
-    people = people + vineeth_emailid # add sir's email id
+    people = people + [vineeth_emailid] # add sir's email id
     people_slack = [slack_id, vineethv_id]
     if len(lines) == 2:
         attendees =  lines[1].replace("@", "").replace("<", "").replace(">", "").upper().split()
