@@ -212,6 +212,7 @@ def show_meeting(message, say):
                 if count == 1: 
                     say("List of meetings booked by you : ")
                 meetings.pop(meet)
+        print(meeting_info)
         say(meeting_info)
         invites = 0
         for meet in meetings.keys():
