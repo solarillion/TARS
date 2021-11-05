@@ -185,31 +185,27 @@ def book_meeting(message, say):
     people = people + [vineeth_emailid]
     people_slack = [slack_id, vineethv_id]
     if len(lines) == 2:
-        print("YESSSSSS")
         attendees =  lines[1].replace("@", "").replace("<", "").replace(">", "").upper().split()
         people_slack += attendees
         attendees = list(map(lambda x: app.client.users_info(user=x).data["user"]["profile"]["email"], attendees))
         people = people + attendees
         db.child(key_fb_tars).child("bookings").child(id).set({"meeting": meeting_description, "people": people, "people_slack": people_slack})
-        print("DATABASE SET")
     say("The meeting has been booked!")
     
 @app.message("show meeting")
 def show_meeting(message, say):
     slack_id = message["user"]
-    print(slack_id)
     meetings = db.child(key_fb_tars).child("meetings").get().val()
+    print(meetings)
     if meetings is not None:
         meetings = dict(meetings)
         count = 0
         meeting_info = "" 
         for meet in meetings.keys():
-            print("INSDE HERE")
             if slack_id in meet:
-                print("IAJSDOKAJSNDJKNASJKDSAL")
                 count += 1
                 item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
-                meeting_info = f'{meet.split("_")[1]} : {item["desc"]}, {reformat_time(item["start"])}-{reformat_time(item["end"])}\n'
+                meeting_info = f'{meet.split("_")[1]}. {item["desc"]}, {reformat_time(item["start"])}-{reformat_time(item["end"])}\n'
                 if count == 1: 
                     say("List of meetings booked by you : ")
                 say(meeting_info)
@@ -221,7 +217,7 @@ def show_meeting(message, say):
             if (slack_id in meetings[meet]["people"]):
                 invites += 1
                 item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
-                meeting_info = f'{meet.split("_")[1]} : {item["2desc"]}, {reformat_time(item["start"])}-{reformat_time(item["end"])}\n'
+                meeting_info = f'{meet.split("_")[1]}. {item["2desc"]}, {reformat_time(item["start"])}-{reformat_time(item["end"])}\n'
                 if invites == 1:
                     say("List of meetings you've been invited to : ")
                 say(meeting_info)
