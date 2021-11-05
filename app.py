@@ -211,7 +211,7 @@ def show_meeting(message, say):
                 meeting_info += f'{meet.split("_")[1]} : {item["desc"]}, {reformat_time(item["start"])} {reformat_time(item["start"])}-{reformat_time(item["end"])}\n'
                 if count == 1: 
                     say("List of meetings booked by you : ")
-                meetings.pop(meet)
+          #      meetings.pop(meet)
         print(meeting_info)
         say(meeting_info)
         invites = 0
@@ -223,7 +223,7 @@ def show_meeting(message, say):
                 if invites == 1:
                     say("List of meetings you've been invited to : ")
                 say(meeting_info)
-                meetings.pop(meet)
+        #        meetings.pop(meet)
         if count == 0 and invites == 0:
             say("You have no upcoming meetings!.")
         
