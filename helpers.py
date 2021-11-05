@@ -3,7 +3,7 @@ from poll import handle_poll
 
 def reformat_time(ts):
     t = datetime.strptime(ts[11:19], "%H:%M:%S").time()
-    t = datetime.combine(date.today(), t) + timedelta(hours=5, minutes=21, seconds=10)
+    t = datetime.combine(date.today(), t) + timedelta(hours=5, minutes=30, seconds=0)
     return t.strftime("%I:%M %p")
 
 def app_mention_event_handler(app, db, key_fb_tars, event_data):
