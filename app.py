@@ -204,7 +204,9 @@ def show_meeting(message, say):
         count = 0
         meeting_info = "" 
         for meet in meetings.keys():
+            print("INSDE HERE")
             if slack_id in meet:
+                print("IAJSDOKAJSNDJKNASJKDSAL")
                 count += 1
                 item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
                 meeting_info = f'{meet.split("_")[1]} : {item["desc"]}, {reformat_time(item["start"])}-{reformat_time(item["end"])}\n'
