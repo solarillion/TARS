@@ -172,7 +172,6 @@ def book_meeting(message, say):
     slack_id = message["user"]
     #print(app.client.users_info(user=slack_id).data)
     meetings = db.child(key_fb_tars).child("meetings").get().val()
-    print("CURRENT MEETIN", meetings)
     id = "0"
     if meetings is not None:
         for i in list(meetings): 
@@ -188,7 +187,6 @@ def book_meeting(message, say):
     people = [app.client.users_info(user=slack_id).data["user"]["profile"]["email"]]
     people = people + [vineeth_emailid] # add sir's email id
     people_slack = [slack_id, vineethv_id]
-    print("Progress 1")
     if len(lines) == 2:
         attendees =  lines[1].replace("@", "").replace("<", "").replace(">", "").upper().split()
         people_slack += attendees
@@ -196,8 +194,7 @@ def book_meeting(message, say):
         people = people + attendees
         db.child(key_fb_tars).child("bookings").child(id).set({"meeting": meeting_description, "people": people, "people_slack": people_slack})
         say("The meeting has been booked!")
-    print("Progress 2")
-
+    
 @app.message("show meeting")
 def show_meeting(message, say):
     slack_id = message["user"]
@@ -205,16 +202,17 @@ def show_meeting(message, say):
     meetings = db.child(key_fb_tars).child("meetings").get().val()
     if meetings is not None:
         meetings = dict(meetings)
-        count = 0 
+        count = 0
+        meeting_info = "" 
         for meet in meetings.keys():
             if slack_id in meet:
                 count += 1
                 item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
-                meeting_info = f'`{meet.split("_")[1]} : {item["desc"]}, {reformat_time(item["start"])} {reformat_time(item["start"])}-{reformat_time(item["end"])}'
+                meeting_info += f'{meet.split("_")[1]} : {item["desc"]}, {reformat_time(item["start"])} {reformat_time(item["start"])}-{reformat_time(item["end"])}\n'
                 if count == 1: 
                     say("List of meetings booked by you : ")
-                say(meeting_info)
                 meetings.pop(meet)
+        say(meeting_info)
         invites = 0
         for meet in meetings.keys():
             if (slack_id in meetings[meet]["people"]):
