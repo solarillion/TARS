@@ -208,10 +208,10 @@ def show_meeting(message, say):
             if slack_id in meet:
                 count += 1
                 item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
-                meeting_info += f'{meet.split("_")[1]} : {item["desc"]}, {reformat_time(item["start"])} {reformat_time(item["start"])}-{reformat_time(item["end"])}\n'
+                meeting_info += f'{meet.split("_")[1]} : {item["desc"]}, {reformat_time(item["start"])}-{reformat_time(item["end"])}\n'
                 if count == 1: 
                     say("List of meetings booked by you : ")
-          #      meetings.pop(meet)s
+                meetings.pop(meet)
         say(meeting_info)
         invites = 0
         meeting_info = ""
@@ -219,11 +219,11 @@ def show_meeting(message, say):
             if (slack_id in meetings[meet]["people"]):
                 invites += 1
                 item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
-                meeting_info += f'{meet.split("_")[1]} : {item["desc"]}, {reformat_time(item["start"])} {reformat_time(item["start"])}-{reformat_time(item["end"])}\n'
+                meeting_info += f'{meet.split("_")[1]} : {item["desc"]}, {reformat_time(item["start"])}-{reformat_time(item["end"])}\n'
                 if invites == 1:
                     say("List of meetings you've been invited to : ")
+                meetings.pop(meet)
         say(meeting_info)
-        #        meetings.pop(meet)
         if count == 0 and invites == 0:
             say("You have no upcoming meetings!.")
         
