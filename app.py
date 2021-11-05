@@ -172,6 +172,7 @@ def book_meeting(message, say):
     slack_id = message["user"]
     #print(app.client.users_info(user=slack_id).data)
     meetings = db.child(key_fb_tars).child("meetings").get().val()
+    print("CURRENT MEETIN", meetings)
     id = "0"
     if meetings is not None:
         for i in list(meetings): 
@@ -196,7 +197,7 @@ def book_meeting(message, say):
         db.child(key_fb_tars).child("bookings").child(id).set({"meeting": meeting_description, "people": people, "people_slack": people_slack})
         say("The meeting has been booked!")
     print("Progress 2")
-    
+
 @app.message("show meeting")
 def show_meeting(message, say):
     slack_id = message["user"]
