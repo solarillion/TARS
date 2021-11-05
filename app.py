@@ -168,9 +168,7 @@ def post_office_hours(message, say):
 
 @app.message("book meeting")
 def book_meeting(message, say):
-    say("message recieved")
     slack_id = message["user"]
-    #print(app.client.users_info(user=slack_id).data)
     meetings = db.child(key_fb_tars).child("meetings").get().val()
     id = "0"
     if meetings is not None:
@@ -181,18 +179,19 @@ def book_meeting(message, say):
         id = slack_id + "_1"
     else:
         id = slack_id + "_" + str(int(id.split("_")[1]) + 1)
-    # what is the split of book meeting, to extract other users...
     lines = message['text'].lower().split("\n")
     meeting_description = " ".join(lines[0].split(" ")[2:])
     people = [app.client.users_info(user=slack_id).data["user"]["profile"]["email"]]
-    people = people + [vineeth_emailid] # add sir's email id
+    people = people + [vineeth_emailid]
     people_slack = [slack_id, vineethv_id]
     if len(lines) == 2:
+        print("YESSSSSS")
         attendees =  lines[1].replace("@", "").replace("<", "").replace(">", "").upper().split()
         people_slack += attendees
         attendees = list(map(lambda x: app.client.users_info(user=x).data["user"]["profile"]["email"], attendees))
         people = people + attendees
         db.child(key_fb_tars).child("bookings").child(id).set({"meeting": meeting_description, "people": people, "people_slack": people_slack})
+        print("DATABASE SET")
     say("The meeting has been booked!")
     
 @app.message("show meeting")
