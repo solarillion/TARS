@@ -62,7 +62,8 @@ function addEvent() {
       start:event.getStartTime(),
       end:event.getEndTime(),
       desc:event.getTitle()
-      people:data[l].people_slack
+      people:data[l].people_slack,
+      meet_link:event.hangoutLink
     };
     var options = {
     'method' : 'patch',
