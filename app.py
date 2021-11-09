@@ -201,6 +201,7 @@ def show_meeting(message, say):
         count = 0
         meeting_info = "" 
         for meet in meetings.keys():
+            print(meet)
             if slack_id in meet:
                 count += 1
                 item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
@@ -212,6 +213,7 @@ def show_meeting(message, say):
         invites = 0
         meeting_info = ""
         for meet in meetings.keys():
+            print(meet)
             if (slack_id in meetings[meet]["people"]):
                 invites += 1
                 item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
