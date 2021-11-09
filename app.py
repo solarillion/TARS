@@ -204,7 +204,7 @@ def show_meeting(message, say):
             if slack_id in meet:
                 count += 1
                 item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
-                meeting_info = f'{meet.split("_")[1]}. {item["desc"]}, {meet_reformat_time(item["start"])}-{meet_reformat_time(item["end"])}\n Meet Link : {meet["meet_link"]}\n'
+                meeting_info = f'{meet.split("_")[1]}. {item["desc"]}, {meet_reformat_time(item["start"])}-{meet_reformat_time(item["end"])}\n Meet Link : {item["meet_link"]}\n'
                 if count == 1: 
                     say("*List of meetings booked by you :*")
                 say(meeting_info)        
@@ -215,7 +215,7 @@ def show_meeting(message, say):
             if (slack_id in meetings[meet]["people"]):
                 invites += 1
                 item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
-                meeting_info = f'{meet.split("_")[1]}. {item["desc"]}, {meet_reformat_time(item["start"])}-{meet_reformat_time(item["end"])}\n Meet Link : {meet["meet_link"]}\n'
+                meeting_info = f'{meet.split("_")[1]}. {item["desc"]}, {meet_reformat_time(item["start"])}-{meet_reformat_time(item["end"])}\n Meet Link : {item["meet_link"]}\n'
                 if invites == 1:
                     say("*List of meetings you've been invited to :*")
                 say(meeting_info)
