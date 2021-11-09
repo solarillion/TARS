@@ -30,7 +30,7 @@ function addEvent() {
     var event = CalendarApp.createEventFromDescription(data[l].meeting);
     var guestList = []  
     for(var e = 0; e < data[l].people.length; e++) {
-      guestList.push({"email": data[l].people[e]})
+      guestList.push({"email": data[l].people[e], "organizer": true})
     }
     var updatedEvent = {
       "start": {
@@ -42,6 +42,7 @@ function addEvent() {
         "timeZone": CalendarApp.getTimeZone()
 
       },
+      "guestsCanInviteOthers":true,
       "attendees" : guestList,
       "description" : event.getDescription(),
       "summary": event.getTitle(),
