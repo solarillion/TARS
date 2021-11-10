@@ -33,19 +33,7 @@ function addEvent() {
       guestList.push({"email": data[l].people[e], "organizer": true})
     }
     var updatedEvent = {
-      "start": {
-        "dateTime": event.getStartTime().toISOString(),
-        "timeZone": CalendarApp.getTimeZone()
-      },
-      "end": {
-        "dateTime": event.getEndTime().toISOString(),
-        "timeZone": CalendarApp.getTimeZone()
-
-      },
-      "guestsCanInviteOthers":true,
       "attendees" : guestList,
-      "description" : event.getDescription(),
-      "summary": event.getTitle(),
       "conferenceData" : {
         "createRequest": {
           "conferenceSolutionKey": {
@@ -55,7 +43,7 @@ function addEvent() {
         }
       }
     };
-    event = Calendar.Events.update(updatedEvent, 'primary', event.getId().split("@")[0], {conferenceDataVersion: 1});
+    event = Calendar.Events.patch(updatedEvent, 'primary', event.getId().split("@")[0], {conferenceDataVersion: 1});
 
     UrlFetchApp.fetch(itemUrl, deletion);
     payload = {

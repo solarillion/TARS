@@ -45,6 +45,7 @@ config = {
     "databaseURL": tars_fb_url,
     "storageBucket": tars_fb_sb,
 }
+
 firebase = pyrebase.initialize_app(config)
 db = firebase.database()
 
@@ -174,7 +175,7 @@ def book_meeting(message, say):
     if meetings is not None:
         for i in list(meetings): 
             if slack_id in i:
-                id = i
+                id = i  
     if id == "0":
         id = slack_id + "_1"
     else:
