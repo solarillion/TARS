@@ -14,7 +14,7 @@ def meet_reformat_time(ts):
 def app_mention_event_handler(app, db, key_fb_tars, event_data):
     text = event_data["text"]
     if "ping" in text.lower():
-        app.client.chat_postMessage(channel=event_data["user"], text="hello")
+        app.client.chat_postMessage(channel=event_data["user"], text="Hello!")
     elif "poll" in text.lower():
         handle_poll(app, db, key_fb_tars, event_data)
 
@@ -30,7 +30,7 @@ def interact_handler(app, db, key_fb_tars, payload):
                 {
                     "type": "section",
                     "text": {
-                        "type": "mrkdwn",       
+                        "type": "mrkdwn",
                         "text": "Poll " + question + " deleted!"
                     }
                 }
