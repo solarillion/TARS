@@ -15,29 +15,29 @@ from flask import Flask, redirect, request, render_template, redirect, url_for
 
 load_dotenv()
 
-tars_token = os.environ.get("TARS_TOKEN")  # bot user OAuth
-tars_user_token = os.environ.get("TARS_USER_TOKEN")  # user OAuth
-tars_admin = os.environ.get("TARS_ADMIN")  # channel for testing
+tars_token = os.environ.get("TARS_TOKEN")  # Bot user OAuth
+tars_user_token = os.environ.get("TARS_USER_TOKEN")  # User OAuth
+tars_admin = os.environ.get("TARS_ADMIN")  # Channel for testing
 tars_secret = os.environ.get("TARS_SECRET")  # signing secret
 
-firebase_api_key = os.environ.get("FIREBASE_API_KEY")  # firebase API key
-tars_fb_ad = os.environ.get("TARS_FB_AD")  # firebase auth domain
-tars_fb_url = os.environ.get("TARS_FB_URL")  # firebase db url
-tars_fb_sb = os.environ.get("TARS_FB_SB")  # storage bucket
+firebase_api_key = os.environ.get("FIREBASE_API_KEY")  # Firebase API key
+tars_fb_ad = os.environ.get("TARS_FB_AD")  # Firebase authDomain
+tars_fb_url = os.environ.get("TARS_FB_URL")  # Firebase databaseURL
+tars_fb_sb = os.environ.get("TARS_FB_SB")  # Firebase storageBucket
 key_fb_tars = os.environ.get("KEY_FB_TARS")  # SHA used to access child
 
-vineethv_id = os.environ.get("VINEETHV_ID")  # Sir's user id
-general = os.environ.get("GENERAL_ID")  # general channel id
-tars = os.environ.get("TARS_ID") # TARS id
-vineeth_emailid = os.environ.get("VINEETH_EMAIL_ID") #Sir's email id
+vineethv_id = os.environ.get("VINEETHV_ID")  # Sir's user ID
+general = os.environ.get("GENERAL_ID")  # `general` channel ID
+tars = os.environ.get("TARS_ID") # TARS ID
+vineeth_emailid = os.environ.get("VINEETH_EMAIL_ID") # Sir's email ID
 
-username = os.environ.get("USERNAME")  # webpage login
-password = os.environ.get("PASSWORD").encode()  # webpage password
-secret = os.environ.get("SECRET")  # dont change
+username = os.environ.get("USERNAME")  # Webpage login username
+password = os.environ.get("PASSWORD").encode()  # Webpage login password
+secret = os.environ.get("SECRET")  # Don't change
 
 office_hours_form_url = os.environ.get(
     "OFFICE_HOURS_FORM"
-)  # google form for office hours
+)  # Google Form for office hours
 
 config = {
     "apiKey": firebase_api_key,
