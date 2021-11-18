@@ -28,8 +28,8 @@ key_fb_tars = os.environ.get("KEY_FB_TARS")  # SHA used to access child
 
 vineethv_id = os.environ.get("VINEETHV_ID")  # Sir's user ID
 general = os.environ.get("GENERAL_ID")  # `general` channel ID
-tars = os.environ.get("TARS_ID") # TARS ID
-vineeth_emailid = os.environ.get("VINEETH_EMAIL_ID") # Sir's email ID
+tars = os.environ.get("TARS_ID")  # TARS ID
+vineeth_emailid = os.environ.get("VINEETH_EMAIL_ID")  # Sir's email ID
 
 username = os.environ.get("USERNAME")  # Webpage login username
 password = os.environ.get("PASSWORD").encode()  # Webpage login password
@@ -62,12 +62,15 @@ login_manager = flask_login.LoginManager()
 login_manager.init_app(flask_app)
 login_manager.login_view = "login"
 
+
 class User(flask_login.UserMixin):
     pass
+
 
 @flask_app.route("/slack/events", methods=["POST"])
 def slack_events():
     return handler.handle(request)
+
 
 @login_manager.user_loader
 def load_user(id):
@@ -77,9 +80,11 @@ def load_user(id):
     user.id = id
     return user
 
+
 @flask_app.route("/", methods=["GET"])
 def index():
     return redirect("https://solarillionfoundation.org/")
+
 
 @flask_app.route("/login", methods=["GET", "POST"])
 def login():
@@ -112,18 +117,23 @@ def logout():
     flask_login.logout_user()
     return redirect(url_for("login"))
 
+
 @flask_app.route("/interact", methods=["POST"])
 def interact():
     payload = json.loads(request.form.get("payload"))
-    thread = threading.Thread(target=interact_handler, args=(app, db, key_fb_tars, payload,))
+    thread = threading.Thread(target=interact_handler,
+                              args=(app, db, key_fb_tars, payload,))
     thread.start()
     return "OK", 200
 
+
 @app.event("app_mention")
 def app_mention_function(event, say):
-    thread = threading.Thread(target=app_mention_event_handler, args=(app, db, key_fb_tars, event,))
+    thread = threading.Thread(
+        target=app_mention_event_handler, args=(app, db, key_fb_tars, event,))
     thread.start()
     return "OK", 200
+
 
 @app.message("request office hours")
 def request_office_hours(message, say):
@@ -164,8 +174,10 @@ def post_office_hours(message, say):
     for item in data[1:]:
         item["start"] = reformat_time(item["start"])
         item["end"] = reformat_time(item["end"])
-        message += item["days"] + ": " + item["start"] + " - " + item["end"] + "\n"
+        message += item["days"] + ": " + \
+            item["start"] + " - " + item["end"] + "\n"
     app.client.chat_postMessage(channel=general, text=message)
+
 
 @app.message("book meeting")
 def book_meeting(message, say):
@@ -173,26 +185,31 @@ def book_meeting(message, say):
     meetings = db.child(key_fb_tars).child("meetings").get().val()
     id = "0"
     if meetings is not None:
-        for i in list(meetings): 
+        for i in list(meetings):
             if slack_id in i:
-                id = i  
+                id = i
     if id == "0":
         id = slack_id + "_1"
     else:
         id = slack_id + "_" + str(int(id.split("_")[1]) + 1)
     lines = message['text'].lower().split("\n")
     meeting_description = " ".join(lines[0].split(" ")[2:])
-    people = [app.client.users_info(user=slack_id).data["user"]["profile"]["email"]]
+    people = [app.client.users_info(
+        user=slack_id).data["user"]["profile"]["email"]]
     people = people + [vineeth_emailid]
     people_slack = [slack_id, vineethv_id]
     if len(lines) == 2:
-        attendees =  lines[1].replace("@", "").replace("<", "").replace(">", "").upper().split()
+        attendees = lines[1].replace("@", "").replace(
+            "<", "").replace(">", "").upper().split()
         people_slack += attendees
-        attendees = list(map(lambda x: app.client.users_info(user=x).data["user"]["profile"]["email"], attendees))
+        attendees = list(map(lambda x: app.client.users_info(
+            user=x).data["user"]["profile"]["email"], attendees))
         people = people + attendees
-        db.child(key_fb_tars).child("bookings").child(id).set({"meeting": meeting_description, "people": people, "people_slack": people_slack})
+        db.child(key_fb_tars).child("bookings").child(id).set(
+            {"meeting": meeting_description, "people": people, "people_slack": people_slack})
     say("The meeting has been booked!")
-    
+
+
 @app.message("show meeting")
 def show_meeting(message, say):
     slack_id = message["user"]
@@ -204,18 +221,20 @@ def show_meeting(message, say):
         for meet in meet_keys:
             if slack_id in meet:
                 count += 1
-                item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
+                item = db.child(key_fb_tars).child(
+                    "meetings").child(meet).get().val()
                 meeting_info = f'{meet.split("_")[1]}. {item["desc"]}, {meet_reformat_time(item["start"])}-{meet_reformat_time(item["end"])}\n Meet Link : {item["meet_link"]}\n'
-                if count == 1: 
+                if count == 1:
                     say("*Meetings you've booked:*")
-                say(meeting_info)        
+                say(meeting_info)
                 meetings.pop(meet)
         invites = 0
         meet_keys = list(meetings.keys())
         for meet in meet_keys:
             if (slack_id in meetings[meet]["people"]):
                 invites += 1
-                item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
+                item = db.child(key_fb_tars).child(
+                    "meetings").child(meet).get().val()
                 meeting_info = f'{meet.split("_")[1]}. {item["desc"]}, {meet_reformat_time(item["start"])}-{meet_reformat_time(item["end"])}\n Meet Link : {item["meet_link"]}\n'
                 if invites == 1:
                     say("*Meetings you've been invited to:*")
@@ -225,7 +244,8 @@ def show_meeting(message, say):
             say("You have no upcoming meetings!")
     else:
         say("You haven't booked any meetings this week!")
-        
+
+
 @app.message("cancel meeting")
 def cancel_meeting(message, say):
     slack_id = message["user"]
@@ -237,7 +257,7 @@ def cancel_meeting(message, say):
     cancel = False
     for meet in meetings:
         if slack_id in meet and meet.split("_")[1] == id:
-            db.child(key_fb_tars).child("cancels").update({meet : "cancel"})
+            db.child(key_fb_tars).child("cancels").update({meet: "cancel"})
             say(f"Meeting with ID {id} has been cancelled!")
             cancel = True
             break

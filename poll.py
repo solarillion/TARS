@@ -1,5 +1,6 @@
 import shlex
 
+
 def handle_poll(app, db, key_fb_tars, event_data):
     try:
         text = event_data["text"]
@@ -7,7 +8,8 @@ def handle_poll(app, db, key_fb_tars, event_data):
         text = shlex.split(text)[2:]
         question = text[0]
         options = text[1:]
-        emoji = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "keycap_ten"]
+        emoji = ["one", "two", "three", "four", "five",
+                 "six", "seven", "eight", "nine", "keycap_ten"]
         if len(options) > 10:
             raise Exception("Too many options!")
         question_block = {
@@ -80,12 +82,17 @@ def handle_poll(app, db, key_fb_tars, event_data):
                     }
                 ]
             })
-        poll = app.client.chat_postMessage(channel=event_data["channel"], text=question + " Poll", blocks=[question_block] + options_blocks)
-        db.child(key_fb_tars).child("polls").child(poll.data["ts"].replace(".", "-")).update({"user": event_data["user"], "question": question, "message": [question_block] + options_blocks})
+        poll = app.client.chat_postMessage(
+            channel=event_data["channel"], text=question + " Poll", blocks=[question_block] + options_blocks)
+        db.child(key_fb_tars).child("polls").child(poll.data["ts"].replace(".", "-")).update(
+            {"user": event_data["user"], "question": question, "message": [question_block] + options_blocks})
         if question == "Mon-Thu TA Hours":
-            db.child(key_fb_tars).child("tapoll").update({"monthu": poll.data["ts"].replace(".", "-")})
+            db.child(key_fb_tars).child("tapoll").update(
+                {"monthu": poll.data["ts"].replace(".", "-")})
         elif question == "Fri-Sun TA Hours":
-            db.child(key_fb_tars).child("tapoll").update({"frisun": poll.data["ts"].replace(".", "-")})
+            db.child(key_fb_tars).child("tapoll").update(
+                {"frisun": poll.data["ts"].replace(".", "-")})
     except Exception as e:
         print(e)
-        app.client.chat_postEphemeral(channel=event_data["channel"], user=event_data["user"], text="Syntax for polls is `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` with a maximum of `10` options.")
+        app.client.chat_postEphemeral(channel=event_data["channel"], user=event_data["user"],
+                                      text="Syntax for polls is `@TARS poll \"Question\" \"Option 1\" \"Option 2\" ...` with a maximum of `10` options.")
