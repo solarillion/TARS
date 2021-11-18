@@ -133,7 +133,7 @@ def request_office_hours(message, say):
         return
     msg = "Sir, please fill your office hours in this form: " + office_hours_form_url
     app.client.chat_postMessage(channel=vineethv_id, text=msg)
-    logging.info("Sent request to sir")
+    logging.info("Sent request to Sir!")
 
 
 @app.message("remind office hours")
@@ -150,7 +150,7 @@ def remind_office_hours(message, say):
     )
 
     app.client.chat_postMessage(channel=vineethv_id, text=msg)
-    logging.info("Sent reminder to sir")
+    logging.info("Sent reminder to Sir!")
 
 
 @app.message("post office hours")
@@ -207,7 +207,7 @@ def show_meeting(message, say):
                 item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
                 meeting_info = f'{meet.split("_")[1]}. {item["desc"]}, {meet_reformat_time(item["start"])}-{meet_reformat_time(item["end"])}\n Meet Link : {item["meet_link"]}\n'
                 if count == 1: 
-                    say("*List of meetings booked by you :*")
+                    say("*Meetings you've booked:*")
                 say(meeting_info)        
                 meetings.pop(meet)
         invites = 0
@@ -218,31 +218,31 @@ def show_meeting(message, say):
                 item = db.child(key_fb_tars).child("meetings").child(meet).get().val()
                 meeting_info = f'{meet.split("_")[1]}. {item["desc"]}, {meet_reformat_time(item["start"])}-{meet_reformat_time(item["end"])}\n Meet Link : {item["meet_link"]}\n'
                 if invites == 1:
-                    say("*List of meetings you've been invited to :*")
+                    say("*Meetings you've been invited to:*")
                 say(meeting_info)
                 meetings.pop(meet)
         if count == 0 and invites == 0:
-            say("You have no upcoming meetings!.")
+            say("You have no upcoming meetings!")
     else:
-        say("You haven't booked any meetings this week")
+        say("You haven't booked any meetings this week!")
         
 @app.message("cancel meeting")
 def cancel_meeting(message, say):
     slack_id = message["user"]
     meetings = db.child(key_fb_tars).child("meetings").get().val()
     if meetings is None:
-        say("You haven't booked any meetings")
+        say("You haven't booked any meetings!")
         return
     id = message["text"].lower().split(" ")[2]
     cancel = False
     for meet in meetings:
         if slack_id in meet and meet.split("_")[1] == id:
             db.child(key_fb_tars).child("cancels").update({meet : "cancel"})
-            say(f'Meeting with ID:{id} has been called off')
+            say(f"Meeting with ID {id} has been cancelled!")
             cancel = True
             break
     if not cancel:
-        say("Sorry!. You've entered the incorrect meeting id. Verify the meeting number using `show meeting`")
+        say("Sorry! You've entered the incorrect meeting ID. Verify the meeting number using `show meeting`.")
 
 
 @app.event("message")
