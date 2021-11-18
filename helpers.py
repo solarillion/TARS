@@ -6,10 +6,15 @@ def reformat_time(ts):
     t = datetime.combine(date.today(), t) + timedelta(hours=5, minutes=21, seconds=10)
     return t.strftime("%I:%M %p")
 
+def meet_reformat_time(ts):
+    t = datetime.strptime(ts[11:19], "%H:%M:%S").time()
+    t = datetime.combine(date.today(), t)
+    return t.strftime("%I:%M %p")
+
 def app_mention_event_handler(app, db, key_fb_tars, event_data):
     text = event_data["text"]
     if "ping" in text.lower():
-        app.client.chat_postMessage(channel=event_data["user"], text="pong")
+        app.client.chat_postMessage(channel=event_data["user"], text="Hello!")
     elif "poll" in text.lower():
         handle_poll(app, db, key_fb_tars, event_data)
 

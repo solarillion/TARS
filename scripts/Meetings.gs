@@ -28,16 +28,31 @@ function addEvent() {
     itemUrl = BOOKINGS_URL_WITHOUT_JSON + l + "/.json";
     meetingUrl = MEETINGS_URL_WITHOUT_JSON + l + "/.json";
     var event = CalendarApp.createEventFromDescription(data[l].meeting);
+    var guestList = []  
     for(var e = 0; e < data[l].people.length; e++) {
-      event.addGuest(data[l].people[e])
+      guestList.push({"email": data[l].people[e], "organizer": true})
     }
+    var updatedEvent = {
+      "attendees" : guestList,
+      "conferenceData" : {
+        "createRequest": {
+          "conferenceSolutionKey": {
+              "type": "hangoutsMeet"
+          },
+          "requestId": event.getId()
+        }
+      }
+    };
+    event = Calendar.Events.patch(updatedEvent, 'primary', event.getId().split("@")[0], {conferenceDataVersion: 1});
+
     UrlFetchApp.fetch(itemUrl, deletion);
     payload = {
       id:event.getId(),
       start:event.getStartTime(),
       end:event.getEndTime(),
       desc:event.getTitle()
-      people:data[l].people_slack
+      people:data[l].people_slack,
+      meet_link:event.hangoutLink
     };
     var options = {
     'method' : 'patch',
